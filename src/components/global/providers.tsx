@@ -1,39 +1,40 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { WagmiProvider } from 'wagmi';
-import { Toaster } from "@/components/ui/toaster"
-import { CustomizedRainbowProvider } from './customized-rainbow-provider';
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { arbitrum, base } from 'wagmi/chains';
+import { createConfig, WagmiProvider } from "wagmi";
+import { Toaster } from "@/components/ui/toaster";
+import { arbitrum, base } from "wagmi/chains";
+import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
 if (!projectId) {
-  throw new Error('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not defined');
+  throw new Error("NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not defined");
 }
 
-export const config = getDefaultConfig({
-  appName: 'Yild Finance',
-  projectId,
-  chains: [arbitrum, base],
+export const config = createConfig(
+  getDefaultConfig({
+    appName: "Yild Finance",
+    walletConnectProjectId: projectId,
+    chains: [arbitrum, base],
+    ssr: true,
+  }),
+);
+
+export const baseWagmiConfig = getDefaultConfig({
+  appName: "Yild Finance",
+  walletConnectProjectId: projectId,
+  chains: [base],
   ssr: true,
 });
 
-export const baseWagmiConfig = getDefaultConfig({
-  appName: 'Yild Finance',
-  projectId,
-  chains: [base],
-  ssr: true,
-})
-
 export const arbitrumWagmiConfig = getDefaultConfig({
-  appName: 'Yild Finance',
-  projectId,
+  appName: "Yild Finance",
+  walletConnectProjectId: projectId,
   chains: [arbitrum],
-  ssr: true,    
-})
+  ssr: true,
+});
 
 const queryClient = new QueryClient();
 
@@ -47,15 +48,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <NextThemesProvider 
+        <NextThemesProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <CustomizedRainbowProvider>
-            {mounted && children}
-          </CustomizedRainbowProvider>
+          <ConnectKitProvider>{mounted && children}</ConnectKitProvider>
         </NextThemesProvider>
         <Toaster />
       </QueryClientProvider>

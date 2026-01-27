@@ -5,7 +5,7 @@ export function getRequiredToken1AmountFromToken0Amount(
   currentPrice: number,
   priceLower: number,
   priceUpper: number,
-  token0Amount: number
+  token0Amount: number,
 ): number {
   // Uniswap V3 formula: L = amount0 * (sqrt(P) * sqrt(Pb)) / (sqrt(Pb) - sqrt(P))
   // where P is current price, Pb is price upper, and we solve for amount1
@@ -29,7 +29,7 @@ export function getRequiredToken0AmountFromToken1Amount(
   currentPrice: number,
   priceLower: number,
   priceUpper: number,
-  token1Amount: number
+  token1Amount: number,
 ): number {
   // Uniswap V3 formula: L = amount1 / (sqrt(P) - sqrt(Pa))
   // where P is current price, Pa is price lower, and we solve for amount0
@@ -58,7 +58,7 @@ export function getRequiredToken0AmountFromToken1Amount(
 export function tickToPrice(
   tick: number,
   decimalsToken0: number,
-  decimalsToken1: number
+  decimalsToken1: number,
 ): any {
   const rawPrice = Math.pow(1.0001, tick);
   const decimalsAdjustment = Math.pow(10, decimalsToken0 - decimalsToken1);
@@ -75,7 +75,7 @@ export function tickToPrice(
 export function priceToTick(
   price: number,
   decimalsToken0: number,
-  decimalsToken1: number
+  decimalsToken1: number,
 ): number {
   const adjustedPrice = price;
   const decimalsAdjustment = Math.pow(10, decimalsToken0 - decimalsToken1);
@@ -209,7 +209,7 @@ export const formatForDisplay = (num: number, decimals: number): string => {
 
 export const validateAndCleanNumber = (
   value: string,
-  decimals: number
+  decimals: number,
 ): string => {
   // Remove any non-numeric characters except decimal point
   let cleaned = value.replace(/[^0-9.]/g, "");
@@ -226,4 +226,8 @@ export const validateAndCleanNumber = (
   }
 
   return cleaned;
+};
+
+export const truncateAddress = (address: string) => {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };

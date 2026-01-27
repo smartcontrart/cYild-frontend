@@ -14,80 +14,100 @@ import { usePositionStaticInfo } from "@/hooks/use-position-static-info";
 import { useAccount } from "wagmi";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { getMaxSlippageForPosition, getTickBuffersForPosition, updateMaxSlippageForPosition, updateTickBuffers } from "@/utils/requests";
+import {
+  getMaxSlippageForPosition,
+  getTickBuffersForPosition,
+  updateMaxSlippageForPosition,
+  updateTickBuffers,
+} from "@/utils/requests";
 import { Skeleton } from "../ui/skeleton";
 import { POSITION_DETAIL_PAGE_STATE } from "@/utils/types";
-import { lightTheme } from "@rainbow-me/rainbowkit";
 import { tickToPrice } from "@/utils/functions";
 
 export const AdvancedSettings = ({
   positionId,
   chainId,
-  setPageStatus
+  setPageStatus,
 }: {
-  positionId: number,
-  chainId: number,
-  setPageStatus: Function
+  positionId: number;
+  chainId: number;
+  setPageStatus: Function;
 }) => {
-
   const { isConnected, address } = useAccount();
-  const [maxSlippageInput, setMaxSlippageInput] = useState("")
-  const [upperTickBufferInput, setUpperTickBufferInput] = useState("")
-  const [lowerTickBufferInput, setLowerTickBufferInput] = useState("")
-  const [currentMaxSlippage, setCurrentMaxSlippage] = useState(0)
-  const [currentUpperTickBuffer, setCurrentUpperTickBuffer] = useState(0)
-  const [currentLowerTickBuffer, setCurrentLowerTickBuffer] = useState(0)
-  const { data: positionStaticInfo, isLoading: isPositionStaticInfoLoading } = usePositionStaticInfo(address || "", positionId)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [maxSlippageInput, setMaxSlippageInput] = useState("");
+  const [upperTickBufferInput, setUpperTickBufferInput] = useState("");
+  const [lowerTickBufferInput, setLowerTickBufferInput] = useState("");
+  const [currentMaxSlippage, setCurrentMaxSlippage] = useState(0);
+  const [currentUpperTickBuffer, setCurrentUpperTickBuffer] = useState(0);
+  const [currentLowerTickBuffer, setCurrentLowerTickBuffer] = useState(0);
+  const { data: positionStaticInfo, isLoading: isPositionStaticInfoLoading } =
+    usePositionStaticInfo(address || "", positionId);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (positionId && chainId) {
       const fetchUpdatedMaxSlippage = async () => {
         const [newSlippage, buffers] = await Promise.all([
           getMaxSlippageForPosition(positionId, chainId),
-          getTickBuffersForPosition(address || "", positionId, chainId)
-        ])
-        setCurrentMaxSlippage(newSlippage)
-        setMaxSlippageInput(Number(newSlippage / 100).toString())
-        const { upperTickBuffer: uTickBuffer, lowerTickBuffer: lTickBuffer } = buffers
-        setCurrentLowerTickBuffer(lTickBuffer)
-        setLowerTickBufferInput(Number(lTickBuffer / 100).toString())
-        setCurrentUpperTickBuffer(uTickBuffer)
-        setUpperTickBufferInput(Number(uTickBuffer / 100).toString())
-      }
-      fetchUpdatedMaxSlippage()
+          getTickBuffersForPosition(address || "", positionId, chainId),
+        ]);
+        setCurrentMaxSlippage(newSlippage);
+        setMaxSlippageInput(Number(newSlippage / 100).toString());
+        const { upperTickBuffer: uTickBuffer, lowerTickBuffer: lTickBuffer } =
+          buffers;
+        setCurrentLowerTickBuffer(lTickBuffer);
+        setLowerTickBufferInput(Number(lTickBuffer / 100).toString());
+        setCurrentUpperTickBuffer(uTickBuffer);
+        setUpperTickBufferInput(Number(uTickBuffer / 100).toString());
+      };
+      fetchUpdatedMaxSlippage();
     }
-  }, [positionId, chainId])
+  }, [positionId, chainId]);
 
   const onClickUpdateMaxSlippage = async () => {
-    setPageStatus(POSITION_DETAIL_PAGE_STATE.SETTING_MAX_SLIPPAGE)
+    setPageStatus(POSITION_DETAIL_PAGE_STATE.SETTING_MAX_SLIPPAGE);
     try {
-      if (!maxSlippageInput)
-        return
-      const res = await updateMaxSlippageForPosition(positionId, chainId, parseInt((Number(maxSlippageInput) * 100).toString()))
-      const re = await updateTickBuffers(positionId, parseInt((Number(upperTickBufferInput) * 100).toString()), parseInt((Number(lowerTickBufferInput) * 100).toString()))
-      const newSlippage = await getMaxSlippageForPosition(positionId, chainId)
-      const buffers = await getTickBuffersForPosition(address || "", positionId, chainId)
-      const { upperTickBuffer: uTickBuffer, lowerTickBuffer: lTickBuffer } = buffers
-      setCurrentLowerTickBuffer(lTickBuffer)
-      setLowerTickBufferInput(Number(lTickBuffer / 100).toString())
-      setCurrentUpperTickBuffer(uTickBuffer)
-      setUpperTickBufferInput(Number(uTickBuffer / 100).toString())
-      setCurrentMaxSlippage(newSlippage)
-      setPageStatus(POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE)
+      if (!maxSlippageInput) return;
+      const res = await updateMaxSlippageForPosition(
+        positionId,
+        chainId,
+        parseInt((Number(maxSlippageInput) * 100).toString()),
+      );
+      const re = await updateTickBuffers(
+        positionId,
+        parseInt((Number(upperTickBufferInput) * 100).toString()),
+        parseInt((Number(lowerTickBufferInput) * 100).toString()),
+      );
+      const newSlippage = await getMaxSlippageForPosition(positionId, chainId);
+      const buffers = await getTickBuffersForPosition(
+        address || "",
+        positionId,
+        chainId,
+      );
+      const { upperTickBuffer: uTickBuffer, lowerTickBuffer: lTickBuffer } =
+        buffers;
+      setCurrentLowerTickBuffer(lTickBuffer);
+      setLowerTickBufferInput(Number(lTickBuffer / 100).toString());
+      setCurrentUpperTickBuffer(uTickBuffer);
+      setUpperTickBufferInput(Number(uTickBuffer / 100).toString());
+      setCurrentMaxSlippage(newSlippage);
+      setPageStatus(POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE);
     } catch (error) {
-      console.log(error)
-      setPageStatus(POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE_FAILED)
+      console.log(error);
+      setPageStatus(POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE_FAILED);
     }
-  }
+  };
 
   return (
     <>
-      {
-        (!isConnected || isPositionStaticInfoLoading) ? 
+      {!isConnected || isPositionStaticInfoLoading ? (
         <Skeleton className="h-[36px] rounded-l" />
-        :
-        <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(!dialogOpen)} modal>
+      ) : (
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={() => setDialogOpen(!dialogOpen)}
+          modal
+        >
           <DialogTrigger asChild>
             <Button onClick={() => setDialogOpen(true)} variant="outline">
               <Wrench className=" h-4 w-4" />
@@ -102,9 +122,7 @@ export const AdvancedSettings = ({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div>
-                Current Slippage: {Number(currentMaxSlippage) / 100} %
-              </div>
+              <div>Current Slippage: {Number(currentMaxSlippage) / 100} %</div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
                   MaxSlippage
@@ -113,57 +131,72 @@ export const AdvancedSettings = ({
                   type="number"
                   className="col-span-3"
                   placeholder="Type in new value here..."
-                  onChange={(e) =>
-                    setMaxSlippageInput(e.target.value)
-                  }
+                  onChange={(e) => setMaxSlippageInput(e.target.value)}
                   value={maxSlippageInput}
                 />
               </div>
               <div className="mt-8">
-                Current LowerTickBuffer: {Number(currentLowerTickBuffer) / 100} %
+                Current LowerTickBuffer: {Number(currentLowerTickBuffer) / 100}{" "}
+                %
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                LowerBuffer
+                  LowerBuffer
                 </Label>
                 <Input
                   type="number"
                   className="col-span-3"
                   placeholder="Type in new value here..."
-                  onChange={(e) =>
-                    setLowerTickBufferInput(e.target.value)
-                  }
+                  onChange={(e) => setLowerTickBufferInput(e.target.value)}
                   value={lowerTickBufferInput}
                 />
               </div>
               <div className="mt-8">
-                Current UpperTickBuffer: {Number(currentUpperTickBuffer) / 100} %
+                Current UpperTickBuffer: {Number(currentUpperTickBuffer) / 100}{" "}
+                %
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                UpperBuffer
+                  UpperBuffer
                 </Label>
                 <Input
                   type="number"
                   className="col-span-3"
                   placeholder="Type in new value here..."
-                  onChange={(e) =>
-                    setUpperTickBufferInput(e.target.value)
-                  }
+                  onChange={(e) => setUpperTickBufferInput(e.target.value)}
                   value={upperTickBufferInput}
                 />
               </div>
-              
+
               {
                 // (Number(upperTickBufferInput) > 0 || Number(lowerTickBufferInput)) ? (
+                <div>
                   <div>
-                    <div>
-                      {positionStaticInfo.token0.symbol} / {positionStaticInfo.token1.symbol} Price Range for Buffer
-                    </div>
-                    <div>
-                      {tickToPrice(Math.floor(Number(positionStaticInfo.tickLower) * (100 - Number(lowerTickBufferInput)) / 100), positionStaticInfo.token0.decimals, positionStaticInfo.token1.decimals)} ~ {tickToPrice(Math.floor(Number(positionStaticInfo.tickUpper) * (100 + Number(upperTickBufferInput)) / 100), positionStaticInfo.token0.decimals, positionStaticInfo.token1.decimals)}
-                    </div>
+                    {positionStaticInfo.token0.symbol} /{" "}
+                    {positionStaticInfo.token1.symbol} Price Range for Buffer
                   </div>
+                  <div>
+                    {tickToPrice(
+                      Math.floor(
+                        (Number(positionStaticInfo.tickLower) *
+                          (100 - Number(lowerTickBufferInput))) /
+                          100,
+                      ),
+                      positionStaticInfo.token0.decimals,
+                      positionStaticInfo.token1.decimals,
+                    )}{" "}
+                    ~{" "}
+                    {tickToPrice(
+                      Math.floor(
+                        (Number(positionStaticInfo.tickUpper) *
+                          (100 + Number(upperTickBufferInput))) /
+                          100,
+                      ),
+                      positionStaticInfo.token0.decimals,
+                      positionStaticInfo.token1.decimals,
+                    )}
+                  </div>
+                </div>
                 // ) : (
                 //   <></>
                 // )
@@ -177,7 +210,7 @@ export const AdvancedSettings = ({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      }
+      )}
     </>
-  )
-}
+  );
+};
