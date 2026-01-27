@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
               </div>
             </nav>
           </header>
-          <main className="container mx-auto px-4 py-8 flex-grow">
+          <main className="container mx-auto px-4 py-8 grow">
             <Component {...pageProps} />
           </main>
           <footer className="mt-auto border-t">

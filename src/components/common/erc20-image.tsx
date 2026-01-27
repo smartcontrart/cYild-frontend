@@ -44,7 +44,7 @@ export default function ERC20Image({tokenAddress, chainId, imageUri}: {tokenAddr
       />
       <Image 
         src={`/chainIcons/${chainId}.png`} 
-        className='absolute bottom-[-1px] right-[-1px] h-3 w-3 rounded-sm border border-white' 
+        className='absolute -bottom-px -right-px h-3 w-3 rounded-sm border border-white' 
         width={256} 
         height={256} 
         alt='NA' 
