@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { createConfig, WagmiProvider } from "wagmi";
+import { createConfig, http, WagmiProvider } from "wagmi";
 import { Toaster } from "@/components/ui/toaster";
 import { arbitrum, base } from "wagmi/chains";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
@@ -19,6 +19,9 @@ export const config = createConfig(
     walletConnectProjectId: projectId,
     chains: [arbitrum, base],
     ssr: true,
+    transports: {
+      [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL),
+    },
   }),
 );
 

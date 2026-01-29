@@ -41,6 +41,8 @@ import WaitingAnimation from "@/components/global/waiting-animation";
 import { getAvailablePools } from "@/utils/pools";
 import Link from "next/link";
 import LoadingSpinner from "@/components/common/loading-spinner";
+import { TokenSelectorWrapper } from "@/components/token/token-selector-wrapper";
+import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 
 export default function NewPositionPage() {
   const { isConnected, address: userAddress } = useAccount();
@@ -49,15 +51,17 @@ export default function NewPositionPage() {
   const chainId = useChainId();
   const publicClient = usePublicClient();
   const router = useRouter();
+  const {
+    selectedToken0,
+    selectedToken1,
+    selectedPool,
+    setSelectedPool,
+    setSelectedToken0,
+    setSelectedToken1,
+  } = useNewPositionStore();
 
   const [pageStatus, setPageStatus] = useState<string | null>(
-    CREATE_POSITION_PAGE_STATE.PAGE_LOADING
-  );
-  const [selectedToken0, setSelectedToken0] = useState<ERC20TokenInfo | null>(
-    null
-  );
-  const [selectedToken1, setSelectedToken1] = useState<ERC20TokenInfo | null>(
-    null
+    CREATE_POSITION_PAGE_STATE.PAGE_LOADING,
   );
   const [sortedToken0Amount, setSortedToken0Amount] = useState(0);
   const [sortedToken1Amount, setSortedToken1Amount] = useState(0);
@@ -70,61 +74,70 @@ export default function NewPositionPage() {
   const [preloadingBeforeOpen, setPreloadingBeforeOpen] = useState(false);
 
   useEffect(() => {
-    setSelectedFeeTier(INVALID_FEE_TIER);
-  }, [selectedToken0, selectedToken1]);
+    // reset values when component is unmounted
+    return () => {
+      setSelectedPool(undefined);
+      setSelectedToken0(undefined);
+      setSelectedToken1(undefined);
+    };
+  }, [setSelectedPool, setSelectedToken0, setSelectedToken1]);
 
-  useEffect(() => {
-    if (userAddress) {
-      const fetchAccountingUnit = async () => {
-        const accountingUnit = await getAccountingUnitFromAddress(
-          userAddress,
-          chainId
-        );
-        setCurrentAccountingUnit(accountingUnit);
-      };
-      fetchAccountingUnit();
-    }
-  }, [userAddress]);
+  // useEffect(() => {
+  //   setSelectedFeeTier(INVALID_FEE_TIER);
+  // }, [selectedToken0, selectedToken1]);
 
-  useEffect(() => {
-    if (selectedToken0 && selectedToken1 && currentAccountingUnit) {
-      const checkPools = async () => {
-        const [accountingUnitPoolFor0, accountingUnitPoolFor1] =
-          await Promise.all([
-            getAvailablePools(
-              selectedToken0.address,
-              currentAccountingUnit.address,
-              chainId
-            ),
-            getAvailablePools(
-              selectedToken1.address,
-              currentAccountingUnit.address,
-              chainId
-            ),
-          ]);
-        const existingPoolsFor0 = accountingUnitPoolFor0.filter(
-          (elem: any) => elem !== null
-        );
-        const existingPoolsFor1 = accountingUnitPoolFor1.filter(
-          (elem: any) => elem !== null
-        );
-        if (
-          selectedToken0.address.toLowerCase() !==
-            currentAccountingUnit.address.toLowerCase() &&
-          existingPoolsFor0.length === 0
-        )
-          setPoolsExist(false);
-        else if (
-          selectedToken1.address.toLowerCase() !==
-            currentAccountingUnit.address.toLowerCase() &&
-          existingPoolsFor1.length === 0
-        )
-          setPoolsExist(false);
-        else setPoolsExist(true);
-      };
-      checkPools();
-    }
-  }, [selectedToken0, selectedToken1, currentAccountingUnit]);
+  // useEffect(() => {
+  //   if (userAddress) {
+  //     const fetchAccountingUnit = async () => {
+  //       const accountingUnit = await getAccountingUnitFromAddress(
+  //         userAddress,
+  //         chainId,
+  //       );
+  //       setCurrentAccountingUnit(accountingUnit);
+  //     };
+  //     fetchAccountingUnit();
+  //   }
+  // }, [userAddress]);
+
+  // useEffect(() => {
+  //   if (selectedToken0 && selectedToken1 && currentAccountingUnit) {
+  //     const checkPools = async () => {
+  //       const [accountingUnitPoolFor0, accountingUnitPoolFor1] =
+  //         await Promise.all([
+  //           getAvailablePools(
+  //             selectedToken0.address,
+  //             currentAccountingUnit.address,
+  //             chainId,
+  //           ),
+  //           getAvailablePools(
+  //             selectedToken1.address,
+  //             currentAccountingUnit.address,
+  //             chainId,
+  //           ),
+  //         ]);
+  //       const existingPoolsFor0 = accountingUnitPoolFor0.filter(
+  //         (elem: any) => elem !== null,
+  //       );
+  //       const existingPoolsFor1 = accountingUnitPoolFor1.filter(
+  //         (elem: any) => elem !== null,
+  //       );
+  //       if (
+  //         selectedToken0.address.toLowerCase() !==
+  //           currentAccountingUnit.address.toLowerCase() &&
+  //         existingPoolsFor0.length === 0
+  //       )
+  //         setPoolsExist(false);
+  //       else if (
+  //         selectedToken1.address.toLowerCase() !==
+  //           currentAccountingUnit.address.toLowerCase() &&
+  //         existingPoolsFor1.length === 0
+  //       )
+  //         setPoolsExist(false);
+  //       else setPoolsExist(true);
+  //     };
+  //     checkPools();
+  //   }
+  // }, [selectedToken0, selectedToken1, currentAccountingUnit]);
 
   useEffect(() => {
     if (pageStatus === CREATE_POSITION_PAGE_STATE.POSITION_OPENED)
@@ -152,7 +165,7 @@ export default function NewPositionPage() {
     if (userAddress) {
       const accountingUnit = await getAccountingUnitFromAddress(
         userAddress,
-        chainId
+        chainId,
       );
       setCurrentAccountingUnit(accountingUnit);
       if (selectedToken0 && selectedToken1 && accountingUnit) {
@@ -161,19 +174,19 @@ export default function NewPositionPage() {
             getAvailablePools(
               selectedToken0.address,
               accountingUnit.address,
-              chainId
+              chainId,
             ),
             getAvailablePools(
               selectedToken1.address,
               accountingUnit.address,
-              chainId
+              chainId,
             ),
           ]);
         const existingPoolsFor0 = accountingUnitPoolFor0.filter(
-          (elem: any) => elem !== null
+          (elem: any) => elem !== null,
         );
         const existingPoolsFor1 = accountingUnitPoolFor1.filter(
-          (elem: any) => elem !== null
+          (elem: any) => elem !== null,
         );
         if (
           selectedToken0.address.toLowerCase() !==
@@ -241,7 +254,7 @@ export default function NewPositionPage() {
         token0SortedByCA.decimals,
         sortedToken0Amount,
         walletClient,
-        publicClient
+        publicClient,
       );
       if (!approveToken0Success) {
         setPageStatus(CREATE_POSITION_PAGE_STATE.TOKEN_APPROVE_FAILED);
@@ -254,7 +267,7 @@ export default function NewPositionPage() {
         token1SortedByCA.decimals,
         sortedToken1Amount,
         walletClient,
-        publicClient
+        publicClient,
       );
       if (!approveToken1Success) {
         setPageStatus(CREATE_POSITION_PAGE_STATE.TOKEN_APPROVE_FAILED);
@@ -291,7 +304,7 @@ export default function NewPositionPage() {
           token1Decimals: token1SortedByCA.decimals,
         },
         userAddress,
-        walletClient
+        walletClient,
       );
       if (!openPositionSuccess) {
         console.log("openPositionSuccess", openPositionSuccess);
@@ -364,69 +377,11 @@ export default function NewPositionPage() {
 
       <Card className="p-6">
         <div className="space-y-8">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <TokenSelector
-                chainId={chainId}
-                onSelectionChange={(info: ERC20TokenInfo) => {
-                  setSelectedToken0(info);
-                }}
-              />
-              <TokenLivePrice
-                address={selectedToken0?.address}
-                chainId={chainId}
-              />
-            </div>
-            <div>
-              <TokenSelector
-                chainId={chainId}
-                onSelectionChange={(info: ERC20TokenInfo) => {
-                  setSelectedToken1(info);
-                }}
-              />
-              <TokenLivePrice
-                address={selectedToken1?.address}
-                chainId={chainId}
-              />
-            </div>
-          </div>
-
-          {selectedToken0 && selectedToken1 ? (
-            <PoolSelector
-              tokens={[selectedToken0, selectedToken1]}
-              chainId={chainId}
-              selectedFeeTier={selectedFeeTier}
-              onSelectPool={(selectedFeeTier: any) =>
-                setSelectedFeeTier(selectedFeeTier)
-              }
-            />
-          ) : (
-            <></>
+          <TokenSelectorWrapper />
+          {selectedToken0 && selectedToken1 && (
+            <PoolSelector chainId={chainId} />
           )}
-
-          {selectedToken0 && selectedToken1 && selectedFeeTier ? (
-            <RangeAndAmountSetter
-              tokens={[selectedToken0, selectedToken1]}
-              chainId={chainId}
-              selectedFeeTier={selectedFeeTier}
-              tickLower={tickLower}
-              tickUpper={tickUpper}
-              token0Amount={sortedToken0Amount}
-              token1Amount={sortedToken1Amount}
-              onInfoChange={(data: any) => {
-                if (typeof data.tickLower === "number")
-                  setTickLower(data.tickLower);
-                if (typeof data.tickUpper === "number")
-                  setTickUpper(data.tickUpper);
-                if (typeof data.token0Amount === "number")
-                  setSortedToken0Amount(data.token0Amount);
-                if (typeof data.token1Amount === "number")
-                  setSortedToken1Amount(data.token1Amount);
-              }}
-            />
-          ) : (
-            <></>
-          )}
+          {selectedPool && <RangeAndAmountSetter />}
         </div>
 
         <div className="flex justify-end gap-4 mt-4">
@@ -475,8 +430,8 @@ export default function NewPositionPage() {
               {pageStatus === CREATE_POSITION_PAGE_STATE.APPROVING_TOKENS
                 ? "Approving your tokens to deposit into liquidity pools, proceed with your wallet."
                 : pageStatus === CREATE_POSITION_PAGE_STATE.OPENING_POSITION
-                ? "Opening your position, proceed with your wallet."
-                : ""}
+                  ? "Opening your position, proceed with your wallet."
+                  : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <WaitingAnimation />

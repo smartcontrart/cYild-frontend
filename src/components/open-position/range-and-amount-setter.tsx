@@ -1,47 +1,23 @@
 "use client";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { ERC20TokenInfo } from "@/utils/constants";
+import { useState } from "react";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { PriceRangeSetter } from "./price-range-setter";
-import { AmountSetter } from "./amount-setter";
 import { reArrangeTokensByContractAddress } from "@/utils/functions";
+import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
+import { useChainId } from "wagmi";
+import { ERC20TokenInfo } from "@/utils/constants";
 
-export const RangeAndAmountSetter = ({
-  tokens,
-  chainId,
-  selectedFeeTier,
-  onInfoChange,
-  tickLower,
-  tickUpper,
-  token0Amount,
-  token1Amount
-}: {
-  tokens: ERC20TokenInfo[],
-  chainId: number,
-  selectedFeeTier: number,
-  onInfoChange: Function,
-  tickLower: number,
-  tickUpper: number,
-  token0Amount: number,
-  token1Amount: number
-}) => {
+export const RangeAndAmountSetter = () => {
+  const chainId = useChainId();
+  const { tickLower, tickUpper, token0Input, token1Input, selectedPool } =
+    useNewPositionStore();
+  const token0 = selectedPool?.token0 as ERC20TokenInfo;
+  const token1 = selectedPool?.token1 as ERC20TokenInfo;
+  const [direction, setDirection] = useState<"0p1" | "1p0">("0p1");
 
-  const sortedTokensByCA = reArrangeTokensByContractAddress(tokens)
-  const [direction, setDirection] = useState<"0p1" | "1p0">("0p1")
-
-  const { data: token0Price } = useTokenPrice(sortedTokensByCA[0].address, chainId)
-  const { data: token1Price } = useTokenPrice(sortedTokensByCA[1].address, chainId)  
-
-  useEffect(() => {
-    if (tickLower !== 0 && tickUpper !== 0 && token0Amount && token1Amount)
-      onInfoChange({
-        tickLower,
-        tickUpper,
-        token0Amount,
-        token1Amount
-      })
-  }, [tickLower, tickUpper, token0Amount, token1Amount])
+  const { data: token0Price } = useTokenPrice(token0.address, chainId);
+  const { data: token1Price } = useTokenPrice(token1.address, chainId);
 
   return (
     <>
@@ -49,60 +25,50 @@ export const RangeAndAmountSetter = ({
         <Tabs
           value={direction}
           onValueChange={(value: string) => {
-            setDirection(value as "0p1" | "1p0")
+            setDirection(value as "0p1" | "1p0");
           }}
           className="w-full"
         >
           <TabsList>
-            <TabsTrigger value="0p1">{`${sortedTokensByCA[1].symbol}/${sortedTokensByCA[0].symbol}`}</TabsTrigger>
-            <TabsTrigger value="1p0">{`${sortedTokensByCA[0].symbol}/${sortedTokensByCA[1].symbol}`}</TabsTrigger>
+            <TabsTrigger value="0p1">{`${token1.symbol}/${token0.symbol}`}</TabsTrigger>
+            <TabsTrigger value="1p0">{`${token0.symbol}/${token1.symbol}`}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      {
-        direction === "0p1" ? 
+      {direction === "0p1" ? (
         <div>
-          1 {sortedTokensByCA[0].symbol} is worth {(Number(token0Price) / Number(token1Price))} {sortedTokensByCA[1].symbol}
+          1 {token0.symbol} is worth {Number(token0Price) / Number(token1Price)}{" "}
+          {token1.symbol}
         </div>
-        : 
+      ) : (
         <div>
-          1 {sortedTokensByCA[1].symbol} is worth {(Number(token1Price) / Number(token0Price))} {sortedTokensByCA[0].symbol}
+          1 {token1.symbol} is worth {Number(token1Price) / Number(token0Price)}{" "}
+          {token0.symbol}
         </div>
-      }
+      )}
 
-      {
-        token0Price && token1Price ? 
+      {token0Price && token1Price ? (
         <>
-          <PriceRangeSetter 
-            tokens={sortedTokensByCA}
-            chainId={chainId}
-            feeTier={selectedFeeTier}
-            direction={direction}
-            token0Price={Number(token0Price)}
-            token1Price={Number(token1Price)}
-            tickLower={tickLower}
-            tickUpper={tickUpper}
-            onTickChange={(data: any) => {
-              data.tickLower && onInfoChange({ tickLower: data.tickLower })
-              data.tickUpper && onInfoChange({ tickUpper: data.tickUpper })
-            }}
-          />
-          <AmountSetter 
+          <PriceRangeSetter direction={direction} />
+          {/*<AmountSetter
             tokens={sortedTokensByCA}
             tickLower={tickLower}
             tickUpper={tickUpper}
             token0Price={Number(token0Price)}
             token1Price={Number(token1Price)}
             onAmountsChange={(data: any) => {
-              data.token0Amount && onInfoChange({ token0Amount: data.token0Amount })
-              data.token1Amount && onInfoChange({ token1Amount: data.token1Amount })
+              data.token0Amount &&
+                onInfoChange({ token0Amount: data.token0Amount });
+              data.token1Amount &&
+                onInfoChange({ token1Amount: data.token1Amount });
             }}
             chainId={chainId}
-          />
+          />*/}
         </>
-        : <></>
-      }
+      ) : (
+        <></>
+      )}
     </>
-  )
-}
+  );
+};

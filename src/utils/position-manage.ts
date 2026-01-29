@@ -35,7 +35,7 @@ export const collectFees = async (
   chainId: number,
   recipient: string,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {
@@ -88,7 +88,7 @@ export const compoundFees = async (
   tokenId: number,
   chainId: number,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {
@@ -151,7 +151,7 @@ export const compoundFees = async (
         availableAmount0,
         availableAmount1,
       ],
-    }
+    },
   );
 
   const { swapAmount0, swapAmount1, sell0For1 } = rebalanceData;
@@ -175,12 +175,12 @@ export const compoundFees = async (
       swapAmount0,
       chainId,
       _token0MaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     if (paraswapAPISuccess) {
       _pSwapData0 = paraswapData;
       _minAmountOut0 = BigInt(
-        roundDown((Number(amountOut0) * (10000 - userMaxSlippage)) / 10000, 0)
+        roundDown((Number(amountOut0) * (10000 - userMaxSlippage)) / 10000, 0),
       );
     }
   } else {
@@ -196,12 +196,12 @@ export const compoundFees = async (
       swapAmount1,
       chainId,
       _token1MaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     if (paraswapAPISuccess) {
       _pSwapData1 = paraswapData;
       _minAmountOut1 = BigInt(
-        roundDown((Number(amountOut1) * (10000 - userMaxSlippage)) / 10000, 0)
+        roundDown((Number(amountOut1) * (10000 - userMaxSlippage)) / 10000, 0),
       );
     }
   }
@@ -225,7 +225,7 @@ export const compoundFees = async (
         address: getManagerContractAddressFromChainId(chainId),
         functionName: "compoundPosition",
         args: params,
-      }
+      },
     );
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {}
@@ -276,7 +276,7 @@ export const increaseLiquidity = async (
   chainId: number,
   data: any,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {
@@ -338,7 +338,7 @@ export const decreaseLiquidity = async (
   chainId: number,
   amountInBPS: number,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {
@@ -386,7 +386,7 @@ export const decreaseLiquidity = async (
   if (token0Address !== ownerAccountingUnit) {
     const totalAmount0ToSwap = roundDown(
       (parseInt(principal0.toString()) / 10000) * amountInBPS,
-      0
+      0,
     );
     const {
       success: paraswapAPISuccess,
@@ -400,10 +400,10 @@ export const decreaseLiquidity = async (
       BigInt(totalAmount0ToSwap),
       chainId,
       userMaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     minAmount0 = Math.round(
-      roundDown(Number(destAmount) * ((10000 - userMaxSlippage) / 10000), 0)
+      roundDown(Number(destAmount) * ((10000 - userMaxSlippage) / 10000), 0),
     );
     if (paraswapAPISuccess) {
       _pSwapData0 = paraswapData;
@@ -412,7 +412,7 @@ export const decreaseLiquidity = async (
   if (token1Address !== ownerAccountingUnit) {
     const totalAmount1ToSwap = roundDown(
       (parseInt(principal1.toString()) / 10000) * amountInBPS,
-      0
+      0,
     );
     const {
       success: paraswapAPISuccess,
@@ -426,10 +426,10 @@ export const decreaseLiquidity = async (
       BigInt(totalAmount1ToSwap),
       chainId,
       userMaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     minAmount1 = Math.round(
-      roundDown(Number(destAmount) * ((10000 - userMaxSlippage) / 10000), 0)
+      roundDown(Number(destAmount) * ((10000 - userMaxSlippage) / 10000), 0),
     );
 
     if (paraswapAPISuccess) {
@@ -456,7 +456,7 @@ export const decreaseLiquidity = async (
         address: getManagerContractAddressFromChainId(chainId),
         functionName: "decreaseLiquidity",
         args: params,
-      }
+      },
     );
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {
@@ -512,7 +512,7 @@ export const openPosition = async (
   chainId: number,
   data: any,
   ownerAddress: any,
-  walletClient?: any
+  walletClient?: any,
 ) => {
   if (!publicClient) {
     return {
@@ -618,7 +618,7 @@ export const openPosition = async (
 
 export const getPositionFundsInfo = async (
   tokenId: number,
-  chainId: number
+  chainId: number,
 ) => {
   const res: any = await readContract(
     chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
@@ -627,7 +627,7 @@ export const getPositionFundsInfo = async (
       address: getManagerContractAddressFromChainId(chainId),
       functionName: "getPositionInfo",
       args: [tokenId],
-    }
+    },
   );
   if (res.length !== 12) {
     console.log("Invalid data format from getPositionFundsInfo");
@@ -667,7 +667,7 @@ export const closePosition = async (
   tokenId: number,
   chainId: number,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {
@@ -726,12 +726,12 @@ export const closePosition = async (
       BigInt(totalAmount0ToSwap),
       chainId,
       userMaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     if (paraswapAPISuccess) {
       _pSwapData0 = paraswapData;
       _minBuyAmount0 = BigInt(
-        roundDown((Number(destAmount) * (10000 - userMaxSlippage)) / 10000, 0)
+        roundDown((Number(destAmount) * (10000 - userMaxSlippage)) / 10000, 0),
       );
     }
   }
@@ -748,12 +748,12 @@ export const closePosition = async (
       BigInt(totalAmount1ToSwap),
       chainId,
       userMaxSlippage,
-      getManagerContractAddressFromChainId(chainId)
+      getManagerContractAddressFromChainId(chainId),
     );
     if (paraswapAPISuccess) {
       _pSwapData1 = paraswapData;
       _minBuyAmount1 = BigInt(
-        roundDown((Number(destAmount) * (10000 - userMaxSlippage)) / 10000, 0)
+        roundDown((Number(destAmount) * (10000 - userMaxSlippage)) / 10000, 0),
       );
     }
   }
@@ -777,7 +777,7 @@ export const closePosition = async (
         address: getManagerContractAddressFromChainId(chainId),
         functionName: "closePosition",
         args: params,
-      }
+      },
     );
     if (simulation && simulation.result) {
       simulationSuccess = true;
@@ -833,7 +833,7 @@ export const closePosition = async (
 
 export const getAccountingUnitFromAddress = async (
   address: string,
-  chainId: number
+  chainId: number,
 ) => {
   try {
     const res: any = await readContract(
@@ -843,7 +843,7 @@ export const getAccountingUnitFromAddress = async (
         address: getManagerContractAddressFromChainId(chainId),
         functionName: "accountingUnit",
         args: [address],
-      }
+      },
     );
     if (res.toString() === "")
       return {
@@ -851,6 +851,7 @@ export const getAccountingUnitFromAddress = async (
         symbol: "UNDEFINED",
         decimals: 18,
         address: "0x0000000000000000000000000000000",
+        chainId,
       } as ERC20TokenInfo;
     const tokenInfo = await getERC20TokenInfo(res, chainId);
     return tokenInfo;
@@ -860,6 +861,7 @@ export const getAccountingUnitFromAddress = async (
       symbol: "UNDEFINED",
       decimals: 18,
       address: "0x0000000000000000000000000000000",
+      chainId,
     } as ERC20TokenInfo;
   }
 };
@@ -868,7 +870,7 @@ export const setAccountingUnit = async (
   unitAddress: string,
   chainId: number,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!walletClient) {
     return {

@@ -16,7 +16,10 @@ export default function CustomWalletButton() {
             className="flex items-center gap-2 bg-background text-foreground border-border border hover:bg-background/50 min-w-[155px] font-sora font-medium z-10"
           >
             {isConnected ? (
-              <>{ensName || truncateAddress(address || "")}</>
+              <>
+                <Wallet />
+                {ensName || truncateAddress(address || "")}
+              </>
             ) : (
               <>
                 <Wallet />

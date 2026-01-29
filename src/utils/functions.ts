@@ -228,6 +228,25 @@ export const validateAndCleanNumber = (
   return cleaned;
 };
 
+/**
+ * Validates and filters numeric input, allowing intermediate states during typing
+ * @param value - The input value to validate
+ * @returns true if the input is valid, false otherwise
+ */
+export const validateNumericInput = (value: string): boolean => {
+  // Allow empty string, numbers, and decimal points in valid positions
+  const regex = /^(\d*\.?\d*)$/;
+
+  // Check if the input matches the pattern or is empty
+  if (value === "" || regex.test(value)) {
+    // Additional validation to prevent multiple decimal points
+    const decimalCount = (value.match(/\./g) || []).length;
+    return decimalCount <= 1;
+  }
+
+  return false;
+};
+
 export const truncateAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };

@@ -1,3 +1,5 @@
+import { Address } from "viem";
+
 export const VALID_FEE_TIERS = [100, 500, 3000, 10000];
 export const INVALID_FEE_TIER = null;
 
@@ -201,14 +203,14 @@ export const SUPPORTED_CHAINS = [
 
 export const getNetworkNameFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0 ? filtered[0]["name"] : "base";
 };
 
 export const getSecondaryRPCFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0
     ? filtered[0]["secondaryRPC"]
@@ -217,7 +219,7 @@ export const getSecondaryRPCFromChainId = (chainId: number) => {
 
 export const getExplorerURLFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0
     ? filtered[0]["explorerURL"]
@@ -225,17 +227,17 @@ export const getExplorerURLFromChainId = (chainId: number) => {
 };
 
 export const getUniswapV3FactoryContractAddressFromChainId = (
-  chainId: number
+  chainId: number,
 ) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0 ? filtered[0]["uniswapFactory"] : "0x";
 };
 
 export const getManagerContractAddressFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0
     ? filtered[0]["positionManager"]
@@ -244,14 +246,14 @@ export const getManagerContractAddressFromChainId = (chainId: number) => {
 
 export const getLiquidityMathContractAddressFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0 ? filtered[0]["liquidityMath"] : "0x";
 };
 
 export const getDefaultTokensFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(
-    (elem: any) => elem.chainId === chainId
+    (elem: any) => elem.chainId === chainId,
   );
   return filtered && filtered.length > 0 ? filtered[0]["defaultTokens"] : [];
 };
@@ -260,6 +262,7 @@ export interface ERC20TokenInfo {
   name: string;
   symbol: string;
   decimals: number;
-  address: `0x${string}`;
+  address: Address;
+  chainId: number;
   image?: string;
 }
