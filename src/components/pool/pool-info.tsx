@@ -42,7 +42,7 @@ export const PoolInfo = ({
   return (
     <Card
       className={cn(
-        "flex flex-col gap-2 p-5 cursor-pointer hover:bg-accent h-32",
+        "flex flex-col gap-2 p-5 cursor-pointer hover:bg-accent h-32 justify-between",
         isSelectedPool && "bg-secondary",
       )}
       onClick={poolClicked}
@@ -51,15 +51,16 @@ export const PoolInfo = ({
         isLoading={isLoadingPoolInfo}
         className={cn("h-5", isLoadingPoolInfo && "w-20")}
       >
-        {token0?.symbol}/{token1?.symbol} ({(poolInfo?.feeTier || 0) / 10000}%)
+        {token0?.symbol}/{token1?.symbol} ({(poolInfo?.feeTier || 0) / 10000}
+        %)
       </LazyLoader>
-      <div className="flex gap-1">
+      <div className="flex gap-1 h-5">
         TVL:
         <LazyLoader isLoading={isLoading} type="line" className="h-5 min-w-20">
           <span>{formattedTvl}</span>
         </LazyLoader>
       </div>
-      <div className="flex gap-1">
+      <div className="flex gap-1 h-5">
         30D Volume:
         <LazyLoader isLoading={isLoading} type="line" className="h-5 min-w-12">
           <span>{formattedVolume}</span>
