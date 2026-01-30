@@ -11,15 +11,21 @@ export const TokenSelectorWrapper = () => {
     setSelectedToken1,
     selectedToken0,
     selectedToken1,
+    setSelectedPool,
   } = useNewPositionStore();
+
+  const tokenSelected = (tokenInfo: ERC20TokenInfo, setter: Function) => {
+    setter(tokenInfo);
+    setSelectedPool(undefined);
+  };
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <TokenSelector
           chainId={chainId}
-          onSelectionChange={(info: ERC20TokenInfo) => {
-            setSelectedToken0(info);
+          onSelectionChange={(tokenInfo: ERC20TokenInfo) => {
+            tokenSelected(tokenInfo, setSelectedToken0);
           }}
         />
         <TokenLivePrice address={selectedToken0?.address} chainId={chainId} />
@@ -27,8 +33,8 @@ export const TokenSelectorWrapper = () => {
       <div>
         <TokenSelector
           chainId={chainId}
-          onSelectionChange={(info: ERC20TokenInfo) => {
-            setSelectedToken1(info);
+          onSelectionChange={(tokenInfo: ERC20TokenInfo) => {
+            tokenSelected(tokenInfo, setSelectedToken1);
           }}
         />
         <TokenLivePrice address={selectedToken1?.address} chainId={chainId} />

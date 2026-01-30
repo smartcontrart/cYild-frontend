@@ -1,8 +1,4 @@
-import {
-  config as wagmiConfig,
-  baseWagmiConfig,
-  arbitrumWagmiConfig,
-} from "@/components/global/providers";
+import { wagmiConfig } from "@/components/global/providers";
 
 import {
   writeContract,
@@ -138,21 +134,18 @@ export const compoundFees = async (
   const availableAmount0 = feesEarned0 - protocolFee0;
   const availableAmount1 = feesEarned1 - protocolFee1;
 
-  const rebalanceData: any = await readContract(
-    chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-    {
-      abi: LiquidityMathABI,
-      address: getLiquidityMathContractAddressFromChainId(chainId),
-      functionName: "calculateRebalanceData",
-      args: [
-        poolAddress,
-        tickLower,
-        tickUpper,
-        availableAmount0,
-        availableAmount1,
-      ],
-    },
-  );
+  const rebalanceData: any = await readContract(wagmiConfig, {
+    abi: LiquidityMathABI,
+    address: getLiquidityMathContractAddressFromChainId(chainId),
+    functionName: "calculateRebalanceData",
+    args: [
+      poolAddress,
+      tickLower,
+      tickUpper,
+      availableAmount0,
+      availableAmount1,
+    ],
+  });
 
   const { swapAmount0, swapAmount1, sell0For1 } = rebalanceData;
 
@@ -218,15 +211,12 @@ export const compoundFees = async (
 
   let simulationSuccess = false;
   try {
-    const simulation = await simulateContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: PositionManagerABI,
-        address: getManagerContractAddressFromChainId(chainId),
-        functionName: "compoundPosition",
-        args: params,
-      },
-    );
+    const simulation = await simulateContract(wagmiConfig, {
+      abi: PositionManagerABI,
+      address: getManagerContractAddressFromChainId(chainId),
+      functionName: "compoundPosition",
+      args: params,
+    });
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {}
 
@@ -449,15 +439,12 @@ export const decreaseLiquidity = async (
   ];
   let simulationSuccess = false;
   try {
-    const simulation = await simulateContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: PositionManagerABI,
-        address: getManagerContractAddressFromChainId(chainId),
-        functionName: "decreaseLiquidity",
-        args: params,
-      },
-    );
+    const simulation = await simulateContract(wagmiConfig, {
+      abi: PositionManagerABI,
+      address: getManagerContractAddressFromChainId(chainId),
+      functionName: "decreaseLiquidity",
+      args: params,
+    });
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {
     console.log(error);
@@ -620,15 +607,12 @@ export const getPositionFundsInfo = async (
   tokenId: number,
   chainId: number,
 ) => {
-  const res: any = await readContract(
-    chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-    {
-      abi: PositionManagerABI,
-      address: getManagerContractAddressFromChainId(chainId),
-      functionName: "getPositionInfo",
-      args: [tokenId],
-    },
-  );
+  const res: any = await readContract(wagmiConfig, {
+    abi: PositionManagerABI,
+    address: getManagerContractAddressFromChainId(chainId),
+    functionName: "getPositionInfo",
+    args: [tokenId],
+  });
   if (res.length !== 12) {
     console.log("Invalid data format from getPositionFundsInfo");
     return null;
@@ -770,15 +754,12 @@ export const closePosition = async (
 
   let simulationSuccess = false;
   try {
-    const simulation = await simulateContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: PositionManagerABI,
-        address: getManagerContractAddressFromChainId(chainId),
-        functionName: "closePosition",
-        args: params,
-      },
-    );
+    const simulation = await simulateContract(wagmiConfig, {
+      abi: PositionManagerABI,
+      address: getManagerContractAddressFromChainId(chainId),
+      functionName: "closePosition",
+      args: params,
+    });
     if (simulation && simulation.result) {
       simulationSuccess = true;
     }
@@ -836,15 +817,12 @@ export const getAccountingUnitFromAddress = async (
   chainId: number,
 ) => {
   try {
-    const res: any = await readContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: PositionManagerABI,
-        address: getManagerContractAddressFromChainId(chainId),
-        functionName: "accountingUnit",
-        args: [address],
-      },
-    );
+    const res: any = await readContract(wagmiConfig, {
+      abi: PositionManagerABI,
+      address: getManagerContractAddressFromChainId(chainId),
+      functionName: "accountingUnit",
+      args: [address],
+    });
     if (res.toString() === "")
       return {
         name: "UNDEFINED",

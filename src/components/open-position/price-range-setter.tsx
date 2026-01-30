@@ -1,7 +1,6 @@
 import { ERC20TokenInfo } from "@/utils/constants";
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
-import { useDebounce } from "@/hooks/use-debounce";
 import {
   nearestValidTick,
   priceToTick,
@@ -23,14 +22,17 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
     tickUpper,
     setTickLower,
     setTickUpper,
+    minPrice,
+    maxPrice,
+    setMinPrice,
+    setMaxPrice,
   } = useNewPositionStore();
   const tokens = [
     selectedToken0 as ERC20TokenInfo,
     selectedToken1 as ERC20TokenInfo,
   ];
-  const feeTier = selectedPool?.feeTier as number;
-  const { data: token0Price } = useTokenPrice(selectedToken0.address, chainId);
-  const { data: token1Price } = useTokenPrice(selectedToken1.address, chainId);
+  const { data: token0Price } = useTokenPrice(tokens[0].address, chainId);
+  const { data: token1Price } = useTokenPrice(tokens[1].address, chainId);
 
   const getNearestValidPrice = (debouncedValue: number) => {
     let numericPrice = debouncedValue;
@@ -47,6 +49,7 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
       token0SortedByCA.decimals,
       token1SortedByCA.decimals,
     );
+    const feeTier = selectedPool?.feeTier as number;
     const validTick = nearestValidTick(tick, feeTier);
     let adjustedPrice = Number(
       tickToPrice(
@@ -66,51 +69,42 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
     };
   };
 
-  const setNearestValidPrice = (debouncedValue: number, isMin: boolean) => {
-    const { validTick, adjustedPrice } = getNearestValidPrice(debouncedValue);
-    if (validTick === 0 || validTick === Infinity || validTick === -Infinity)
-      return;
+  useEffect(() => {
+    const basePriceRatio =
+      direction === "0p1"
+        ? token0Price / token1Price
+        : token1Price / token0Price;
 
-    if (isMin) {
-      setMinPriceInput(adjustedPrice.toString());
-      // onTickChange({ tickLower: validTick, tickUpper });
-    } else {
-      setMaxPriceInput(adjustedPrice.toString());
-      // onTickChange({ tickLower, tickUpper: validTick });
+    const { adjustedPrice: adjustedPriceMin, validTick: validTickLower } =
+      getNearestValidPrice(basePriceRatio * 0.95);
+    const { adjustedPrice: adjustedPriceMax, validTick: validTickUpper } =
+      getNearestValidPrice(basePriceRatio * 1.05);
+
+    // set initial min/max and ticks
+    setMinPrice(adjustedPriceMin.toString());
+    setMaxPrice(adjustedPriceMax.toString());
+    setTickLower(validTickLower);
+    setTickUpper(validTickUpper);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [direction, selectedPool]);
+
+  // listen for when user is done typing
+  const handleInputChangeComplete = (value: string, isMin: boolean) => {
+    if (validateNumericInput(value.toString())) {
+      // get the valid tick and the nearest price to that tick
+      const { validTick, adjustedPrice } = getNearestValidPrice(Number(value));
+      // update values
+      if (isMin) {
+        setMinPrice(adjustedPrice.toString());
+        setTickLower(validTick);
+      } else {
+        setMaxPrice(adjustedPrice.toString());
+        setTickUpper(validTick);
+      }
     }
   };
 
-  const [minPriceInput, setMinPriceInput] = useState("");
-  const [maxPriceInput, setMaxPriceInput] = useState("");
-
-  const debouncedMinPrice = useDebounce(minPriceInput, 2000);
-  const debouncedMaxPrice = useDebounce(maxPriceInput, 2000);
-
-  useEffect(() => {
-    if (direction && token0Price && token1Price) {
-      const basePriceRatio =
-        direction === "0p1"
-          ? token0Price / token1Price
-          : token1Price / token0Price;
-      const { adjustedPrice: adjustedPriceMin, validTick: validTickLower } =
-        getNearestValidPrice(basePriceRatio * 0.95);
-      const { adjustedPrice: adjustedPriceMax, validTick: validTickUpper } =
-        getNearestValidPrice(basePriceRatio * 1.05);
-      setMinPriceInput(adjustedPriceMin.toString());
-      setMaxPriceInput(adjustedPriceMax.toString());
-      // onTickChange({ tickLower: validTickLower, tickUpper: validTickUpper });
-    }
-  }, [feeTier, direction]);
-
-  useEffect(() => {
-    setNearestValidPrice(Number(debouncedMinPrice), true);
-  }, [debouncedMinPrice]);
-
-  useEffect(() => {
-    setNearestValidPrice(Number(debouncedMaxPrice), false);
-  }, [debouncedMaxPrice]);
-
-  const handleTickChange = (value: string, setter: Function) => {
+  const handleInputChange = (value: string, setter: Function) => {
     if (validateNumericInput(value.toString())) {
       setter(value);
     }
@@ -122,16 +116,18 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
         <label htmlFor="">Min Price</label>
         <Input
           placeholder="0.0"
-          value={tickLower}
-          onChange={(e) => handleTickChange(e.target.value, setTickLower)}
+          value={minPrice}
+          onChange={(e) => handleInputChange(e.target.value, setMinPrice)}
+          onBlur={(e) => handleInputChangeComplete(e.target.value, true)}
         />
       </div>
       <div>
         <label htmlFor="">Max Price</label>
         <Input
           placeholder="0.0"
-          value={tickUpper}
-          onChange={(e) => handleTickChange(e.target.value, setTickUpper)}
+          value={maxPrice}
+          onChange={(e) => handleInputChange(e.target.value, setMaxPrice)}
+          onBlur={(e) => handleInputChangeComplete(e.target.value, false)}
         />
       </div>
     </div>

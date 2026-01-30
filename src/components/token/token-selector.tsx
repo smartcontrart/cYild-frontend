@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { getDefaultTokensFromChainId, ERC20TokenInfo } from "@/utils/constants";
 import { getERC20TokenInfo } from "@/utils/erc20";
@@ -26,9 +26,11 @@ export function TokenSelector({
 }: TokenSelectorProps) {
   const [customTokenAddressInput, setCustomTokenAddressInput] = useState("");
   const [customToken, setCustomToken] = useState<ERC20TokenInfo | null>(null);
+  const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
     setCustomToken(null);
+    setFilterText("");
   }, [chainId]);
 
   const fetchTokenInfo = async (tokenAddress: string) => {
@@ -40,6 +42,19 @@ export function TokenSelector({
     return result;
   };
 
+  const filteredTokens = useMemo(() => {
+    const tokens = getDefaultTokensFromChainId(chainId);
+    if (!filterText) return tokens;
+
+    const lowerFilter = filterText.toLowerCase();
+    return tokens.filter(
+      (token: any) =>
+        token.name.toLowerCase().includes(lowerFilter) ||
+        token.symbol.toLowerCase().includes(lowerFilter) ||
+        token.address.toLowerCase().includes(lowerFilter),
+    );
+  }, [chainId, filterText]);
+
   return (
     <>
       <Select
@@ -49,6 +64,11 @@ export function TokenSelector({
           if (filtered && filtered.length > 0) onSelectionChange(filtered[0]);
           else if (customToken) onSelectionChange(customToken);
         }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFilterText("");
+          }
+        }}
         defaultValue={""}
       >
         <SelectTrigger>
@@ -57,24 +77,34 @@ export function TokenSelector({
         <SelectContent>
           <div className="p-2">
             <Input
-              placeholder="Enter Token Address (0x...)"
+              placeholder="Search or enter token address (0x...)"
+              value={filterText}
               onChange={(e) => {
+                const value = e.target.value;
+                setFilterText(value);
                 setCustomToken(null);
 
-                if (e.target.value.length === 42) {
+                if (value.length === 42 && value.startsWith("0x")) {
                   const tokens = getDefaultTokensFromChainId(chainId);
                   const filtered = tokens.filter(
-                    (elem: any) => elem.address === e.target.value,
+                    (elem: any) =>
+                      elem.address.toLowerCase() === value.toLowerCase(),
                   );
                   if (!filtered || filtered.length === 0) {
-                    setCustomTokenAddressInput(e.target.value);
-                    fetchTokenInfo(e.target.value).then((info) => {
+                    setCustomTokenAddressInput(value);
+                    fetchTokenInfo(value).then((info) => {
                       if (info) {
                         setCustomToken(info);
                       }
                     });
                   }
                 }
+              }}
+              onKeyDown={(e) => {
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
               }}
             />
           </div>
@@ -98,7 +128,7 @@ export function TokenSelector({
 
           <Separator />
 
-          {getDefaultTokensFromChainId(chainId).map((elem: any) => (
+          {filteredTokens.map((elem: any) => (
             <SelectItem key={elem.name} value={elem.address}>
               <div className="flex flex-row gap-4 items-center">
                 <ERC20Image

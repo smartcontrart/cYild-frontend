@@ -17,6 +17,10 @@ type NewPositionStore = {
   setToken0Input: (token0Input: number) => void;
   token1Input: number;
   setToken1Input: (token0Input: number) => void;
+  minPrice: string;
+  setMinPrice: (minPrice: string) => void;
+  maxPrice: string;
+  setMaxPrice: (maxPrice: string) => void;
 };
 
 export const useNewPositionStore = create<NewPositionStore>((set, get) => ({
@@ -37,4 +41,8 @@ export const useNewPositionStore = create<NewPositionStore>((set, get) => ({
   setToken0Input: (token0Input: number) => set({ token0Input }),
   token1Input: 0,
   setToken1Input: (token1Input: number) => set({ token1Input }),
+  minPrice: "",
+  setMinPrice: (minPrice: string) => set({ minPrice }),
+  maxPrice: "",
+  setMaxPrice: (maxPrice: string) => set({ maxPrice }),
 }));

@@ -11,8 +11,8 @@ import { formatUnits } from "viem";
 
 interface UseGraphPoolInfoParams {
   poolAddress: `0x${string}`;
-  token0: ERC20TokenInfo;
-  token1: ERC20TokenInfo;
+  token0?: ERC20TokenInfo;
+  token1?: ERC20TokenInfo;
 }
 
 interface GraphPoolInfoData {
@@ -60,24 +60,30 @@ export const useGraphPoolInfo = ({
 }: UseGraphPoolInfoParams): GraphPoolInfoData => {
   const chainId = useChainId();
 
+  const tokensReady = !!token0 && !!token1;
+
   // Fetch token balances from the pool
   const { balances, isLoading: isLoadingBalances } = useErc20Balances({
-    tokens: [token0, token1],
+    tokens: tokensReady ? [token0, token1] : [],
     owner: poolAddress,
   });
 
-  const token0Balance = balances[`${token0.symbol}-${token0.chainId}`];
-  const token1Balance = balances[`${token1.symbol}-${token1.chainId}`];
+  const token0Balance = token0
+    ? balances[`${token0.symbol}-${token0.chainId}`]
+    : undefined;
+  const token1Balance = token1
+    ? balances[`${token1.symbol}-${token1.chainId}`]
+    : undefined;
 
   const token0BalanceInPool = useMemo(() => {
-    if (!token0Balance) return 0;
+    if (!token0Balance || !token0) return 0;
     return Number(formatUnits(token0Balance, token0.decimals));
-  }, [token0Balance, token0.decimals]);
+  }, [token0Balance, token0]);
 
   const token1BalanceInPool = useMemo(() => {
-    if (!token1Balance) return 0;
+    if (!token1Balance || !token1) return 0;
     return Number(formatUnits(token1Balance, token1.decimals));
-  }, [token1Balance, token1.decimals]);
+  }, [token1Balance, token1]);
 
   const timestamp = useMemo(() => getOneMonthAgoTimestamp(), []);
 
@@ -106,7 +112,7 @@ export const useGraphPoolInfo = ({
     isLoading: loading,
     error,
   } = useQuery({
-    queryKey: ["poolDayDatas", poolAddress.toLowerCase(), timestamp],
+    queryKey: ["poolDayDatas", poolAddress.toLowerCase()],
     queryFn: async () => {
       const client = getClientFromChainId(chainId);
       const result = await client.query({
@@ -115,15 +121,20 @@ export const useGraphPoolInfo = ({
       return result.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
-    enabled: !!poolAddress,
+    enabled: !!poolAddress && tokensReady,
   });
 
-  const { data: token0Price } = useTokenPrice(token0.address, token0.chainId);
-  const { data: token1Price } = useTokenPrice(token1.address, token1.chainId);
+  const { data: token0Price } = useTokenPrice(
+    token0?.address || "0x0000000000000000000000000000000000000000",
+    token0?.chainId || chainId,
+  );
+  const { data: token1Price } = useTokenPrice(
+    token1?.address || "0x0000000000000000000000000000000000000000",
+    token1?.chainId || chainId,
+  );
 
   const monthlyVolume = useMemo(() => {
     if (!data?.poolDayDatas || !token0Price || !token1Price) return 0;
-    console.log(data.poolDayDatas);
     return getMonthlyVolume(data.poolDayDatas, token0Price, token1Price);
   }, [data?.poolDayDatas, token0Price, token1Price]);
 
@@ -136,9 +147,9 @@ export const useGraphPoolInfo = ({
   }, [token0BalanceInPool, token1BalanceInPool, token0Price, token1Price]);
 
   return {
-    monthlyVolume,
-    tvl,
-    isLoading: loading || isLoadingBalances,
+    monthlyVolume: tokensReady ? monthlyVolume : 0,
+    tvl: tokensReady ? tvl : 0,
+    isLoading: tokensReady ? loading || isLoadingBalances : true,
     error,
   };
 };

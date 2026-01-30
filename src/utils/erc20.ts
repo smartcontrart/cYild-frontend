@@ -3,18 +3,14 @@ import {
   waitForTransactionReceipt,
   readContract,
 } from "@wagmi/core";
-import {
-  config as wagmiConfig,
-  baseWagmiConfig,
-  arbitrumWagmiConfig,
-} from "@/components/global/providers";
+import { wagmiConfig } from "@/components/global/providers";
 import { erc20Abi, parseUnits } from "viem";
 import { ERROR_CODES } from "./types";
 import { ERC20TokenInfo } from "./constants";
 
 export const getERC20TokenInfo = async (
   address: string,
-  chainId: number
+  chainId: number,
 ): Promise<ERC20TokenInfo> => {
   try {
     const contractAddress = address as `0x${string}`;
@@ -25,32 +21,29 @@ export const getERC20TokenInfo = async (
       return JSON.parse(cachedData);
     }
 
-    const name = await readContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: erc20Abi,
-        address: contractAddress as `0x${string}`,
-        functionName: "name",
-      }
-    );
-    const symbol = await readContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: erc20Abi,
-        address: contractAddress as `0x${string}`,
-        functionName: "symbol",
-      }
-    );
-    const decimals = await readContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: erc20Abi,
-        address: contractAddress as `0x${string}`,
-        functionName: "decimals",
-      }
-    );
+    const name = await readContract(wagmiConfig, {
+      abi: erc20Abi,
+      address: contractAddress as `0x${string}`,
+      functionName: "name",
+    });
+    const symbol = await readContract(wagmiConfig, {
+      abi: erc20Abi,
+      address: contractAddress as `0x${string}`,
+      functionName: "symbol",
+    });
+    const decimals = await readContract(wagmiConfig, {
+      abi: erc20Abi,
+      address: contractAddress as `0x${string}`,
+      functionName: "decimals",
+    });
 
-    const metadata = { name, symbol, decimals, address: contractAddress };
+    const metadata = {
+      name,
+      symbol,
+      decimals,
+      address: contractAddress,
+      chainId,
+    };
     localStorage.setItem(cacheKey, JSON.stringify(metadata));
     return metadata;
   } catch (error) {
@@ -61,13 +54,14 @@ export const getERC20TokenInfo = async (
     symbol: "UNDEFINED",
     decimals: 18,
     address: "0x00000000000000000000000000000000",
+    chainId,
   };
 };
 
 export const getCurrentAllowance = async (
   userAddress: string,
   tokenAddress: string,
-  spender: string
+  spender: string,
 ) => {
   if (
     !userAddress ||
@@ -89,7 +83,7 @@ export const getCurrentAllowance = async (
   try {
     const allowance = await readContract(
       wagmiConfig,
-      getCurrentAllowanceConfig
+      getCurrentAllowanceConfig,
     );
     return allowance;
   } catch (error: any) {
@@ -105,7 +99,7 @@ export const approveToken = async (
   decimals: number,
   value: any,
   walletClient?: any,
-  publicClient?: any
+  publicClient?: any,
 ) => {
   if (!userAddress || !userAddress.startsWith("0x")) {
     return {
@@ -146,7 +140,7 @@ export const approveToken = async (
   const currentAllowance = await getCurrentAllowance(
     userAddress,
     tokenAddress,
-    spenderAddress
+    spenderAddress,
   );
   if (
     currentAllowance &&
@@ -194,18 +188,15 @@ export const approveToken = async (
 export const getERC20TokenBalance = async (
   tokenAddress: string,
   holderAddress: string,
-  chainId: number
+  chainId: number,
 ) => {
   if (tokenAddress && holderAddress) {
-    const balance = await readContract(
-      chainId === 8453 ? baseWagmiConfig : arbitrumWagmiConfig,
-      {
-        abi: erc20Abi,
-        address: tokenAddress as `0x${string}`,
-        functionName: "balanceOf",
-        args: [holderAddress as `0x${string}`],
-      }
-    );
+    const balance = await readContract(wagmiConfig, {
+      abi: erc20Abi,
+      address: tokenAddress as `0x${string}`,
+      functionName: "balanceOf",
+      args: [holderAddress as `0x${string}`],
+    });
     if (balance) return balance;
   }
   return BigInt(0);

@@ -13,7 +13,7 @@ if (!projectId) {
   throw new Error("NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not defined");
 }
 
-export const config = createConfig(
+export const wagmiConfig = createConfig(
   getDefaultConfig({
     appName: "Yild Finance",
     walletConnectProjectId: projectId,
@@ -25,20 +25,6 @@ export const config = createConfig(
   }),
 );
 
-export const baseWagmiConfig = getDefaultConfig({
-  appName: "Yild Finance",
-  walletConnectProjectId: projectId,
-  chains: [base],
-  ssr: true,
-});
-
-export const arbitrumWagmiConfig = getDefaultConfig({
-  appName: "Yild Finance",
-  walletConnectProjectId: projectId,
-  chains: [arbitrum],
-  ssr: true,
-});
-
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -49,7 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <NextThemesProvider
           attribute="class"

@@ -7,6 +7,7 @@ import { reArrangeTokensByContractAddress } from "@/utils/functions";
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { useChainId } from "wagmi";
 import { ERC20TokenInfo } from "@/utils/constants";
+import { AmountSetter } from "./amount-setter";
 
 export const RangeAndAmountSetter = () => {
   const chainId = useChainId();
@@ -51,20 +52,15 @@ export const RangeAndAmountSetter = () => {
       {token0Price && token1Price ? (
         <>
           <PriceRangeSetter direction={direction} />
-          {/*<AmountSetter
-            tokens={sortedTokensByCA}
-            tickLower={tickLower}
-            tickUpper={tickUpper}
-            token0Price={Number(token0Price)}
-            token1Price={Number(token1Price)}
-            onAmountsChange={(data: any) => {
-              data.token0Amount &&
-                onInfoChange({ token0Amount: data.token0Amount });
-              data.token1Amount &&
-                onInfoChange({ token1Amount: data.token1Amount });
-            }}
-            chainId={chainId}
-          />*/}
+          <AmountSetter
+            onAmountsChange={() => {}}
+            // onAmountsChange={(data: any) => {
+            //   data.token0Amount &&
+            //     onInfoChange({ token0Amount: data.token0Amount });
+            //   data.token1Amount &&
+            //     onInfoChange({ token1Amount: data.token1Amount });
+            // }}
+          />
         </>
       ) : (
         <></>

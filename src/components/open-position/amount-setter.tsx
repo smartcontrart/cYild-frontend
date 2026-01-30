@@ -11,42 +11,45 @@ import {
   tickToPrice,
 } from "@/utils/functions";
 import TokenLiveBalance from "../token/token-live-balance";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId, useConnection } from "wagmi";
 import { useTokenBalance } from "@/hooks/use-token-balance";
 import { formatUnits, parseUnits } from "viem";
 import SetPercentageButtons from "./set-percentage-buttons";
+import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
+import { useTokenPrice } from "@/hooks/use-token-price";
 
 export const AmountSetter = ({
-  tokens,
-  tickLower,
-  tickUpper,
-  token0Price,
-  token1Price,
   onAmountsChange,
-  chainId,
 }: {
-  tokens: ERC20TokenInfo[];
-  tickLower: number;
-  tickUpper: number;
-  token0Price: number;
-  token1Price: number;
   onAmountsChange: Function;
-  chainId: number;
 }) => {
-  const { address: userAddress } = useAccount();
+  const { selectedPool, tickLower, tickUpper } = useNewPositionStore();
+  const { address: userAddress } = useConnection();
+  const chainId = useChainId();
   const [isUserEditingForToken0, setIsUserEditingForToken0] = useState(false);
   const [token0Amount, setToken0Amount] = useState("0");
   const [token1Amount, setToken1Amount] = useState("0");
+
+  const tokens = [
+    selectedPool?.token0 as ERC20TokenInfo,
+    selectedPool?.token1 as ERC20TokenInfo,
+  ];
+
+  const { data: token0Price } = useTokenPrice(tokens[0].address, chainId);
+  const { data: token1Price } = useTokenPrice(tokens[1].address, chainId);
+
   const { data: token0Balance } = useTokenBalance(
     userAddress || "",
     tokens[0].address,
-    chainId
+    chainId,
   );
   const { data: token1Balance } = useTokenBalance(
     userAddress || "",
     tokens[1].address,
-    chainId
+    chainId,
   );
+
+  console.log(selectedPool);
 
   useEffect(() => {
     const [token0SortedByCA, token1SortedByCA] =
@@ -54,12 +57,12 @@ export const AmountSetter = ({
     const priceForTickLower = tickToPrice(
       tickLower,
       token0SortedByCA.decimals,
-      token1SortedByCA.decimals
+      token1SortedByCA.decimals,
     );
     const priceForTickUpper = tickToPrice(
       tickUpper,
       token0SortedByCA.decimals,
-      token1SortedByCA.decimals
+      token1SortedByCA.decimals,
     );
     let priceLower =
       priceForTickLower < priceForTickUpper
@@ -92,11 +95,11 @@ export const AmountSetter = ({
         priceRatio,
         priceLower,
         priceUpper,
-        Number(token0Amount)
+        Number(token0Amount),
       );
       const roundedToken1Amount = roundDown(
         newToken1Amount,
-        token1SortedByCA.decimals
+        token1SortedByCA.decimals,
       );
       console.log("Token0 -> Token1 calculation:", {
         inputToken0Amount: token0Amount,
@@ -104,7 +107,7 @@ export const AmountSetter = ({
         roundedToken1Amount,
       });
       setToken1Amount(
-        formatForDisplay(roundedToken1Amount, token1SortedByCA.decimals)
+        formatForDisplay(roundedToken1Amount, token1SortedByCA.decimals),
       );
       onAmountsChange({
         token0Amount: Number(token0Amount),
@@ -115,11 +118,11 @@ export const AmountSetter = ({
         priceRatio,
         priceLower,
         priceUpper,
-        Number(token1Amount)
+        Number(token1Amount),
       );
       const roundedToken0Amount = roundDown(
         newToken0Amount,
-        token0SortedByCA.decimals
+        token0SortedByCA.decimals,
       );
       console.log("Token1 -> Token0 calculation:", {
         inputToken1Amount: token1Amount,
@@ -127,7 +130,7 @@ export const AmountSetter = ({
         roundedToken0Amount,
       });
       setToken0Amount(
-        formatForDisplay(roundedToken0Amount, token0SortedByCA.decimals)
+        formatForDisplay(roundedToken0Amount, token0SortedByCA.decimals),
       );
       onAmountsChange({
         token0Amount: roundedToken0Amount,
@@ -152,7 +155,7 @@ export const AmountSetter = ({
           onChange={(e) => {
             const cleanedValue = validateAndCleanNumber(
               e.target.value,
-              tokens[0].decimals
+              tokens[0].decimals,
             );
             setIsUserEditingForToken0(true);
             setToken0Amount(cleanedValue);
@@ -161,7 +164,7 @@ export const AmountSetter = ({
         <SetPercentageButtons
           maxAmount={formatUnits(
             token0Balance || BigInt(0),
-            tokens[0].decimals
+            tokens[0].decimals,
           )}
           decimals={tokens[0].decimals}
           onSetAmount={(newValue: number) => {
@@ -207,7 +210,7 @@ export const AmountSetter = ({
           onChange={(e) => {
             const cleanedValue = validateAndCleanNumber(
               e.target.value,
-              tokens[1].decimals
+              tokens[1].decimals,
             );
             setIsUserEditingForToken0(false);
             setToken1Amount(cleanedValue);
@@ -216,7 +219,7 @@ export const AmountSetter = ({
         <SetPercentageButtons
           maxAmount={formatUnits(
             token1Balance || BigInt(0),
-            tokens[1].decimals
+            tokens[1].decimals,
           )}
           decimals={tokens[1].decimals}
           onSetAmount={(newValue: number) => {
