@@ -43,7 +43,8 @@ export const PoolInfo = ({
     <Card
       className={cn(
         "flex flex-col gap-2 p-5 cursor-pointer hover:bg-accent h-32 justify-between",
-        isSelectedPool && "bg-secondary",
+        isSelectedPool &&
+          "bg-primary text-primary-foreground hover:bg-primary/80",
       )}
       onClick={poolClicked}
     >

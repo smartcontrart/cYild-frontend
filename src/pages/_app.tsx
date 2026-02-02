@@ -9,6 +9,7 @@ import { Cog, Fuel } from "lucide-react";
 import { ThemeSwitch } from "@/components/global/theme-switch";
 import CustomWalletButton from "@/components/global/custom-wallet-button";
 import { Button } from "@/components/ui/button";
+import { NetworkSwitch } from "@/components/global/network-switch";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -63,6 +64,7 @@ export default function App({ Component, pageProps }: AppProps) {
                   </Button>
                 </Link>
                 <ThemeSwitch />
+                <NetworkSwitch />
                 <CustomWalletButton />
               </div>
             </nav>

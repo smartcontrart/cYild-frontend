@@ -21,6 +21,7 @@ export const wagmiConfig = createConfig(
     ssr: true,
     transports: {
       [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL),
+      [arbitrum.id]: http(),
     },
   }),
 );

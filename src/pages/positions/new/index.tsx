@@ -80,7 +80,7 @@ export default function NewPositionPage() {
       setSelectedToken0(undefined);
       setSelectedToken1(undefined);
     };
-  }, [setSelectedPool, setSelectedToken0, setSelectedToken1]);
+  }, [setSelectedPool, setSelectedToken0, setSelectedToken1, chainId]);
 
   // useEffect(() => {
   //   setSelectedFeeTier(INVALID_FEE_TIER);

@@ -26,6 +26,7 @@ export const SUPPORTED_CHAINS = [
     name: "arbitrum",
     secondaryRPC: "https://rpc.ankr.com/arbitrum",
     explorerURL: "https://arbiscan.io",
+    image: "/networkIcons/arbitrum.svg",
     positionManager:
       "0xad0CA4223CB8b7B1A18BD6AF99Dc942251d227Aa" as `0x${string}`,
     liquidityMath:
@@ -64,6 +65,7 @@ export const SUPPORTED_CHAINS = [
     name: "base",
     secondaryRPC: "https://rpc.ankr.com/base",
     explorerURL: "https://basescan.org",
+    image: "/networkIcons/base.png",
     positionManager:
       "0x6090a501C9c0DBEE2bdD950193D1A664a05cD004" as `0x${string}`,
     liquidityMath:
@@ -200,6 +202,13 @@ export const SUPPORTED_CHAINS = [
     ],
   },
 ];
+
+export const getNetworkDataFromChainId = (chainId: number) => {
+  const filtered = SUPPORTED_CHAINS.filter(
+    (elem: any) => elem.chainId === chainId,
+  );
+  return filtered && filtered.length > 0 ? filtered[0] : SUPPORTED_CHAINS[0];
+};
 
 export const getNetworkNameFromChainId = (chainId: number) => {
   const filtered = SUPPORTED_CHAINS.filter(

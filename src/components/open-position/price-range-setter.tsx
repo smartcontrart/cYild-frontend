@@ -119,6 +119,11 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
           value={minPrice}
           onChange={(e) => handleInputChange(e.target.value, setMinPrice)}
           onBlur={(e) => handleInputChangeComplete(e.target.value, true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleInputChangeComplete(e.currentTarget.value, true);
+            }
+          }}
         />
       </div>
       <div>
@@ -128,6 +133,11 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
           value={maxPrice}
           onChange={(e) => handleInputChange(e.target.value, setMaxPrice)}
           onBlur={(e) => handleInputChangeComplete(e.target.value, false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleInputChangeComplete(e.currentTarget.value, false);
+            }
+          }}
         />
       </div>
     </div>

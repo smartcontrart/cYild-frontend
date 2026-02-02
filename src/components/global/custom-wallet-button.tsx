@@ -5,6 +5,7 @@ import { Wallet, LogOut } from "lucide-react"; // Icons
 import { ConnectKitButton } from "connectkit";
 import { truncateAddress } from "@/utils/functions";
 import Image from "next/image";
+import { cn } from "@/utils/shadcn";
 
 export default function CustomWalletButton() {
   return (
@@ -13,11 +14,16 @@ export default function CustomWalletButton() {
         return (
           <Button
             onClick={show}
-            className="flex items-center gap-2 bg-background text-foreground border-border border hover:bg-background/50 min-w-[155px] font-sora font-medium z-10"
+            className={cn(
+              "flex items-center gap-2 bg-background border-border border z-10",
+              isConnected
+                ? "text-background bg-foreground"
+                : "text-foreground bg-background",
+            )}
           >
             {isConnected ? (
               <>
-                <Wallet />
+                <LogOut />
                 {ensName || truncateAddress(address || "")}
               </>
             ) : (

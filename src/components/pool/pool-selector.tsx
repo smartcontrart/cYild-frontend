@@ -17,6 +17,8 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
     chainId,
   });
 
+  console.log(availablePools);
+
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

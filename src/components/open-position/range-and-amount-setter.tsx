@@ -11,8 +11,7 @@ import { AmountSetter } from "./amount-setter";
 
 export const RangeAndAmountSetter = () => {
   const chainId = useChainId();
-  const { tickLower, tickUpper, token0Input, token1Input, selectedPool } =
-    useNewPositionStore();
+  const { selectedPool } = useNewPositionStore();
   const token0 = selectedPool?.token0 as ERC20TokenInfo;
   const token1 = selectedPool?.token1 as ERC20TokenInfo;
   const [direction, setDirection] = useState<"0p1" | "1p0">("0p1");

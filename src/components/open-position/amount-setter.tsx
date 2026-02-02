@@ -23,12 +23,18 @@ export const AmountSetter = ({
 }: {
   onAmountsChange: Function;
 }) => {
-  const { selectedPool, tickLower, tickUpper } = useNewPositionStore();
+  const {
+    selectedPool,
+    tickLower,
+    tickUpper,
+    token0Amount,
+    setToken0Amount,
+    token1Amount,
+    setToken1Amount,
+  } = useNewPositionStore();
   const { address: userAddress } = useConnection();
   const chainId = useChainId();
   const [isUserEditingForToken0, setIsUserEditingForToken0] = useState(false);
-  const [token0Amount, setToken0Amount] = useState("0");
-  const [token1Amount, setToken1Amount] = useState("0");
 
   const tokens = [
     selectedPool?.token0 as ERC20TokenInfo,
@@ -48,8 +54,6 @@ export const AmountSetter = ({
     tokens[1].address,
     chainId,
   );
-
-  console.log(selectedPool);
 
   useEffect(() => {
     const [token0SortedByCA, token1SortedByCA] =
