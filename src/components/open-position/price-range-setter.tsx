@@ -72,8 +72,8 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
   useEffect(() => {
     const basePriceRatio =
       direction === "0p1"
-        ? token0Price / token1Price
-        : token1Price / token0Price;
+        ? Number(token0Price ?? 0) / Number(token1Price ?? 1)
+        : Number(token1Price ?? 0) / Number(token0Price ?? 1);
 
     const { adjustedPrice: adjustedPriceMin, validTick: validTickLower } =
       getNearestValidPrice(basePriceRatio * 0.95);

@@ -3,7 +3,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { PriceRangeSetter } from "./price-range-setter";
-import { reArrangeTokensByContractAddress } from "@/utils/functions";
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { useChainId } from "wagmi";
 import { ERC20TokenInfo } from "@/utils/constants";
@@ -51,15 +50,7 @@ export const RangeAndAmountSetter = () => {
       {token0Price && token1Price ? (
         <>
           <PriceRangeSetter direction={direction} />
-          <AmountSetter
-            onAmountsChange={() => {}}
-            // onAmountsChange={(data: any) => {
-            //   data.token0Amount &&
-            //     onInfoChange({ token0Amount: data.token0Amount });
-            //   data.token1Amount &&
-            //     onInfoChange({ token1Amount: data.token1Amount });
-            // }}
-          />
+          <AmountSetter />
         </>
       ) : (
         <></>

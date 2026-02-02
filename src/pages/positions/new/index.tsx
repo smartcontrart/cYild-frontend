@@ -58,6 +58,8 @@ export default function NewPositionPage() {
     setSelectedPool,
     setSelectedToken0,
     setSelectedToken1,
+    tickUpper,
+    tickLower,
   } = useNewPositionStore();
 
   const [pageStatus, setPageStatus] = useState<string | null>(
@@ -68,9 +70,6 @@ export default function NewPositionPage() {
   const [currentAccountingUnit, setCurrentAccountingUnit] =
     useState<ERC20TokenInfo | null>(null);
   const [selectedFeeTier, setSelectedFeeTier] = useState(INVALID_FEE_TIER);
-  const [tickUpper, setTickUpper] = useState(0);
-  const [tickLower, setTickLower] = useState(0);
-  const [poolsExist, setPoolsExist] = useState(true);
   const [preloadingBeforeOpen, setPreloadingBeforeOpen] = useState(false);
 
   useEffect(() => {
@@ -396,15 +395,11 @@ export default function NewPositionPage() {
           </Button>
           <Button
             disabled={
-              !selectedToken0 ||
-              !selectedToken1 ||
-              !selectedFeeTier ||
-              !tickLower ||
-              !tickUpper ||
-              !Number(sortedToken0Amount) ||
-              Number(sortedToken0Amount) <= 0 ||
-              !Number(sortedToken1Amount) ||
-              Number(sortedToken1Amount) <= 0
+              !selectedToken0 || !selectedToken1 || !tickLower || !tickUpper
+              // !Number(sortedToken0Amount) ||
+              // Number(sortedToken0Amount) <= 0 ||
+              // !Number(sortedToken1Amount) ||
+              // Number(sortedToken1Amount) <= 0
             }
             onClick={() => {
               handleCreatePosition();

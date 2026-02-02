@@ -36,7 +36,8 @@ export const PoolInfo = ({
     setSelectedPool(poolInfo);
   };
 
-  const isSelectedPool = selectedPool?.poolAddress === poolInfo?.poolAddress;
+  const isSelectedPool =
+    selectedPool && selectedPool?.poolAddress === poolInfo?.poolAddress;
   const isLoading = isLoadingPoolInfo || isLoadingGraphInfo;
 
   return (
