@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { ERC20TokenInfo } from "./constants";
+import { ERC20TokenInfo, getNetworkDataFromChainId } from "./constants";
 
 export function getRequiredToken1AmountFromToken0Amount(
   currentPrice: number,
@@ -174,14 +174,6 @@ export const multiplyBigIntWithFloat = (big: bigint, num: number): bigint => {
   return (big * scaledNum) / BigInt(scaleFactor); // Multiply and adjust back
 };
 
-export const toChecksumAddress = (address: string): string => {
-  try {
-    return ethers.getAddress(address);
-  } catch (e) {
-    return "";
-  }
-};
-
 export const roundDown = (num: number, decimals: number): number => {
   // Handle edge cases
   if (num === 0) return 0;
@@ -249,4 +241,72 @@ export const validateNumericInput = (value: string): boolean => {
 
 export const truncateAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+// sleep method
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Returns the explorer URL for a block explorer based on the chain and hash
+ * @param chain - The chain ID (e.g., 1 for Ethereum Mainnet, 8453 for Base)
+ * @param hash - The address or transaction hash
+ * @returns The full URL to the block explorer
+ */
+export const getExplorerUrl = (chain: number, hash: string) => {
+  const networkData = getNetworkDataFromChainId(chain);
+  const baseUrl = networkData.explorerURL;
+
+  if (!hash) {
+    return baseUrl;
+  }
+
+  // Typically, transaction hashes are 66 characters (0x + 64 hex chars)
+  // Addresses are 42 characters (0x + 40 hex chars)
+  if (hash.length >= 66) {
+    return `${baseUrl}/tx/${hash}`;
+  } else {
+    return `${baseUrl}/address/${hash}`;
+  }
+};
+
+/**
+ * Waits for an allowance value to change by polling every interval
+ * @param getAllowance - Function that returns a Promise<bigint> to fetch current allowance
+ * @param initialAllowance - The initial allowance value to compare against
+ * @param options - Configuration options
+ * @param options.maxWaitTime - Maximum time to wait in milliseconds (default: 8000)
+ * @param options.pollInterval - Interval between polls in milliseconds (default: 500)
+ * @returns Promise<bigint> - The new allowance value, or throws if timeout reached
+ */
+export const waitForAllowanceChange = async (
+  getAllowance: () => Promise<bigint>,
+  initialAllowance: bigint,
+  options: {
+    maxWaitTime?: number;
+    pollInterval?: number;
+  } = {},
+): Promise<bigint> => {
+  const { maxWaitTime = 10000, pollInterval = 500 } = options;
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < maxWaitTime) {
+    try {
+      const currentAllowance = await getAllowance();
+
+      // If allowance has changed, return the new value
+      if (currentAllowance !== initialAllowance) {
+        return currentAllowance;
+      }
+    } catch (error) {
+      console.warn("Error checking allowance:", error);
+      // Continue polling even if there's an error
+    }
+
+    // Wait before next poll
+    await sleep(pollInterval);
+  }
+
+  // Timeout reached - throw error
+  throw new Error(`Allowance did not change within ${maxWaitTime}ms`);
 };

@@ -1,6 +1,6 @@
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { Card } from "../ui/card";
-import { PoolInfo as PoolInfoType } from "@/utils/interfaces";
+import { PoolInfo as PoolInfoType } from "@/utils/interfaces/misc";
 import { cn } from "@/utils/shadcn";
 import { useGraphPoolInfo } from "@/hooks/use-graph-pool-info";
 import { formatNumber } from "@/utils/functions";

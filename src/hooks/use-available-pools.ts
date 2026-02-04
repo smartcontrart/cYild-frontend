@@ -11,7 +11,7 @@ import { getPoolInfoDetail } from "@/utils/pools";
 import { Address } from "viem";
 import { readContracts } from "@wagmi/core";
 import { useReadContracts } from "wagmi";
-import { PoolInfo } from "@/utils/interfaces";
+import { PoolInfo } from "@/utils/interfaces/misc";
 import { reArrangeTokensByContractAddress } from "@/utils/functions";
 
 const abi = [

@@ -1,5 +1,5 @@
 import { ERC20TokenInfo } from "@/utils/constants";
-import { PoolInfo } from "@/utils/interfaces";
+import { PoolInfo } from "@/utils/interfaces/misc";
 import { create } from "zustand";
 
 type NewPositionStore = {

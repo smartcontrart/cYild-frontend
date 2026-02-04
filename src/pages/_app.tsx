@@ -10,6 +10,7 @@ import { ThemeSwitch } from "@/components/global/theme-switch";
 import CustomWalletButton from "@/components/global/custom-wallet-button";
 import { Button } from "@/components/ui/button";
 import { NetworkSwitch } from "@/components/global/network-switch";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:image" content="/y.png" />
       </Head>
       <Providers>
+        <Toaster />
         <div className={`flex flex-col min-h-screen bg-background font-kirsty`}>
           <header className="border-b">
             <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
