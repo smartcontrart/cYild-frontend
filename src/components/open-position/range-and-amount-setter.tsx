@@ -37,12 +37,14 @@ export const RangeAndAmountSetter = () => {
 
       {direction === "0p1" ? (
         <div>
-          1 {token0.symbol} is worth {Number(token0Price) / Number(token1Price)}{" "}
+          1 {token0.symbol} is worth{" "}
+          {(Number(token0Price) / Number(token1Price)).toFixed(5)}{" "}
           {token1.symbol}
         </div>
       ) : (
         <div>
-          1 {token1.symbol} is worth {Number(token1Price) / Number(token0Price)}{" "}
+          1 {token1.symbol} is worth{" "}
+          {(Number(token1Price) / Number(token0Price)).toFixed(5)}{" "}
           {token0.symbol}
         </div>
       )}

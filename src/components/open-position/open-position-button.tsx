@@ -20,7 +20,7 @@ import { ToastLink } from "../global/toast-link";
 import { wagmiConfig } from "../global/providers";
 import { parseUnits } from "viem";
 import { getBlock } from "@wagmi/core";
-import { PositionManagerABI } from "@/abi/PositionManager";
+import PositionManagerABI from "@/abi/PositionManager";
 import { useUserAccountingUnit } from "@/hooks/contracts/read/use-user-accounting-unit";
 import { useRouter } from "next/router";
 
@@ -164,6 +164,8 @@ export const OpenPositionButton = () => {
           deadline: deadlineTimestamp,
         },
       };
+
+      console.log(params);
 
       const txHash = await executeContract({
         address: getManagerContractAddressFromChainId(token0.chainId),

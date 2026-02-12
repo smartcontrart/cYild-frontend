@@ -1,57 +1,78 @@
-import { useAccount, useChainId } from "wagmi";
-
-import { usePositionStaticInfo } from "@/hooks/use-position-static-info"
-import { Skeleton } from "../ui/skeleton";
-import { PoolCard } from "./pool-card";
-import { usePositionFundsInfo } from "@/hooks/use-position-funds-info";
-import { PositionCard } from "./position-card";
-import { useAccountingUnit } from "@/hooks/use-accounting-unit";
+import { PositionInfo as PositionInfoInterface } from "@/utils/interfaces/misc";
+import { ReactNode } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { ERC20TokenInfo } from "@/utils/constants";
+import LazyLoader from "../ui/lazy-loader";
 
 export const PositionInfo = ({
-  positionId,
-  chainId
+  position,
+  token0Info,
+  token1Info,
+  className,
 }: {
-  positionId: number,
-  chainId: number
+  position: PositionInfoInterface;
+  token0Info?: ERC20TokenInfo;
+  token1Info?: ERC20TokenInfo;
+  className?: string;
 }) => {
-  const { isConnected, address } = useAccount();
-  const { data: accountingUnit, isLoading: isAccountingUnitLoading } = useAccountingUnit(address || "", chainId)
-  const { data: positionStaticInfo, isLoading: isPositionStaticInfoLoading } = usePositionStaticInfo(address || "", positionId)
-  const { data: positionFundsInfo, isLoading: isPositionFundsInfoLoading } = usePositionFundsInfo(positionId, chainId)
-
-  if (!isConnected || !isPositionStaticInfoLoading && !positionStaticInfo) 
-    return (
-      <>Position Not Found...</>
-    )
+  const formattedPositionCreation = position
+    ? position.createdAt
+      ? new Date(position.createdAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        })
+      : ""
+    : "";
 
   return (
-    <>
-      <div className="grid gap-4 md:grid-cols-2">
-        {
-          (isPositionFundsInfoLoading || isAccountingUnitLoading) ?
-          <Skeleton className="h-[426px] rounded-xl"/>
-          :
-          <PositionCard 
-            accountingUnit={accountingUnit}
-            positionId={positionId}
-            data={{
-              ...positionFundsInfo,
-              tickLower: positionStaticInfo?.tickLower,
-              tickUpper: positionStaticInfo?.tickUpper
-            }} 
-            chainId={chainId} 
-          />
-        }
-        {
-          isPositionStaticInfoLoading ? 
-          <Skeleton className="h-[426px] rounded-xl"/>
-          :
-          <PoolCard 
-            address={positionStaticInfo.poolAddress} 
-            chainId={chainId} 
-          />
-        }
-      </div>
-    </>
-  )
-}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-normal text-muted-foreground">
+          Position Info
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <ListItem
+          label="Position ID"
+          value={`#${position?.activeTokenId}`}
+          isLoading={position === undefined}
+        />
+        <ListItem
+          label="Created At"
+          value={formattedPositionCreation}
+          isLoading={position === undefined}
+        />
+        <ListItem
+          label="Token 0"
+          value={token0Info?.symbol}
+          isLoading={position === undefined || token0Info === undefined}
+        />
+        <ListItem
+          label="Token 1"
+          value={token1Info?.symbol}
+          isLoading={position === undefined || token1Info === undefined}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+const ListItem = ({
+  label,
+  value,
+  isLoading,
+}: {
+  label: string;
+  value: ReactNode;
+  isLoading: boolean;
+}) => {
+  return (
+    <section className="flex justify-between text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <LazyLoader isLoading={isLoading} className="min-w-20 text-right">
+        {value}
+      </LazyLoader>
+    </section>
+  );
+};

@@ -8,8 +8,8 @@ import {
 } from "@wagmi/core";
 import { parseUnits } from "viem";
 
-import { PositionManagerABI } from "@/abi/PositionManager";
-import { LiquidityMathABI } from "@/abi/LiquidityMath";
+import PositionManagerABI from "@/abi/PositionManager";
+import LiquidityMathABI from "@/abi/LiquidityMath";
 
 import {
   ERC20TokenInfo,

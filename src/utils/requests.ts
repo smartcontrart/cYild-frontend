@@ -11,7 +11,9 @@ import { roundDown } from "./functions";
 export const getPositions = async (address: string) => {
   let temp: any = [];
   try {
-    const response = await fetch(`${BACKEND_API_URL}/positions/${address}`);
+    const response = await fetch(
+      `${BACKEND_API_URL}/api/positions/owner/${address}`,
+    );
     const { data } = await response.json();
     return data;
   } catch (err) {
@@ -24,7 +26,7 @@ export const getClosedPositions = async (address: string) => {
   let temp: any = [];
   try {
     const response = await fetch(
-      `${BACKEND_API_URL}/positions/${address}/closed`
+      `${BACKEND_API_URL}/api/positions/${address}/closed`,
     );
     const { data } = await response.json();
     return data;
@@ -36,13 +38,13 @@ export const getClosedPositions = async (address: string) => {
 
 export const getPositionStaticInfo = async (
   address: string,
-  positionId: number
+  positionId: number,
 ) => {
   if (!address || !positionId) return null;
 
   const positions = await getPositions(address);
   const filtered = positions.filter(
-    (elem: any) => Number(elem.tokenId) === positionId
+    (elem: any) => Number(elem.tokenId) === positionId,
   );
 
   if (!filtered || filtered.length < 1) return null;
@@ -92,14 +94,14 @@ export const fetchParaswapRoute = async (
   amount: bigint,
   chainId: number,
   slippage: number,
-  userAddress: string
+  userAddress: string,
 ) => {
   try {
     const response = await fetch(
       `${PARASWAP_API_URL}&srcToken=${srcToken}&srcDecimals=${srcDecimals}&destToken=${destToken}&destDecimals=${destDecimals}&amount=${roundDown(
         Number(amount) * 0.999,
-        0
-      )}&side=SELL&network=${chainId}&slippage=${slippage}&userAddress=${userAddress}`
+        0,
+      )}&side=SELL&network=${chainId}&slippage=${slippage}&userAddress=${userAddress}`,
     );
     const response_json = await response.json();
     if (response_json && response_json.txParams && response_json.priceRoute) {
@@ -127,38 +129,47 @@ export const fetchParaswapRoute = async (
 
 export const fetchTokenPrice = async (
   tokenAddress: string,
-  chainId: number
+  chainId: number,
 ) => {
   try {
     const chainName =
       chainId === 1
         ? "ethereum"
         : chainId === 8453
-        ? "base"
-        : chainId === 42161
-        ? "arbitrum"
-        : "not-supported";
+          ? "base"
+          : chainId === 42161
+            ? "arbitrum"
+            : "not-supported";
+    if (chainName === "not-supported") {
+      return 0;
+    }
     const response = await fetch(
-      `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`
+      `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`,
     );
     const data = await response.json();
 
     if (data.pairs && data.pairs.length > 0) {
-      const priceInfo = data.pairs.filter(
-        (pair: any) => pair.chainId === chainName || pair.dexId === "uniswap"
-      );
-      return priceInfo[0].priceUsd;
+      const priceInfo = data.pairs
+        // filter for matching chain
+        .filter((pair: any) => pair.chainId === chainName)
+        // sort uniswap to the top
+        .sort((a: any, b: any) => {
+          if (a.dexId === "uniswap" && b.dexId !== "uniswap") return -1;
+          if (a.dexId !== "uniswap" && b.dexId === "uniswap") return 1;
+          return 0;
+        });
+      return Number(priceInfo[0].priceUsd);
     }
   } catch (error) {
-    console.error("Error fetching token1 price:", error);
-    return null;
+    console.error("Error fetching token price:", error);
+    return 0;
   }
 };
 
 export const sendClosePositionReport = async (
   userAddress: string,
   chainId: number,
-  positionId: number
+  positionId: number,
 ) => {
   try {
     const response = await fetch(
@@ -169,7 +180,7 @@ export const sendClosePositionReport = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ userAddress }),
-      }
+      },
     );
     const data = await response.json();
     return data;
@@ -181,7 +192,7 @@ export const sendClosePositionReport = async (
 
 export const getMaxSlippageForPosition = async (
   positionId: number,
-  chainId: number
+  chainId: number,
 ): Promise<number> => {
   try {
     const response = await fetch(
@@ -191,7 +202,7 @@ export const getMaxSlippageForPosition = async (
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     const data = await response.json();
     if (data && data.success) return data.data.maxSlippage;
@@ -204,12 +215,12 @@ export const getMaxSlippageForPosition = async (
 export const getTickBuffersForPosition = async (
   address: string,
   positionId: number,
-  chainId: number
+  chainId: number,
 ): Promise<any> => {
   try {
     const positions = await getPositions(address);
     const filtered = positions.filter(
-      (elem: any) => Number(elem.tokenId) === positionId
+      (elem: any) => Number(elem.tokenId) === positionId,
     );
 
     if (!filtered || filtered.length < 1) return {};
@@ -224,7 +235,7 @@ export const getTickBuffersForPosition = async (
 export const updateMaxSlippageForPosition = async (
   positionId: number,
   chainId: number,
-  maxSlippage: number
+  maxSlippage: number,
 ): Promise<boolean> => {
   try {
     const response = await fetch(
@@ -235,7 +246,7 @@ export const updateMaxSlippageForPosition = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ maxSlippage }),
-      }
+      },
     );
     const data = await response.json();
     if (data && (data.success || data.success === "true")) return true;
@@ -248,7 +259,7 @@ export const updateMaxSlippageForPosition = async (
 export const updateTickBuffers = async (
   positionId: number,
   upperTickBuffer: number,
-  lowerTickBuffer: number
+  lowerTickBuffer: number,
 ): Promise<boolean> => {
   try {
     const response = await fetch(
@@ -259,7 +270,7 @@ export const updateTickBuffers = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ upperTickBuffer, lowerTickBuffer }),
-      }
+      },
     );
     const data = await response.json();
     if (data && (data.success || data.success === "true")) return true;
@@ -271,13 +282,13 @@ export const updateTickBuffers = async (
 
 export const getCoinGeckoImageURLFromTokenAddress = async (
   tokenAddress: string,
-  chainId: number
+  chainId: number,
 ) => {
   try {
     const coinMeta = await fetch(
       `${COINGECKO_PUBLIC_API_URL}/coins/${getNetworkNameFromChainId(
-        chainId
-      )}/contract/${tokenAddress}`
+        chainId,
+      )}/contract/${tokenAddress}`,
     );
     const { image } = await coinMeta.json();
     return image && image.large ? image.large : null;

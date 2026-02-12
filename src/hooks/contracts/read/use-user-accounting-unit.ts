@@ -1,4 +1,4 @@
-import { PositionManagerABI } from "@/abi/PositionManager";
+import PositionManagerABI from "@/abi/PositionManager";
 import { getManagerContractAddressFromChainId } from "@/utils/constants";
 import { Address } from "viem";
 import { base } from "viem/chains";
@@ -16,7 +16,7 @@ export const useUserAccountingUnit = () => {
     abi: PositionManagerABI,
     address: getManagerContractAddressFromChainId(chainId || base.id),
     functionName: "accountingUnit",
-    args: [address],
+    args: [address as Address],
   });
 
   const {

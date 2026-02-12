@@ -1,7 +1,7 @@
 import { ERC20TokenInfo } from "@/utils/constants";
 import { reArrangeTokensByContractAddress } from "@/utils/functions";
 
-import { useAvailablePools } from "@/hooks/use-available-pools";
+import { useAvailablePools } from "@/hooks/contracts/read/use-available-pools";
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { PoolInfo } from "./pool-info";
 

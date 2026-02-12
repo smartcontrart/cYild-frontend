@@ -1,172 +1,131 @@
 "use client";
 
 import { useRouter } from "next/router";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useAccount, useSwitchChain, useConnect } from "wagmi";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { POSITION_DETAIL_PAGE_STATE } from "@/utils/types";
+import { PositionInfo as PositionInfoInterface } from "@/utils/interfaces/misc";
+import { ERC20TokenInfo, getNetworkDataFromChainId } from "@/utils/constants";
+import TokenLogo from "@/components/global/token-logo";
+import LazyLoader from "@/components/ui/lazy-loader";
+import { useBatchFetchErc20Info } from "@/hooks/contracts/read/use-batch-fetch-erc20-info";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
+import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
+import { FeesEarned } from "@/components/position-info-card/fees-earned";
+import { PositionValue } from "@/components/position-info-card/position-value";
+import { Card, CardContent } from "@/components/ui/card";
+import { IncreaseLiquidityButton } from "@/components/position-detail/position-options/increase-liquidity-button";
+import { DecreaseLiquidityButton } from "@/components/position-detail/position-options/decrease-liquidity-button";
+import { CollectFeesButton } from "@/components/position-detail/position-options/collect-fees-button";
+import { ClosePositionButton } from "@/components/position-detail/position-options/close-position-button";
+import { PositionRangeDisplay } from "@/components/position-detail/position-range-display";
 import { PositionInfo } from "@/components/position-detail/position-info";
-import PositionControlPanel from "@/components/position-detail/position-control-panel";
-import { YildLoading } from "@/components/global/yild-loading";
-import WaitingAnimation from "@/components/global/waiting-animation";
+import Link from "next/link";
+import { base } from "viem/chains";
+import Image from "next/image";
 
 export default function PositionPage() {
-  const { isConnected, address, isDisconnected } = useAccount();
-  const { switchChain } = useSwitchChain();
-  const { connect, connectors } = useConnect();
   const router = useRouter();
-  const { toast } = useToast();
-  const [pageStatus, setPageStatus] = useState(POSITION_DETAIL_PAGE_STATE.PAGE_LOADED);
+  const { id: positionId } = router.query;
+
+  const { data: position } = useApiPositionInfo({
+    positionId: positionId as string,
+  });
+
+  const { data: positionInfo } = useContractPositionInfo({
+    positionChainId: position?.chainId as number,
+    positionTokenId: position?.activeTokenId as number,
+  });
+
+  const { fetchBatch } = useBatchFetchErc20Info();
+  const [token0Info, setToken0Info] = useState<ERC20TokenInfo | undefined>();
+  const [token1Info, setToken1Info] = useState<ERC20TokenInfo | undefined>();
 
   useEffect(() => {
-    const switchPromise = async () => {
-      if (router.query.chain) {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: Number(router.query.chain) === 8453 ? "0x2105" : "0xA4B1" }], // Chain ID in hex
-        });
+    const fetchTokens = async () => {
+      if (!position || !positionInfo?.token0 || !positionInfo?.token1) return;
+
+      const result = await fetchBatch(
+        [positionInfo.token0, positionInfo.token1],
+        position.chainId,
+      );
+
+      if (result.success.length > 0) {
+        const token0 = result.success.find(
+          (t) => t.address.toLowerCase() === positionInfo.token0.toLowerCase(),
+        );
+        const token1 = result.success.find(
+          (t) => t.address.toLowerCase() === positionInfo.token1.toLowerCase(),
+        );
+
+        if (token0) setToken0Info(token0);
+        if (token1) setToken1Info(token1);
       }
-    }
-    switchPromise()
-  }, [router.query.chain])
+    };
 
-  useEffect(() => {
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.POSITION_CLOSED) {
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully closed the position.",
-      })
-      setTimeout(() => router.push('/'), 2000)
-    }
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.FEES_COLLECTED)
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully collected fees.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.LIQUIDITY_DECREASED)
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully decreased liquidity.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.LIQUIDITY_INCREASED)
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully increased liquidity in the position.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.POSITION_COMPOUNDED) {
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully compounded fees back into the position.",
-      })
-      setTimeout(() => router.push('/'), 2000)
-    }
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE)
-      toast({
-        variant: "default",
-        title: "Info",
-        description: "Successfully updated advanced settings",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.COMPOUND_POSITION_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to compound fees back into the position.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.NOT_ENOUGH_FEES_EARNED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "The position did not earn enough fees to compound yet.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.TOKEN_APPROVE_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "User rejected token approval.",
-      })        
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.USER_REJECTED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "User rejected the transaction.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.CLOSE_POSITION_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to close the position.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.COLLECT_FEES_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to collect fees.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.INCREASE_LIQUIDITY_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to increase liquidity in the position.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.DECREASE_LIQUIDITY_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to decrease liquidity in the position.",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.SET_MAX_SLIPPAGE_FAILED)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update advanced settings",
-      })
-    if (pageStatus === POSITION_DETAIL_PAGE_STATE.PARASWAP_ERROR)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch appropriate liquidity/router from Paraswap, please try again later.",
-      })
-  }, [pageStatus])
-
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <YildLoading loading={!isDisconnected && !isConnected} />
-        <h2 className="text-2xl font-bold mb-4">
-          Connect your wallet to continue
-        </h2>
-        <p className="text-muted-foreground">
-          Please connect your wallet to manage your LP position
-        </p>
-      </div>
-    );
-  }
+    fetchTokens();
+  }, [positionInfo, fetchBatch, position]);
 
   return (
     <div className="space-y-6">
-      <YildLoading loading={!isDisconnected && !isConnected} />
+      <Header
+        position={position as PositionInfoInterface}
+        token0Info={token0Info}
+        token1Info={token1Info}
+      />
+
+      <section className="flex gap-3">
+        <Card className="w-1/2 p-0 overflow-hidden">
+          <CardContent className="w-full p-0 overflow-hidden">
+            <PositionValue
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
+          </CardContent>
+        </Card>
+        <Card className="w-1/2 p-0 overflow-hidden">
+          <CardContent className="w-full p-0 overflow-hidden">
+            <FeesEarned
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
+          </CardContent>
+        </Card>
+      </section>
+      <PositionRangeDisplay
+        position={position as PositionInfoInterface}
+        token0Info={token0Info}
+        token1Info={token1Info}
+      />
+      <PositionInfo
+        position={position as PositionInfoInterface}
+        token0Info={token0Info}
+        token1Info={token1Info}
+      />
+      <Card>
+        <CardContent className="py-4 flex flex-wrap gap-5">
+          <IncreaseLiquidityButton
+            position={position as PositionInfoInterface}
+            token0Info={token0Info}
+            token1Info={token1Info}
+          />
+          <DecreaseLiquidityButton />
+          <CollectFeesButton />
+          <ClosePositionButton />
+        </CardContent>
+      </Card>
+      {/*<YildLoading loading={!isDisconnected && !isConnected} />
       {
         (!Number(router.query.id) || !(Number(router.query.chain)))
         ? <>Loading Panel...</>
         :
         <>
           <PositionInfo positionId={Number(router.query.id)} chainId={Number(router.query.chain)} />
-          <PositionControlPanel 
-            positionId={Number(router.query.id)} 
-            chainId={(Number(router.query.chain))} 
-            setPageStatus={(newPageStatus: any) => setPageStatus(newPageStatus)} 
+          <PositionControlPanel
+            positionId={Number(router.query.id)}
+            chainId={(Number(router.query.chain))}
+            setPageStatus={(newPageStatus: any) => setPageStatus(newPageStatus)}
           />
         </>
       }
@@ -205,7 +164,70 @@ export default function PositionPage() {
           </AlertDialogHeader>
           <WaitingAnimation />
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog>*/}
     </div>
   );
 }
+
+const Header = ({
+  position,
+  token0Info,
+  token1Info,
+}: {
+  position: PositionInfoInterface;
+  token0Info?: ERC20TokenInfo;
+  token1Info?: ERC20TokenInfo;
+}) => {
+  const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
+
+  return (
+    <div className="flex flex-col gap-2 items-start relative">
+      <Link
+        href={"/"}
+        className="flex text-xs items-center gap-2 font-normal mb-2 text-muted-foreground cursor-pointer hover:underline"
+      >
+        <ArrowLeft size={13} className="-translate-y-0.5" />
+        Back to Positions
+      </Link>
+      <section className="flex gap-3">
+        <section className="-space-x-4 flex">
+          <TokenLogo token={token0Info} />
+          <TokenLogo token={token1Info} />
+        </section>
+        <section className="flex flex-col">
+          <div className="flex gap-2">
+            <div className="flex gap-1">
+              <LazyLoader
+                className="font-semibold min-w-8"
+                isLoading={token0Info === undefined}
+              >
+                {token0Info?.symbol}
+              </LazyLoader>
+              <span>/</span>
+              <LazyLoader
+                className="font-semibold min-w-8"
+                isLoading={token1Info === undefined}
+              >
+                {token1Info?.symbol}
+              </LazyLoader>
+            </div>
+            <div className="text-xs px-2 flex items-center bg-secondary rounded-full">
+              0.3%
+            </div>
+          </div>
+          <span className="text-xs text-muted-foreground flex items-center">
+            #{position?.activeTokenId}
+            <ExternalLink size={10} className="ml-2 cursor-pointer" />
+          </span>
+        </section>
+        <Image
+          src={networkData.image}
+          width={30}
+          height={20}
+          alt={networkData.name}
+          className="absolute right-0 top-1/2"
+        />
+      </section>
+    </div>
+  );
+};

@@ -20,8 +20,8 @@ export const NetworkSwitch = () => {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button className="bg-background text-foreground capitalize">
+      <DialogTrigger asChild>
+        <Button className="bg-background text-foreground capitalize border">
           <Image
             src={activeNetwork.image}
             width={20}

@@ -1,55 +1,52 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Coins, Plus, WavesLadder } from "lucide-react";
+import { Coins, WavesLadder } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { getClosedPositions, getPositions } from "@/utils/requests";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { useConnection } from "wagmi";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { YildLoading } from "@/components/global/yild-loading";
-import { PositionInfoFirstPage } from "@/components/position-detail/position-info-firstpage";
-import { ClosedPosition } from "@/components/position-detail/closed-position";
+import { usePositions } from "@/hooks/api/use-positions";
+import { PositionInfoCard } from "@/components/position-info-card/position-info-card";
 
 export default function Home() {
-  const { isConnected, address, isDisconnected } = useAccount();
-  const chainId = useChainId();
-  const [openedSwitch, setOpenedSwitch] = useState("opened")
-  const [positions, setPositions] = useState<any[]>([])
-  const [closedPositions, setClosedPositions] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+  const { isConnected, isDisconnected } = useConnection();
+  const [openedSwitch, setOpenedSwitch] = useState("opened");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const [positionsData, closedPostionsData] = await Promise.all([
-          getPositions(address as `0x${string}`),
-          getClosedPositions(address as `0x${string}`),
-        ])
-        setPositions(positionsData)
-        setClosedPositions(closedPostionsData)
-      } catch (err) {
-        console.error('Error fetching positions:', err)
-        setPositions([])
-      } finally {
-        setLoading(false)
-      }
-    }
+  const { data: userPositions } = usePositions();
 
-    if (isConnected && address) {
-      fetchData()
-    }
-  }, [address, chainId, isConnected, setLoading, setPositions])
+  const openPositions = userPositions?.filter(
+    (position) => position.status === "opened",
+  );
+  const closedPositions = userPositions?.filter(
+    (position) => position.status === "closed",
+  );
+
+  const viewedPositions =
+    openedSwitch === "opened" ? openPositions : closedPositions;
+
+  const sortedPositions = viewedPositions?.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA; // Sort by newest first
+  });
 
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center sm:min-h-[60vh] min-h-[80vh]">
         <YildLoading loading={!isDisconnected && !isConnected} />
-        <h2 className="text-xl font-bold mb-4 text-center">Sign in with your wallet to continue</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">
+          Sign in with your wallet to continue
+        </h2>
         <p className="text-muted-foreground sm:max-w-[60vw]">
-        Yild Finance is a cutting-edge DeFi platform designed to automate Uniswap V3 liquidity provision. By leveraging smart algorithms and on-chain data, Yild Finance dynamically adjusts liquidity positions, optimizing yield generation while reducing impermanent loss. Whether you're a passive investor or an experienced liquidity provider, our platform simplifies LP management, allowing you to maximize profits with minimal effort.
+          Yild Finance is a cutting-edge DeFi platform designed to automate
+          Uniswap V3 liquidity provision. By leveraging smart algorithms and
+          on-chain data, Yild Finance dynamically adjusts liquidity positions,
+          optimizing yield generation while reducing impermanent loss. Whether
+          you're a passive investor or an experienced liquidity provider, our
+          platform simplifies LP management, allowing you to maximize profits
+          with minimal effort.
         </p>
       </div>
     );
@@ -73,7 +70,7 @@ export default function Home() {
       <Tabs
         value={openedSwitch}
         onValueChange={(value: string) => {
-          setOpenedSwitch(value)
+          setOpenedSwitch(value);
         }}
         className="w-full"
       >
@@ -82,54 +79,11 @@ export default function Home() {
           <TabsTrigger value="closed">Closed Positions</TabsTrigger>
         </TabsList>
       </Tabs>
-      {
-        loading ? 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Skeleton className="h-[215px] rounded-xl" />
-            <Skeleton className="h-[215px] rounded-xl" />
-            <Skeleton className="h-[215px] rounded-xl" />
-            <Skeleton className="h-[215px] rounded-xl" />
-            <Skeleton className="h-[215px] rounded-xl" />
-            <Skeleton className="h-[215px] rounded-xl" />
-          </div> :
-          <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {
-                (openedSwitch === "opened" && positions.length > 0) && positions.map((positionData:any, i) =>
-                  <PositionInfoFirstPage
-                    key={i}
-                    positionId={positionData.tokenId}
-                    chainId={positionData.chainId}
-                  />
-                )
-              }
-              {
-                (openedSwitch === "closed" && closedPositions.length > 0) && closedPositions.map((positionData:any, i) =>
-                  <ClosedPosition
-                    key={i}
-                    positionId={positionData.tokenId}
-                    poolAddress={positionData.poolAddress}
-                    tickLower={positionData.lowerTick}
-                    tickUpper={positionData.upperTick}
-                  />
-                )
-              }
-            </div>
-            <div className="md:text-center md:mt-40">
-              {
-                openedSwitch === "opened" && positions.length === 0 ? (
-                  <>
-                  You do not have any {openedSwitch} positions at the moment. Provide liquidity to open a new position.
-                  </>
-                ) : openedSwitch === "closed" && closedPositions.length === 0 ? (
-                  <>
-                  You do not have any archieved positions.
-                  </>
-                ) : (<></>)
-              }
-            </div>
-          </>
-      }
+      <section className="flex flex-col gap-4">
+        {(sortedPositions || []).map((position) => (
+          <PositionInfoCard position={position} key={position.id} />
+        ))}
+      </section>
     </div>
   );
 }

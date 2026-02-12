@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { ERC20TokenInfo, getNetworkDataFromChainId } from "./constants";
 
 export function getRequiredToken1AmountFromToken0Amount(
@@ -143,18 +142,39 @@ export const visualizeFeeTier = (feeTier: number) => {
   return "0.00%";
 };
 
-export const formatNumber = (num: number): string => {
-  if (num < 1_000) return num.toString(); // Below 1K, return as is
-  const units = ["K", "M", "B", "T"]; // Thousand, Million, Billion, Trillion
-  let unitIndex = -1;
-  let formattedNum = num;
+export const formatNumber = (
+  value: number | string | undefined | null,
+  precision: number = 2,
+): string => {
+  if (value == null) return String(value);
 
-  while (formattedNum >= 1000 && unitIndex < units.length - 1) {
-    formattedNum /= 1000;
-    unitIndex++;
+  let number: number;
+
+  if (typeof value === "string") {
+    number = Number(value);
+    if (isNaN(number)) {
+      return value;
+    }
+  } else {
+    number = value;
   }
 
-  return `${formattedNum.toFixed(2)} ${units[unitIndex]}`;
+  const absNumber = Math.abs(number);
+
+  if (absNumber >= 1_000_000_000_000) {
+    return `${(number / 1_000_000_000_000).toFixed(precision)}T`;
+  }
+  if (absNumber >= 1_000_000_000) {
+    return `${(number / 1_000_000_000).toFixed(precision)}B`;
+  }
+  if (absNumber >= 1_000_000) {
+    return `${(number / 1_000_000).toFixed(precision)}M`;
+  }
+  if (absNumber >= 1_000) {
+    return `${(number / 1_000).toFixed(precision)}K`;
+  }
+
+  return number.toFixed(precision);
 };
 
 export const multiplyBigIntWithFloat = (big: bigint, num: number): bigint => {

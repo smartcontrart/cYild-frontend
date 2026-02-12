@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import {
   ERC20TokenInfo,
@@ -7,9 +6,7 @@ import {
   POOL_DATA_FETCH_INTERVAL,
   VALID_FEE_TIERS,
 } from "@/utils/constants";
-import { getPoolInfoDetail } from "@/utils/pools";
 import { Address } from "viem";
-import { readContracts } from "@wagmi/core";
 import { useReadContracts } from "wagmi";
 import { PoolInfo } from "@/utils/interfaces/misc";
 import { reArrangeTokensByContractAddress } from "@/utils/functions";

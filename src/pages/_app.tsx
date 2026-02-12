@@ -28,9 +28,9 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <Providers>
         <Toaster />
-        <div className={`flex flex-col min-h-screen bg-background font-kirsty`}>
+        <div className={`flex flex-col min-h-screen bg-background `}>
           <header className="border-b">
-            <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <nav className="w-full lg:w-7xl mx-auto px-4 h-16 flex items-center justify-between">
               <div className="flex flex-row gap-2">
                 <Link href="/" className="hover:cursor-pointer hidden md:block">
                   <div className=" flex flex-row gap-2 text-center items-center">
@@ -53,7 +53,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     >
                       YILD
                     </div>
-                    <div className="absolute bottom-[-8px] font-kirsty text-[16px] mx-auto w-full">
+                    <div className="absolute -bottom-2 font-kirsty text-[16px] mx-auto w-full">
                       FINANCE
                     </div>
                   </div>
@@ -71,11 +71,11 @@ export default function App({ Component, pageProps }: AppProps) {
               </div>
             </nav>
           </header>
-          <main className="container mx-auto px-4 py-8 grow">
+          <main className="w-full lg:w-7xl mx-auto px-4 py-8 grow">
             <Component {...pageProps} />
           </main>
           <footer className="mt-auto border-t">
-            <div className="container flex flex-row justify-between mx-auto my-4">
+            <div className="w-full lg:w-7xl flex flex-row justify-between mx-auto my-4">
               <Link href="/" className="hover:cursor-pointer">
                 <div className="mx-4 mt-1">Yild Finance</div>
               </Link>

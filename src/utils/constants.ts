@@ -11,8 +11,8 @@ export const USER_ERC_TOKEN_BALANCE_FETCH_INTERVAL = 15000;
 export const POSITION_INFO_FETCH_INTERVAL = 60000;
 export const POOL_DATA_FETCH_INTERVAL = 300000;
 
-// export const BACKEND_API_URL = "https://api.yild.finance/api";
-export const BACKEND_API_URL = "/api/proxy";
+export const BACKEND_API_URL = "http://3.21.154.47:3000";
+// export const BACKEND_API_URL = "/api/proxy";
 export const PARASWAP_API_URL = "https://api.paraswap.io/swap?version=6.2";
 export const COINGECKO_PUBLIC_API_URL = "https://api.coingecko.com/api/v3";
 export const UNISWAP_GITHUB_CLOUD_URL =
@@ -72,7 +72,7 @@ export const SUPPORTED_CHAINS: NetworkInfo[] = [
     explorerURL: "https://basescan.org",
     image: "/networkIcons/base.png",
     positionManager:
-      "0x6090a501C9c0DBEE2bdD950193D1A664a05cD004" as `0x${string}`,
+      "0x822B1FAdD716a7bB5ac149d0bf53f39991782F3C" as `0x${string}`,
     liquidityMath:
       "0x3cf31d8a2F2504111EEbc6281777D0Fc3a07B156" as `0x${string}`,
     uniswapFactory:
@@ -296,4 +296,5 @@ export interface ERC20TokenInfo {
   address: Address;
   chainId: number;
   image?: string;
+  data?: unknown;
 }
