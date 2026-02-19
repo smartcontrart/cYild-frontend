@@ -49,6 +49,18 @@ export const PositionRangeDisplay = ({
     token1Info?.decimals || 18,
   );
 
+  const closingLowerPrice = tickToPrice(
+    position?.closingLowerTick || 0,
+    token0Info?.decimals || 18,
+    token1Info?.decimals || 18,
+  );
+
+  const closingUpperPrice = tickToPrice(
+    position?.closingUpperTick || 0,
+    token0Info?.decimals || 18,
+    token1Info?.decimals || 18,
+  );
+
   const adjustedLowerPrice =
     direction === "0p1"
       ? lowerPrice / Number(token1Price ?? 0)
@@ -59,6 +71,16 @@ export const PositionRangeDisplay = ({
       ? upperPrice / Number(token1Price ?? 0)
       : upperPrice / Number(token0Price ?? 0);
 
+  const adustedClosingLowerPrice =
+    direction === "0p1"
+      ? closingLowerPrice / Number(token1Price ?? 0)
+      : closingLowerPrice / Number(token0Price ?? 0);
+
+  const adjustedClosingUpperPrice =
+    direction === "0p1"
+      ? closingUpperPrice / Number(token1Price ?? 0)
+      : closingUpperPrice / Number(token0Price ?? 0);
+
   const currentPrice =
     direction === "0p1"
       ? Number(token0Price ?? 0) / Number(token1Price ?? 1)
@@ -66,10 +88,16 @@ export const PositionRangeDisplay = ({
 
   const formattedLowerPrice = Number(adjustedLowerPrice).toLocaleString();
   const formattedUpperPrice = Number(adjustedUpperPrice).toLocaleString();
+  const formattedClosingLowerPrice = Number(
+    adustedClosingLowerPrice,
+  ).toLocaleString();
+  const formattedClosingUpperPrice = Number(
+    adjustedClosingUpperPrice,
+  ).toLocaleString();
   const formattedCurrentPrice = Number(currentPrice).toLocaleString();
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-auto">
       <CardHeader className="mb-0 pt-3">
         <CardTitle className="text-sm text-muted-foreground font-normal flex items-center justify-between">
           <span>Price Range</span>
@@ -87,9 +115,21 @@ export const PositionRangeDisplay = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col">
-        <section className="flex gap-3 justify-between h-28">
+        <section className="flex gap-3 justify-between md:h-28 flex-col md:flex-row">
           <PriceBox
             title="Min Price"
+            value={formattedClosingLowerPrice}
+            isLoading={
+              position === undefined ||
+              token0Price === undefined ||
+              token1Price === undefined ||
+              token0Info === undefined ||
+              token1Info === undefined
+            }
+            footer={footerText}
+          />
+          <PriceBox
+            title="Concentrated Min Price"
             value={formattedLowerPrice}
             footer={footerText}
             isLoading={
@@ -113,8 +153,20 @@ export const PositionRangeDisplay = ({
             }
           />
           <PriceBox
-            title="Max Price"
+            title="Concentrated Max Price"
             value={formattedUpperPrice}
+            isLoading={
+              position === undefined ||
+              token0Price === undefined ||
+              token1Price === undefined ||
+              token0Info === undefined ||
+              token1Info === undefined
+            }
+            footer={footerText}
+          />
+          <PriceBox
+            title="Max Price"
+            value={formattedClosingUpperPrice}
             isLoading={
               position === undefined ||
               token0Price === undefined ||
@@ -146,7 +198,7 @@ const PriceBox = ({
   return (
     <section
       className={cn(
-        "w-1/3 h-full flex flex-col items-center justify-between bg-secondary rounded-lg py-3",
+        "md:w-1/3 md:h-full flex flex-col items-center justify-between bg-secondary rounded-lg py-3",
         className,
       )}
     >

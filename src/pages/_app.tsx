@@ -11,6 +11,7 @@ import CustomWalletButton from "@/components/global/custom-wallet-button";
 import { Button } from "@/components/ui/button";
 import { NetworkSwitch } from "@/components/global/network-switch";
 import { Toaster } from "@/components/ui/sonner";
+import { Footer } from "@/components/global/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -74,17 +75,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <main className="w-full lg:w-7xl mx-auto px-4 py-8 grow">
             <Component {...pageProps} />
           </main>
-          <footer className="mt-auto border-t">
-            <div className="w-full lg:w-7xl flex flex-row justify-between mx-auto my-4">
-              <Link href="/" className="hover:cursor-pointer">
-                <div className="mx-4 mt-1">Yild Finance</div>
-              </Link>
-              <div className="flex flex-row gap-2 mx-4 items-center">
-                <Fuel size={18} />
-                <span className="items-center mt-1">5 GWEI</span>
-              </div>
-            </div>
-          </footer>
+          <Footer />
         </div>
       </Providers>
     </>

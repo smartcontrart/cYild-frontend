@@ -10,7 +10,15 @@ import { AmountSetter } from "./amount-setter";
 
 export const RangeAndAmountSetter = () => {
   const chainId = useChainId();
-  const { selectedPool } = useNewPositionStore();
+  const {
+    selectedPool,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setTickUpper,
+    setTickLower,
+    setMaxPrice,
+  } = useNewPositionStore();
   const token0 = selectedPool?.token0 as ERC20TokenInfo;
   const token1 = selectedPool?.token1 as ERC20TokenInfo;
   const [direction, setDirection] = useState<"0p1" | "1p0">("0p1");
@@ -49,13 +57,20 @@ export const RangeAndAmountSetter = () => {
         </div>
       )}
 
-      {token0Price && token1Price ? (
-        <>
-          <PriceRangeSetter direction={direction} />
+      {token0Price && token1Price && (
+        <section>
+          <PriceRangeSetter
+            direction={direction}
+            min={minPrice}
+            max={maxPrice}
+            setMax={setMaxPrice}
+            setMin={setMinPrice}
+            setTickLower={setTickLower}
+            setTickUpper={setTickUpper}
+            isConcentrated={false}
+          />
           <AmountSetter />
-        </>
-      ) : (
-        <></>
+        </section>
       )}
     </>
   );

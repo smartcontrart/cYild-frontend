@@ -73,8 +73,8 @@ export default function PositionPage() {
         token1Info={token1Info}
       />
 
-      <section className="flex gap-3">
-        <Card className="w-1/2 p-0 overflow-hidden">
+      <section className="flex gap-3 flex-col md:flex-row">
+        <Card className="md:w-1/2 p-0 overflow-hidden">
           <CardContent className="w-full p-0 overflow-hidden">
             <PositionValue
               position={position as PositionInfoInterface}
@@ -83,7 +83,7 @@ export default function PositionPage() {
             />
           </CardContent>
         </Card>
-        <Card className="w-1/2 p-0 overflow-hidden">
+        <Card className="md:w-1/2 p-0 overflow-hidden">
           <CardContent className="w-full p-0 overflow-hidden">
             <FeesEarned
               position={position as PositionInfoInterface}

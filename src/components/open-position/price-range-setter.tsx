@@ -1,6 +1,6 @@
 import { ERC20TokenInfo } from "@/utils/constants";
 import { Input } from "../ui/input";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   nearestValidTick,
   priceToTick,
@@ -12,21 +12,28 @@ import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { useChainId } from "wagmi";
 
-export const PriceRangeSetter = ({ direction }: { direction: string }) => {
+export const PriceRangeSetter = ({
+  direction,
+  min,
+  setMin,
+  max,
+  setMax,
+  setTickLower,
+  setTickUpper,
+  isConcentrated = false,
+}: {
+  direction: string;
+  min: string;
+  setMin: (min: string) => void;
+  max: string;
+  setMax: (max: string) => void;
+  setTickLower: (tickLower: number) => void;
+  setTickUpper: (tickUpper: number) => void;
+  isConcentrated?: boolean;
+}) => {
   const chainId = useChainId();
-  const {
-    selectedPool,
-    selectedToken0,
-    selectedToken1,
-    tickLower,
-    tickUpper,
-    setTickLower,
-    setTickUpper,
-    minPrice,
-    maxPrice,
-    setMinPrice,
-    setMaxPrice,
-  } = useNewPositionStore();
+  const { selectedPool, selectedToken0, selectedToken1 } =
+    useNewPositionStore();
   const tokens = [
     selectedToken0 as ERC20TokenInfo,
     selectedToken1 as ERC20TokenInfo,
@@ -75,14 +82,18 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
         ? Number(token0Price ?? 0) / Number(token1Price ?? 1)
         : Number(token1Price ?? 0) / Number(token0Price ?? 1);
 
+    // Use wider range for concentrated liquidity
+    const minMultiplier = isConcentrated ? 0.8 : 0.95;
+    const maxMultiplier = isConcentrated ? 1.2 : 1.05;
+
     const { adjustedPrice: adjustedPriceMin, validTick: validTickLower } =
-      getNearestValidPrice(basePriceRatio * 0.95);
+      getNearestValidPrice(basePriceRatio * minMultiplier);
     const { adjustedPrice: adjustedPriceMax, validTick: validTickUpper } =
-      getNearestValidPrice(basePriceRatio * 1.05);
+      getNearestValidPrice(basePriceRatio * maxMultiplier);
 
     // set initial min/max and ticks
-    setMinPrice(adjustedPriceMin.toString());
-    setMaxPrice(adjustedPriceMax.toString());
+    setMin(adjustedPriceMin.toString());
+    setMax(adjustedPriceMax.toString());
     setTickLower(validTickLower);
     setTickUpper(validTickUpper);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,10 +106,10 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
       const { validTick, adjustedPrice } = getNearestValidPrice(Number(value));
       // update values
       if (isMin) {
-        setMinPrice(adjustedPrice.toString());
+        setMin(adjustedPrice.toString());
         setTickLower(validTick);
       } else {
-        setMaxPrice(adjustedPrice.toString());
+        setMax(adjustedPrice.toString());
         setTickUpper(validTick);
       }
     }
@@ -116,8 +127,8 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
         <label htmlFor="">Min Price</label>
         <Input
           placeholder="0.0"
-          value={minPrice}
-          onChange={(e) => handleInputChange(e.target.value, setMinPrice)}
+          value={min}
+          onChange={(e) => handleInputChange(e.target.value, setMin)}
           onBlur={(e) => handleInputChangeComplete(e.target.value, true)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -130,8 +141,8 @@ export const PriceRangeSetter = ({ direction }: { direction: string }) => {
         <label htmlFor="">Max Price</label>
         <Input
           placeholder="0.0"
-          value={maxPrice}
-          onChange={(e) => handleInputChange(e.target.value, setMaxPrice)}
+          value={max}
+          onChange={(e) => handleInputChange(e.target.value, setMax)}
           onBlur={(e) => handleInputChangeComplete(e.target.value, false)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
