@@ -110,7 +110,11 @@ export default function PositionPage() {
             token0Info={token0Info}
             token1Info={token1Info}
           />
-          <DecreaseLiquidityButton />
+          <DecreaseLiquidityButton
+            position={position as PositionInfoInterface}
+            token0Info={token0Info}
+            token1Info={token1Info}
+          />
           <CollectFeesButton />
           <ClosePositionButton />
         </CardContent>

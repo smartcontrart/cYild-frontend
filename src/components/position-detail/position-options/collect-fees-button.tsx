@@ -4,9 +4,13 @@ import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-pos
 import { useContractExecution } from "@/hooks/contracts/write/use-contract-execution";
 import PositionManagerABI from "@/abi/PositionManager";
 import { getManagerContractAddressFromChainId } from "@/utils/constants";
-import { Coins, Plus } from "lucide-react";
+import { Coins } from "lucide-react";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
+import { wagmiConfig } from "@/components/global/providers";
+import { getExplorerUrl } from "@/utils/functions";
+import { ToastLink } from "@/components/global/toast-link";
+import { waitForTransactionReceipt } from "@wagmi/core";
 
 export const CollectFeesButton = () => {
   const router = useRouter();
@@ -41,6 +45,12 @@ export const CollectFeesButton = () => {
         args: [positionDetails.activeTokenId],
         chainId: chainId,
       });
+      // Wait for transaction confirmation
+      await waitForTransactionReceipt(wagmiConfig, { hash: txHash });
+      const explorerUrl = getExplorerUrl(positionDetails.chainId, txHash);
+      toast.success(
+        <ToastLink message={`Collect fees successful!`} url={explorerUrl} />,
+      );
     } catch (error) {
       toast.error(`Collect fees failed`);
       console.error(`Collect fees failed:`, error);

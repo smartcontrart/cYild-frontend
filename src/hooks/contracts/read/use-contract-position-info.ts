@@ -11,15 +11,24 @@ import {
 export const useContractPositionInfo = ({
   positionTokenId,
   positionChainId,
+  burnedTokenIds,
 }: {
   positionTokenId?: number;
   positionChainId: number;
+  burnedTokenIds?: number[];
 }) => {
+  let id = undefined;
+  if (positionTokenId) {
+    id = BigInt(positionTokenId);
+  } else if (!positionTokenId && burnedTokenIds && burnedTokenIds.length > 0) {
+    id = BigInt(burnedTokenIds[0]);
+  }
+
   const result = useReadContract({
     abi: PositionManagerABI,
     address: getManagerContractAddressFromChainId(positionChainId),
     functionName: "getPositionInfo",
-    args: positionTokenId !== undefined ? [BigInt(positionTokenId)] : undefined,
+    args: id ? [id] : undefined,
     query: {
       enabled: positionTokenId !== undefined,
     },

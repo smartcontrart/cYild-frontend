@@ -58,7 +58,7 @@ export const RangeAndAmountSetter = () => {
       )}
 
       {token0Price && token1Price && (
-        <section>
+        <section className="flex flex-col gap-5">
           <PriceRangeSetter
             direction={direction}
             min={minPrice}

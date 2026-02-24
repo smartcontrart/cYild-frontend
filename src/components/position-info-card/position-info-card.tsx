@@ -12,11 +12,13 @@ import LazyLoader from "../ui/lazy-loader";
 import { base } from "viem/chains";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import Image from "next/image";
+import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
-  const { data } = useContractPositionInfo({
+  const { data, error } = useContractPositionInfo({
     positionChainId: position.chainId || base.id,
     positionTokenId: position.activeTokenId,
+    burnedTokenIds: position.burnedTokenIds,
   });
   const { fetchBatch } = useBatchFetchErc20Info();
   const [token0Info, setToken0Info] = useState<ERC20TokenInfo | undefined>();

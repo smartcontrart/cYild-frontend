@@ -92,8 +92,8 @@ export const PriceRangeSetter = ({
       getNearestValidPrice(basePriceRatio * maxMultiplier);
 
     // set initial min/max and ticks
-    setMin(adjustedPriceMin.toString());
-    setMax(adjustedPriceMax.toString());
+    setMin(adjustedPriceMin.toFixed(4));
+    setMax(adjustedPriceMax.toFixed(4));
     setTickLower(validTickLower);
     setTickUpper(validTickUpper);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,10 +106,10 @@ export const PriceRangeSetter = ({
       const { validTick, adjustedPrice } = getNearestValidPrice(Number(value));
       // update values
       if (isMin) {
-        setMin(adjustedPrice.toString());
+        setMin(adjustedPrice.toFixed(4));
         setTickLower(validTick);
       } else {
-        setMax(adjustedPrice.toString());
+        setMax(adjustedPrice.toFixed(4));
         setTickUpper(validTick);
       }
     }
@@ -123,7 +123,7 @@ export const PriceRangeSetter = ({
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div>
+      <div className="flex flex-col gap-2">
         <label htmlFor="">Min Price</label>
         <Input
           placeholder="0.0"
@@ -137,7 +137,7 @@ export const PriceRangeSetter = ({
           }}
         />
       </div>
-      <div>
+      <div className="flex flex-col gap-2">
         <label htmlFor="">Max Price</label>
         <Input
           placeholder="0.0"

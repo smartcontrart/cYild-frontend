@@ -14,7 +14,7 @@ export default function Home() {
   const { isConnected, isDisconnected } = useConnection();
   const [openedSwitch, setOpenedSwitch] = useState("opened");
 
-  const { data: userPositions } = usePositions();
+  const { data: userPositions, isLoading: isLoadingPositions } = usePositions();
 
   const openPositions = userPositions?.filter(
     (position) => position.status === "opened",
@@ -80,6 +80,18 @@ export default function Home() {
         </TabsList>
       </Tabs>
       <section className="flex flex-col gap-4">
+        {isLoadingPositions &&
+          [...new Array(5)].map((position) => (
+            <div
+              key={position}
+              className="w-full h-81.75 bg-loader rounded-xl animate-pulse"
+            />
+          ))}
+        {!isLoadingPositions && (sortedPositions || []).length === 0 && (
+          <section>
+            <span>No Positions Found</span>
+          </section>
+        )}
         {(sortedPositions || []).map((position) => (
           <PositionInfoCard position={position} key={position.id} />
         ))}
