@@ -81,7 +81,7 @@ export default function Home() {
       </Tabs>
       <section className="flex flex-col gap-4">
         {isLoadingPositions &&
-          [...new Array(5)].map((position) => (
+          [...new Array(2)].map((position) => (
             <div
               key={position}
               className="w-full h-81.75 bg-loader rounded-xl animate-pulse"

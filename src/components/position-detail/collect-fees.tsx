@@ -42,7 +42,7 @@ export const CollectFees = ({
         chainId,
         address || "",
         walletClient,
-        publicClient
+        publicClient,
       );
       if (success) {
         setPageStatus(POSITION_DETAIL_PAGE_STATE.FEES_COLLECTED);

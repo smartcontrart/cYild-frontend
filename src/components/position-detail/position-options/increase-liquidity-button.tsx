@@ -29,6 +29,7 @@ import PositionManagerABI from "@/abi/PositionManager";
 import { wagmiConfig } from "@/components/global/providers";
 import { ToastLink } from "@/components/global/toast-link";
 import { waitForTransactionReceipt } from "@wagmi/core";
+import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 
 export const IncreaseLiquidityButton = ({
   token0Info,
@@ -80,11 +81,19 @@ export const IncreaseLiquidityButton = ({
     token1Info?.chainId || base.id,
   );
 
+  const { data: feeTier } = useFeeTier({
+    poolAddress: position?.poolAddress,
+  });
+
   const { convertToken0ToToken1, convertToken1ToToken0 } = useInputConversions({
     token0Decimals: token0Info?.decimals || 18,
     token1Decimals: token1Info?.decimals || 18,
     token0Price: token0Price as number,
     token1Price: token1Price as number,
+    token0Address: token0Info?.address || zeroAddress,
+    token1Address: token1Info?.address || zeroAddress,
+    chainId: position?.chainId || base.id,
+    feeTier: feeTier || 0,
     tickLower: position?.lowerTick || 0,
     tickUpper: position?.upperTick || 0,
   });

@@ -22,6 +22,8 @@ import { PositionInfo } from "@/components/position-detail/position-info";
 import Link from "next/link";
 import { base } from "viem/chains";
 import Image from "next/image";
+import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
+import { CompoundFeesButton } from "@/components/position-detail/position-options/compound-fees-button";
 
 export default function PositionPage() {
   const router = useRouter();
@@ -116,6 +118,7 @@ export default function PositionPage() {
             token1Info={token1Info}
           />
           <CollectFeesButton />
+          <CompoundFeesButton />
           <ClosePositionButton />
         </CardContent>
       </Card>
@@ -183,6 +186,9 @@ const Header = ({
   token1Info?: ERC20TokenInfo;
 }) => {
   const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
+  const { data: feeTier } = useFeeTier({
+    poolAddress: position?.poolAddress,
+  });
 
   return (
     <div className="flex flex-col gap-2 items-start relative">
@@ -216,7 +222,7 @@ const Header = ({
               </LazyLoader>
             </div>
             <div className="text-xs px-2 flex items-center bg-secondary rounded-full">
-              0.3%
+              {(feeTier || 0) / 1000}%
             </div>
           </div>
           <span className="text-xs text-muted-foreground flex items-center">

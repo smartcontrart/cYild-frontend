@@ -64,8 +64,14 @@ export const CollectFeesButton = () => {
     // args: [tokenId],
   };
 
+  const totalFeesEarned = positionInfo
+    ? positionInfo.feesEarned0 + positionInfo.feesEarned1
+    : BigInt(0);
+
+  const isDisabled = isContractExecuting || totalFeesEarned === BigInt(0);
+
   return (
-    <Button variant={"outline"} onClick={collectClicked}>
+    <Button variant={"outline"} onClick={collectClicked} disabled={isDisabled}>
       <Coins />
       Collect Fees
     </Button>

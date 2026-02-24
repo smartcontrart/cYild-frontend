@@ -13,6 +13,7 @@ import { base } from "viem/chains";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import Image from "next/image";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
+import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   const { data, error } = useContractPositionInfo({
@@ -89,6 +90,9 @@ const Header = ({
   token0Info?: ERC20TokenInfo;
   token1Info?: ERC20TokenInfo;
 }) => {
+  const { data: feeTier } = useFeeTier({
+    poolAddress: position.poolAddress,
+  });
   const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
   return (
     <CardHeader className="px-0 mb-0 pt-4 pb-0 flex items-start justify-start w-full flex-row gap-3">
@@ -114,7 +118,7 @@ const Header = ({
             </LazyLoader>
           </div>
           <div className="text-xs px-2 flex items-center bg-secondary rounded-full">
-            0.3%
+            {(feeTier || 0) / 1000}%
           </div>
         </div>
         <span className="text-xs text-muted-foreground">

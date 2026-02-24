@@ -45,8 +45,12 @@ export const AmountSetter = () => {
     token1Decimals: token1.decimals,
     token0Price: token0Price as number,
     token1Price: token1Price as number,
+    token0Address: token0.address,
+    token1Address: token1.address,
+    chainId: token0.chainId,
     tickLower,
     tickUpper,
+    feeTier: selectedPool?.feeTier as number,
   });
 
   const handleToken0InputChange = (value: string) => {

@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ERC20TokenInfo } from "@/utils/constants";
 import LazyLoader from "../ui/lazy-loader";
+import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 
 export const PositionInfo = ({
   position,
@@ -15,6 +16,9 @@ export const PositionInfo = ({
   token1Info?: ERC20TokenInfo;
   className?: string;
 }) => {
+  const { data: feeTier, isLoading: isLoadingFeeTier } = useFeeTier({
+    poolAddress: position?.poolAddress,
+  });
   const formattedPositionCreation = position
     ? position.createdAt
       ? new Date(position.createdAt).toLocaleDateString("en-US", {
@@ -52,6 +56,11 @@ export const PositionInfo = ({
           label="Token 1"
           value={token1Info?.symbol}
           isLoading={position === undefined || token1Info === undefined}
+        />
+        <ListItem
+          label="Fee Tier"
+          value={`${(feeTier || 0) / 1000}%`}
+          isLoading={position === undefined || isLoadingFeeTier}
         />
       </CardContent>
     </Card>
