@@ -14,6 +14,7 @@ import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-pos
 import Image from "next/image";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
+import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   const { data, error } = useContractPositionInfo({
@@ -21,34 +22,58 @@ export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
     positionTokenId: position.activeTokenId,
     burnedTokenIds: position.burnedTokenIds,
   });
+  const { token0: contractToken0, token1: contractToken1 } = usePoolData({
+    poolAddress: position.poolAddress,
+    chainId: position.chainId,
+    enabled: position.status !== "closed ",
+  });
   const { fetchBatch } = useBatchFetchErc20Info();
   const [token0Info, setToken0Info] = useState<ERC20TokenInfo | undefined>();
   const [token1Info, setToken1Info] = useState<ERC20TokenInfo | undefined>();
 
   useEffect(() => {
     const fetchTokens = async () => {
-      if (!data?.token0 || !data?.token1) return;
+      let result = undefined;
+      let token0;
+      let token1;
 
-      const result = await fetchBatch(
-        [data.token0, data.token1],
-        position.chainId,
-      );
+      if (position.status === "closed") {
+        if (!contractToken0 || !contractToken1) return;
+        result = await fetchBatch(
+          [contractToken0, contractToken1],
+          position.chainId,
+        );
+        token0 = contractToken0;
+        token1 = contractToken1;
+      } else {
+        if (!data?.token0 || !data?.token1) return;
+        result = await fetchBatch([data.token0, data.token1], position.chainId);
+        token0 = data.token0;
+        token1 = data.token1;
+      }
 
       if (result.success.length > 0) {
-        const token0 = result.success.find(
-          (t) => t.address.toLowerCase() === data.token0.toLowerCase(),
+        const foundToken0 = result.success.find(
+          (t) => t.address.toLowerCase() === token0.toLowerCase(),
         );
-        const token1 = result.success.find(
-          (t) => t.address.toLowerCase() === data.token1.toLowerCase(),
+        const foundToken1 = result.success.find(
+          (t) => t.address.toLowerCase() === token1.toLowerCase(),
         );
 
-        if (token0) setToken0Info(token0);
-        if (token1) setToken1Info(token1);
+        if (foundToken0) setToken0Info(foundToken0);
+        if (foundToken1) setToken1Info(foundToken1);
       }
     };
 
     fetchTokens();
-  }, [data?.token0, data?.token1, position.chainId, fetchBatch]);
+  }, [
+    data,
+    position.chainId,
+    fetchBatch,
+    position.status,
+    contractToken0,
+    contractToken1,
+  ]);
 
   return (
     <Card>
@@ -60,21 +85,27 @@ export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
             token1Info={token1Info}
           />
           <div className="w-full h-px bg-border my-3" />
-          <section className="flex gap-5 w-full">
-            <PositionValue
-              position={position}
-              token0Info={token0Info}
-              token1Info={token1Info}
-              className="w-1/2 bg-secondary"
-            />
-            <FeesEarned
-              position={position}
-              token0Info={token0Info}
-              token1Info={token1Info}
-              className="w-1/2 bg-secondary"
-            />
-          </section>
-          <RangeIndicator position={position} />
+          {position.status !== "closed" && (
+            <section className="flex gap-5 w-full">
+              <PositionValue
+                position={position}
+                token0Info={token0Info}
+                token1Info={token1Info}
+                className="w-1/2 bg-secondary"
+              />
+              <FeesEarned
+                position={position}
+                token0Info={token0Info}
+                token1Info={token1Info}
+                className="w-1/2 bg-secondary"
+              />
+            </section>
+          )}
+          <RangeIndicator
+            position={position}
+            token0Info={token0Info}
+            token1Info={token1Info}
+          />
         </CardContent>
       </Link>
     </Card>
@@ -94,6 +125,9 @@ const Header = ({
     poolAddress: position.poolAddress,
   });
   const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
+  const tokenId = position.activeTokenId
+    ? position.activeTokenId
+    : position.burnedTokenIds[0];
   return (
     <CardHeader className="px-0 mb-0 pt-4 pb-0 flex items-start justify-start w-full flex-row gap-3">
       <section className="-space-x-4 flex">
@@ -121,9 +155,7 @@ const Header = ({
             {(feeTier || 0) / 1000}%
           </div>
         </div>
-        <span className="text-xs text-muted-foreground">
-          #{position?.activeTokenId}
-        </span>
+        <span className="text-xs text-muted-foreground">#{tokenId}</span>
         <Image
           src={networkData.image}
           width={25}

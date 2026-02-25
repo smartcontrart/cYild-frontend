@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 import { Check, PlusCircle, Recycle } from "lucide-react";
 import { useState } from "react";
-import { useAccount, useWalletClient, usePublicClient } from "wagmi";
+import { useWalletClient, usePublicClient, useConnection } from "wagmi";
 import { ERROR_CODES, POSITION_DETAIL_PAGE_STATE } from "@/utils/types";
 import { compoundFees } from "@/utils/position-manage";
 import { Skeleton } from "../ui/skeleton";
@@ -24,7 +24,7 @@ export const CompoundPosition = ({
   chainId: number;
   setPageStatus: Function;
 }) => {
-  const { isConnected, address } = useAccount();
+  const { isConnected, address } = useConnection();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,7 +37,7 @@ export const CompoundPosition = ({
         positionId,
         chainId,
         walletClient,
-        publicClient
+        publicClient,
       );
       if (success) {
         setPageStatus(POSITION_DETAIL_PAGE_STATE.POSITION_COMPOUNDED);

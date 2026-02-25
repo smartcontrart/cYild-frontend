@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ERC20TokenInfo } from "@/utils/constants";
 import LazyLoader from "../ui/lazy-loader";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
+import { PositionInfoCard } from "../position-info-card/position-info-card";
 
 export const PositionInfo = ({
   position,
@@ -29,6 +30,10 @@ export const PositionInfo = ({
       : ""
     : "";
 
+  const tokenId = position?.activeTokenId
+    ? position?.activeTokenId
+    : position?.burnedTokenIds[0];
+
   return (
     <Card>
       <CardHeader>
@@ -39,7 +44,7 @@ export const PositionInfo = ({
       <CardContent className="flex flex-col gap-4">
         <ListItem
           label="Position ID"
-          value={`#${position?.activeTokenId}`}
+          value={`#${tokenId}`}
           isLoading={position === undefined}
         />
         <ListItem

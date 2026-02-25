@@ -24,6 +24,7 @@ import { base } from "viem/chains";
 import Image from "next/image";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { CompoundFeesButton } from "@/components/position-detail/position-options/compound-fees-button";
+import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
 
 export default function PositionPage() {
   const router = useRouter();
@@ -31,6 +32,12 @@ export default function PositionPage() {
 
   const { data: position } = useApiPositionInfo({
     positionId: positionId as string,
+  });
+
+  const { token0: contractToken0, token1: contractToken1 } = usePoolData({
+    poolAddress: position?.poolAddress,
+    chainId: position?.chainId,
+    enabled: !position || position?.status !== "closed ",
   });
 
   const { data: positionInfo } = useContractPositionInfo({
@@ -44,28 +51,44 @@ export default function PositionPage() {
 
   useEffect(() => {
     const fetchTokens = async () => {
-      if (!position || !positionInfo?.token0 || !positionInfo?.token1) return;
+      let result = undefined;
+      let token0;
+      let token1;
+      if (!position) return;
 
-      const result = await fetchBatch(
-        [positionInfo.token0, positionInfo.token1],
-        position.chainId,
-      );
+      if (position.status === "closed") {
+        if (!contractToken0 || !contractToken1) return;
+        result = await fetchBatch(
+          [contractToken0, contractToken1],
+          position.chainId,
+        );
+        token0 = contractToken0;
+        token1 = contractToken1;
+      } else {
+        if (!positionInfo) return;
+        result = await fetchBatch(
+          [positionInfo.token0, positionInfo.token1],
+          position.chainId,
+        );
+        token0 = positionInfo.token0;
+        token1 = positionInfo.token1;
+      }
 
       if (result.success.length > 0) {
-        const token0 = result.success.find(
-          (t) => t.address.toLowerCase() === positionInfo.token0.toLowerCase(),
+        const foundToken0 = result.success.find(
+          (t) => t.address.toLowerCase() === token0.toLowerCase(),
         );
-        const token1 = result.success.find(
-          (t) => t.address.toLowerCase() === positionInfo.token1.toLowerCase(),
+        const foundToken1 = result.success.find(
+          (t) => t.address.toLowerCase() === token1.toLowerCase(),
         );
 
-        if (token0) setToken0Info(token0);
-        if (token1) setToken1Info(token1);
+        if (foundToken0) setToken0Info(foundToken0);
+        if (foundToken1) setToken1Info(foundToken1);
       }
     };
 
     fetchTokens();
-  }, [positionInfo, fetchBatch, position]);
+  }, [positionInfo, fetchBatch, contractToken0, contractToken1, position]);
 
   return (
     <div className="space-y-6">
@@ -75,26 +98,28 @@ export default function PositionPage() {
         token1Info={token1Info}
       />
 
-      <section className="flex gap-3 flex-col md:flex-row">
-        <Card className="md:w-1/2 p-0 overflow-hidden">
-          <CardContent className="w-full p-0 overflow-hidden">
-            <PositionValue
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-          </CardContent>
-        </Card>
-        <Card className="md:w-1/2 p-0 overflow-hidden">
-          <CardContent className="w-full p-0 overflow-hidden">
-            <FeesEarned
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-          </CardContent>
-        </Card>
-      </section>
+      {position?.status !== "closed" && (
+        <section className="flex gap-3 flex-col md:flex-row">
+          <Card className="md:w-1/2 p-0 overflow-hidden">
+            <CardContent className="w-full p-0 overflow-hidden">
+              <PositionValue
+                position={position as PositionInfoInterface}
+                token0Info={token0Info}
+                token1Info={token1Info}
+              />
+            </CardContent>
+          </Card>
+          <Card className="md:w-1/2 p-0 overflow-hidden">
+            <CardContent className="w-full p-0 overflow-hidden">
+              <FeesEarned
+                position={position as PositionInfoInterface}
+                token0Info={token0Info}
+                token1Info={token1Info}
+              />
+            </CardContent>
+          </Card>
+        </section>
+      )}
       <PositionRangeDisplay
         position={position as PositionInfoInterface}
         token0Info={token0Info}
@@ -105,73 +130,26 @@ export default function PositionPage() {
         token0Info={token0Info}
         token1Info={token1Info}
       />
-      <Card>
-        <CardContent className="py-4 flex flex-wrap gap-5">
-          <IncreaseLiquidityButton
-            position={position as PositionInfoInterface}
-            token0Info={token0Info}
-            token1Info={token1Info}
-          />
-          <DecreaseLiquidityButton
-            position={position as PositionInfoInterface}
-            token0Info={token0Info}
-            token1Info={token1Info}
-          />
-          <CollectFeesButton />
-          <CompoundFeesButton />
-          <ClosePositionButton />
-        </CardContent>
-      </Card>
-      {/*<YildLoading loading={!isDisconnected && !isConnected} />
-      {
-        (!Number(router.query.id) || !(Number(router.query.chain)))
-        ? <>Loading Panel...</>
-        :
-        <>
-          <PositionInfo positionId={Number(router.query.id)} chainId={Number(router.query.chain)} />
-          <PositionControlPanel
-            positionId={Number(router.query.id)}
-            chainId={(Number(router.query.chain))}
-            setPageStatus={(newPageStatus: any) => setPageStatus(newPageStatus)}
-          />
-        </>
-      }
 
-      <AlertDialog
-        open={
-          pageStatus === POSITION_DETAIL_PAGE_STATE.APPROVING_TOKENS ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.CLOSING_POSITION ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.COLLECTING_FEES ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.COMPOUNDING_POSITION ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.DECREASING_LIQUIDITY ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.INCREASING_LIQUIDITY ||
-          pageStatus === POSITION_DETAIL_PAGE_STATE.SETTING_MAX_SLIPPAGE
-        }
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>wt Heck</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pageStatus === POSITION_DETAIL_PAGE_STATE.APPROVING_TOKENS
-                ? "Approving tokens, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.CLOSING_POSITION
-                ? "Closing your position, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.COLLECTING_FEES
-                ? "Collecting fees earned, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.COMPOUNDING_POSITION
-                ? "Compounding your position, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.DECREASING_LIQUIDITY
-                ? "Decreasing liquidity, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.INCREASING_LIQUIDITY
-                ? "Increasing liquidity, proceed with your wallet."
-                : pageStatus === POSITION_DETAIL_PAGE_STATE.SETTING_MAX_SLIPPAGE
-                ? "Updating advanced settings, this might take a second."
-                : ""}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <WaitingAnimation />
-        </AlertDialogContent>
-      </AlertDialog>*/}
+      {position?.status !== "closed" && (
+        <Card>
+          <CardContent className="py-4 flex flex-wrap gap-5">
+            <IncreaseLiquidityButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
+            <DecreaseLiquidityButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
+            <CollectFeesButton />
+            <CompoundFeesButton />
+            <ClosePositionButton />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
@@ -189,6 +167,9 @@ const Header = ({
   const { data: feeTier } = useFeeTier({
     poolAddress: position?.poolAddress,
   });
+  const tokenId = position?.activeTokenId
+    ? position?.activeTokenId
+    : position?.burnedTokenIds[0];
 
   return (
     <div className="flex flex-col gap-2 items-start relative">
@@ -226,7 +207,7 @@ const Header = ({
             </div>
           </div>
           <span className="text-xs text-muted-foreground flex items-center">
-            #{position?.activeTokenId}
+            #{tokenId}
             <ExternalLink size={10} className="ml-2 cursor-pointer" />
           </span>
         </section>

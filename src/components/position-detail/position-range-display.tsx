@@ -10,6 +10,17 @@ import { zeroAddress } from "viem";
 import { base } from "viem/chains";
 import LazyLoader from "../ui/lazy-loader";
 
+/**
+ * Determines the number of fraction digits to display based on the value size.
+ * Returns 2 for values >= 1, and 4 for smaller values.
+ */
+const getFractionDigits = (value: number): number => {
+  if (value >= 1) {
+    return 2;
+  }
+  return 5;
+};
+
 export const PositionRangeDisplay = ({
   position,
   token0Info,
@@ -64,37 +75,58 @@ export const PositionRangeDisplay = ({
   const adjustedLowerPrice =
     direction === "0p1"
       ? lowerPrice / Number(token1Price ?? 0)
-      : lowerPrice / Number(token0Price ?? 0);
+      : 1 / lowerPrice / Number(token1Price ?? 0);
 
   const adjustedUpperPrice =
     direction === "0p1"
       ? upperPrice / Number(token1Price ?? 0)
-      : upperPrice / Number(token0Price ?? 0);
+      : 1 / upperPrice / Number(token1Price ?? 0);
 
   const adustedClosingLowerPrice =
     direction === "0p1"
       ? closingLowerPrice / Number(token1Price ?? 0)
-      : closingLowerPrice / Number(token0Price ?? 0);
+      : 1 / closingLowerPrice / Number(token1Price ?? 0);
 
   const adjustedClosingUpperPrice =
     direction === "0p1"
       ? closingUpperPrice / Number(token1Price ?? 0)
-      : closingUpperPrice / Number(token0Price ?? 0);
+      : 1 / closingUpperPrice / Number(token1Price ?? 0);
 
   const currentPrice =
     direction === "0p1"
       ? Number(token0Price ?? 0) / Number(token1Price ?? 1)
       : Number(token1Price ?? 0) / Number(token0Price ?? 1);
 
-  const formattedLowerPrice = Number(adjustedLowerPrice).toLocaleString();
-  const formattedUpperPrice = Number(adjustedUpperPrice).toLocaleString();
+  const formattedLowerPrice = Number(adjustedLowerPrice).toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: getFractionDigits(adjustedLowerPrice),
+      maximumFractionDigits: getFractionDigits(adjustedLowerPrice),
+    },
+  );
+  const formattedUpperPrice = Number(adjustedUpperPrice).toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: getFractionDigits(adjustedUpperPrice),
+      maximumFractionDigits: getFractionDigits(adjustedUpperPrice),
+    },
+  );
   const formattedClosingLowerPrice = Number(
     adustedClosingLowerPrice,
-  ).toLocaleString();
+  ).toLocaleString(undefined, {
+    minimumFractionDigits: getFractionDigits(adustedClosingLowerPrice),
+    maximumFractionDigits: getFractionDigits(adustedClosingLowerPrice),
+  });
   const formattedClosingUpperPrice = Number(
     adjustedClosingUpperPrice,
-  ).toLocaleString();
-  const formattedCurrentPrice = Number(currentPrice).toLocaleString();
+  ).toLocaleString(undefined, {
+    minimumFractionDigits: getFractionDigits(adjustedClosingUpperPrice),
+    maximumFractionDigits: getFractionDigits(adjustedClosingUpperPrice),
+  });
+  const formattedCurrentPrice = Number(currentPrice).toLocaleString(undefined, {
+    minimumFractionDigits: getFractionDigits(currentPrice),
+    maximumFractionDigits: getFractionDigits(currentPrice),
+  });
 
   return (
     <Card className="w-full h-auto">
