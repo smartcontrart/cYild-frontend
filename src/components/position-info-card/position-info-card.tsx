@@ -123,6 +123,7 @@ const Header = ({
 }) => {
   const { data: feeTier } = useFeeTier({
     poolAddress: position.poolAddress,
+    chainId: position.chainId,
   });
   const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
   const tokenId = position.activeTokenId

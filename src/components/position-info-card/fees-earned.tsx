@@ -53,9 +53,9 @@ export const FeesEarned = ({
     positionDetails?.chainId || base.id,
   );
 
-  const totalFeesEarned = Number(token0FeesEarned) + Number(token1FeesEarned);
   const token0Value = Number(token0FeesEarned) * Number(token0Price);
   const token1Value = Number(token1FeesEarned) * Number(token1Price);
+  const totalFeesEarned = Number(token0Value) + Number(token1Value);
 
   return (
     <section className={cn("rounded-lg p-5 flex flex-col", className)}>

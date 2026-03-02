@@ -19,6 +19,7 @@ export const PositionInfo = ({
 }) => {
   const { data: feeTier, isLoading: isLoadingFeeTier } = useFeeTier({
     poolAddress: position?.poolAddress,
+    chainId: position?.chainId,
   });
   const formattedPositionCreation = position
     ? position.createdAt
