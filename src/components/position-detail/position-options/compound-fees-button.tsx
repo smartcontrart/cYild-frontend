@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useContractExecution } from "@/hooks/contracts/write/use-contract-execution";
 import {
+  ERC20TokenInfo,
   getLiquidityMathContractAddressFromChainId,
   getManagerContractAddressFromChainId,
 } from "@/utils/constants";
@@ -19,14 +20,21 @@ import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-pos
 import { usePositions } from "@/hooks/api/use-positions";
 import { readContract } from "viem/actions";
 import LiquidityMathABI from "@/abi/LiquidityMath";
-import { createPublicClient, http } from "viem";
+import { useTokenPrice } from "@/hooks/use-token-price";
+import { formatUnits, zeroAddress } from "viem";
+import { base } from "viem/chains";
+import { PositionInfo } from "@/utils/interfaces/misc";
 
-export const CompoundFeesButton = () => {
+export const CompoundFeesButton = ({
+  position,
+  token0Info,
+  token1Info,
+}: {
+  position: PositionInfo;
+  token0Info?: ERC20TokenInfo;
+  token1Info?: ERC20TokenInfo;
+}) => {
   const router = useRouter();
-  const { id: positionId } = router.query;
-  const { data: position } = useApiPositionInfo({
-    positionId: positionId as string,
-  });
 
   const { data: positionInfo } = useContractPositionInfo({
     positionTokenId: position?.activeTokenId as number,
@@ -39,6 +47,29 @@ export const CompoundFeesButton = () => {
 
   const { execute: executeContract, isLoading: isContractExecuting } =
     useContractExecution();
+
+  const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
+    token0Info?.address || zeroAddress,
+    position?.chainId || base.id,
+  );
+  const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
+    token1Info?.address || zeroAddress,
+    position?.chainId || base.id,
+  );
+
+  const token0FeesEarned = formatUnits(
+    positionInfo?.feesEarned0 || BigInt(0),
+    token0Info?.decimals || 18,
+  );
+
+  const token1FeesEarned = formatUnits(
+    positionInfo?.feesEarned1 || BigInt(0),
+    token1Info?.decimals || 18,
+  );
+
+  const token0Value = Number(token0FeesEarned) * Number(token0Price);
+  const token1Value = Number(token1FeesEarned) * Number(token1Price);
+  const totalFeesEarned = Number(token0Value) + Number(token1Value);
 
   const compoundClicked = async () => {
     const loadingToast = toast.loading(`Executing compound fees...`);
@@ -175,11 +206,7 @@ export const CompoundFeesButton = () => {
     }
   };
 
-  const totalFeesEarned = positionInfo
-    ? positionInfo.feesEarned0 + positionInfo.feesEarned1
-    : BigInt(0);
-
-  const isDisabled = isContractExecuting || totalFeesEarned === BigInt(0);
+  const isDisabled = isContractExecuting || totalFeesEarned < 1;
 
   return (
     <Button onClick={compoundClicked} disabled={isDisabled}>

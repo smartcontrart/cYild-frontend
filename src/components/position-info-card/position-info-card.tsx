@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
+import { InitialCapital } from "./initial-capital";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   const { data, error } = useContractPositionInfo({
@@ -94,6 +95,16 @@ export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
                 className="w-1/2 bg-secondary"
               />
               <FeesEarned
+                position={position}
+                token0Info={token0Info}
+                token1Info={token1Info}
+                className="w-1/2 bg-secondary"
+              />
+            </section>
+          )}
+          {position.status === "closed" && (
+            <section>
+              <InitialCapital
                 position={position}
                 token0Info={token0Info}
                 token1Info={token1Info}

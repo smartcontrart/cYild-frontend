@@ -14,8 +14,7 @@ import {
   getManagerContractAddressFromChainId,
 } from "@/utils/constants";
 import { PositionInfo } from "@/utils/interfaces/misc";
-import { cn } from "@/utils/shadcn";
-import { Minus } from "lucide-react";
+import { ArrowRight, Minus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useConnection } from "wagmi";
@@ -33,6 +32,16 @@ import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-pos
 import { fetchParaswapRoute } from "@/utils/requests";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { formatUnits, zeroAddress } from "viem";
+import { useTokenPrice } from "@/hooks/use-token-price";
+import { base } from "viem/chains";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const DecreaseLiquidityButton = ({
   token0Info,
@@ -43,7 +52,6 @@ export const DecreaseLiquidityButton = ({
   token1Info?: ERC20TokenInfo;
   position: PositionInfo;
 }) => {
-  const { address } = useConnection();
   const { execute: executeContract, isLoading: isContractExecuting } =
     useContractExecution();
   const { data: positionInfo } = useContractPositionInfo({
@@ -54,20 +62,33 @@ export const DecreaseLiquidityButton = ({
   const [selectedPercentage, setSelectedPercentage] = useState<number>(25);
   const [inputValue, setInputValue] = useState<string>("25");
 
-  // const tokensReady = !!token0Info && !!token1Info;
+  const tokensReady = !!token0Info && !!token1Info;
 
-  // Fetch token balances from the pool
-  // const { balances, isLoading: isLoadingBalances } = useErc20Balances({
-  //   tokens: tokensReady ? [token0Info, token1Info] : [],
-  //   owner: address,
-  // });
+  const token0Amount = formatUnits(
+    positionInfo?.principal0 || BigInt(0),
+    positionInfo?.token0Decimals || 18,
+  );
 
-  // const token0Balance = token0Info
-  //   ? (balances[`${token0Info.symbol}-${token0Info.chainId}`] as bigint)
-  //   : BigInt(0);
-  // const token1Balance = token1Info
-  //   ? (balances[`${token1Info.symbol}-${token1Info.chainId}`] as bigint)
-  //   : BigInt(0);
+  const token1Amount = formatUnits(
+    positionInfo?.principal1 || BigInt(0),
+    positionInfo?.token1Decimals || 18,
+  );
+
+  const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
+    token0Info?.address || zeroAddress,
+    position?.chainId || base.id,
+  );
+  const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
+    token1Info?.address || zeroAddress,
+    position?.chainId || base.id,
+  );
+
+  const token0Value = Number(token0Amount) * Number(token0Price);
+  const token1Value = Number(token1Amount) * Number(token1Price);
+  const positionValue = token0Value + token1Value;
+
+  const updatedPositionValue =
+    positionValue - positionValue * (selectedPercentage / 100);
 
   const decreaseClicked = async () => {
     const loadingToast = toast.loading(`Executing decrease liquidity...`);
@@ -90,10 +111,6 @@ export const DecreaseLiquidityButton = ({
         token1: token1Address,
         token0Decimals,
         token1Decimals,
-        feesEarned0,
-        feesEarned1,
-        protocolFee0,
-        protocolFee1,
         principal0,
         principal1,
         ownerAccountingUnit,
@@ -201,6 +218,8 @@ export const DecreaseLiquidityButton = ({
     }
   };
 
+  const isDisabled = isContractExecuting;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -240,20 +259,6 @@ export const DecreaseLiquidityButton = ({
                     }
                   }
                 }}
-                // onBlur={(e) => {
-                //   const value = e.target.value;
-                //   if (value === "" || parseFloat(value) < 1) {
-                //     setInputValue("1");
-                //     setSelectedPercentage(1);
-                //   } else if (parseFloat(value) > 100) {
-                //     setInputValue("100");
-                //     setSelectedPercentage(100);
-                //   } else {
-                //     const rounded = Math.round(parseFloat(value));
-                //     setInputValue(rounded.toString());
-                //     setSelectedPercentage(rounded);
-                //   }
-                // }}
               />
               <span className="absolute right-2 text-sm text-muted-foreground">
                 %
@@ -268,23 +273,24 @@ export const DecreaseLiquidityButton = ({
               setSelectedPercentage(value[0]);
               setInputValue(value[0].toString());
             }}
+            className="mb-5"
           />
-          {/*{[25, 50, 75, 100].map((value) => (
-              <Button
-                className={cn(
-                  "w-1/4 bg-muted",
-                  selectedPercentage === value
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
-                )}
-                key={value}
-                onClick={() => setSelectedPercentage(value)}
-              >
-                {value}%
-              </Button>
-            ))}*/}
+          <Card className="shadow-none">
+            <CardHeader>
+              <CardTitle>New Amount</CardTitle>
+              <CardDescription>
+                The value of what your new position will be
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex text-2xl items-center">
+              ${positionValue.toFixed(2)} <ArrowRight className="mx-3" /> $
+              {updatedPositionValue.toFixed(2)}
+            </CardContent>
+          </Card>
         </section>
-        <Button onClick={decreaseClicked}>Remove {selectedPercentage}%</Button>
+        <Button onClick={decreaseClicked} disabled={isDisabled}>
+          Remove {selectedPercentage}%
+        </Button>
       </DialogContent>
     </Dialog>
   );

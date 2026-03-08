@@ -7,6 +7,16 @@ import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { useChainId } from "wagmi";
 import { ERC20TokenInfo } from "@/utils/constants";
 import { AmountSetter } from "./amount-setter";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Button } from "../ui/button";
+import { Undo2 } from "lucide-react";
+import { OpenPositionButton } from "./open-position-button";
 
 export const RangeAndAmountSetter = () => {
   const chainId = useChainId();
@@ -18,17 +28,18 @@ export const RangeAndAmountSetter = () => {
     setTickUpper,
     setTickLower,
     setMaxPrice,
+    direction,
+    setDirection,
   } = useNewPositionStore();
   const token0 = selectedPool?.token0 as ERC20TokenInfo;
   const token1 = selectedPool?.token1 as ERC20TokenInfo;
-  const [direction, setDirection] = useState<"0p1" | "1p0">("0p1");
 
-  const { data: token0Price } = useTokenPrice(token0.address, chainId);
-  const { data: token1Price } = useTokenPrice(token1.address, chainId);
+  const { data: token0Price } = useTokenPrice(token0.address, chainId, 5000);
+  const { data: token1Price } = useTokenPrice(token1.address, chainId, 5000);
 
   return (
-    <>
-      <div className="grid gap-4 md:grid-cols-2">
+    <section className="flex flex-col gap-4">
+      <div className="mb-4">
         <Tabs
           value={direction}
           onValueChange={(value: string) => {
@@ -58,9 +69,8 @@ export const RangeAndAmountSetter = () => {
       )}
 
       {token0Price && token1Price && (
-        <section className="flex flex-col gap-5">
+        <section className="flex flex-col gap-8 mb-4">
           <PriceRangeSetter
-            direction={direction}
             min={minPrice}
             max={maxPrice}
             setMax={setMaxPrice}
@@ -72,6 +82,6 @@ export const RangeAndAmountSetter = () => {
           <AmountSetter />
         </section>
       )}
-    </>
+    </section>
   );
 };

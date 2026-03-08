@@ -1,6 +1,6 @@
 import { ERC20TokenInfo } from "@/utils/constants";
 import { Input } from "../ui/input";
-import { validateNumericInput } from "@/utils/functions";
+import { formatValue, validateNumericInput } from "@/utils/functions";
 import TokenLiveBalance from "../token/token-live-balance";
 import { useChainId, useConnection } from "wagmi";
 import { useTokenBalance } from "@/hooks/use-token-balance";
@@ -19,6 +19,7 @@ export const AmountSetter = () => {
     setToken0Amount,
     token1Amount,
     setToken1Amount,
+    direction,
   } = useNewPositionStore();
   const { address: userAddress } = useConnection();
   const chainId = useChainId();
@@ -29,15 +30,17 @@ export const AmountSetter = () => {
   const { data: token0Price } = useTokenPrice(token0.address, chainId);
   const { data: token1Price } = useTokenPrice(token1.address, chainId);
 
-  const { data: token0Balance } = useTokenBalance(
-    userAddress || "",
-    token0.address,
-    chainId,
+  const { data: token0Balance, isLoading: isLoadingToken0Balance } =
+    useTokenBalance(userAddress || "", token0.address, chainId);
+  const { data: token1Balance, isLoading: isLoadingToken1Balance } =
+    useTokenBalance(userAddress || "", token1.address, chainId);
+
+  const formattedToken0Balance = formatValue(
+    Number(formatUnits(token0Balance || BigInt(0), token0.decimals)),
   );
-  const { data: token1Balance } = useTokenBalance(
-    userAddress || "",
-    token1.address,
-    chainId,
+
+  const formattedToken1Balance = formatValue(
+    Number(formatUnits(token1Balance || BigInt(0), token1.decimals)),
   );
 
   const { convertToken0ToToken1, convertToken1ToToken0 } = useInputConversions({
@@ -48,8 +51,8 @@ export const AmountSetter = () => {
     token0Address: token0.address,
     token1Address: token1.address,
     chainId: token0.chainId,
-    tickLower,
-    tickUpper,
+    tickLower: direction === "0p1" ? tickLower : tickUpper,
+    tickUpper: direction === "0p1" ? tickUpper : tickLower,
     feeTier: selectedPool?.feeTier as number,
   });
 
@@ -72,7 +75,14 @@ export const AmountSetter = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="flex flex-col gap-2">
-        <label htmlFor="">{token0.symbol}</label>
+        <section className="flex justify-between items-center">
+          <label htmlFor="">{token0.symbol}</label>
+          <TokenLiveBalance
+            userAddress={userAddress}
+            token={token0}
+            onClick={(value) => handleToken0InputChange(value)}
+          />
+        </section>
         <Input
           className={
             parseUnits(token0Amount, token0.decimals) >
@@ -91,32 +101,16 @@ export const AmountSetter = () => {
             handleToken0InputChange(newValue.toString());
           }}
         />
-        <div
-          className={
-            parseUnits(token0Amount, token0.decimals) >
-            (token0Balance || BigInt(0))
-              ? "text-destructive"
-              : ""
-          }
-        >
-          <TokenLiveBalance
-            userAddress={userAddress}
-            token={token0}
-            chainId={chainId}
-          />
-        </div>
-        {parseUnits(token0Amount, token0.decimals) >
-        (token0Balance || BigInt(0)) ? (
-          <div className="ml-2 text-sm text-destructive">
-            You do not have enough funds to provide liquidity, opening position
-            will fail...
-          </div>
-        ) : (
-          <></>
-        )}
       </div>
       <div className="flex flex-col gap-2">
-        <label htmlFor="">{token1.symbol}</label>
+        <section className="flex justify-between items-center">
+          <label htmlFor="">{token1.symbol}</label>
+          <TokenLiveBalance
+            userAddress={userAddress}
+            token={token1}
+            onClick={(value) => handleToken1InputChange(value)}
+          />
+        </section>
         <Input
           className={
             parseUnits(token1Amount, token1.decimals) >
@@ -135,29 +129,6 @@ export const AmountSetter = () => {
             handleToken1InputChange(newValue.toString());
           }}
         />
-        <div
-          className={
-            parseUnits(token1Amount, token1.decimals) >
-            (token1Balance || BigInt(0))
-              ? "text-destructive"
-              : ""
-          }
-        >
-          <TokenLiveBalance
-            userAddress={userAddress}
-            token={token1}
-            chainId={chainId}
-          />
-        </div>
-        {parseUnits(token1Amount, token1.decimals) >
-        (token1Balance || BigInt(0)) ? (
-          <div className="ml-2 text-sm text-destructive">
-            You do not have enough funds to provide liquidity, opening position
-            will fail...
-          </div>
-        ) : (
-          <></>
-        )}
       </div>
     </div>
   );

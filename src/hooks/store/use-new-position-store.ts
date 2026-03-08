@@ -21,18 +21,20 @@ type NewPositionStore = {
   setMinPrice: (minPrice: string) => void;
   maxPrice: string;
   setMaxPrice: (maxPrice: string) => void;
+  direction: string;
+  setDirection: (direction: string) => void;
 };
 
 export const useNewPositionStore = create<NewPositionStore>((set, get) => ({
   selectedToken0: undefined,
   setSelectedToken0: (selectedToken0: ERC20TokenInfo | undefined) =>
-    set({ selectedToken0 }),
+    set({ selectedToken0, token0Amount: "", token1Amount: "" }),
   selectedToken1: undefined,
   setSelectedToken1: (selectedToken1: ERC20TokenInfo | undefined) =>
-    set({ selectedToken1 }),
+    set({ selectedToken1, token0Amount: "", token1Amount: "" }),
   selectedPool: undefined,
   setSelectedPool: (selectedPool: PoolInfo | undefined) =>
-    set({ selectedPool }),
+    set({ selectedPool, token0Amount: "", token1Amount: "" }),
   tickLower: 0,
   tickUpper: 0,
   setTickLower: (tickLower: number) => set({ tickLower }),
@@ -45,4 +47,6 @@ export const useNewPositionStore = create<NewPositionStore>((set, get) => ({
   setMinPrice: (minPrice: string) => set({ minPrice }),
   maxPrice: "",
   setMaxPrice: (maxPrice: string) => set({ maxPrice }),
+  direction: "0p1",
+  setDirection: (direction: string) => set({ direction }),
 }));

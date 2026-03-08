@@ -1,34 +1,52 @@
-"use client"
-import { Skeleton } from "@/components/ui/skeleton"
+"use client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { useTokenBalance } from "@/hooks/use-token-balance"
-import { ERC20TokenInfo } from "@/utils/constants"
-import { formatUnits } from "viem"
+import { useErc20Balance } from "@/hooks/contracts/read/use-erc20-balance";
+import { ERC20TokenInfo } from "@/utils/constants";
+import { formatValue } from "@/utils/functions";
+import { formatUnits } from "viem";
 
 export default function TokenLiveBalance({
   userAddress,
   token,
-  chainId
+  onClick,
 }: {
-  userAddress: `0x${string}` | undefined,
-  token: ERC20TokenInfo,
-  chainId: number
+  userAddress: `0x${string}` | undefined;
+  token: ERC20TokenInfo;
+  onClick?: (data: string) => void;
 }) {
+  const { data, isLoading } = useErc20Balance({
+    token: token,
+    owner: userAddress,
+    refetchInterval: 10000, // refetch every 5 seconds for live balance
+  });
 
-  if (!userAddress || !token)
-    return <></>
+  if (!userAddress || !token) return <></>;
 
-  const { data, isLoading } = useTokenBalance(userAddress, token.address, chainId)
+  const balanceClicked = () => {
+    if (onClick) {
+      const formattedBalance = formatUnits(data || BigInt(0), token.decimals);
+      onClick(formattedBalance);
+    }
+  };
 
   return (
-    <div className="flex items-center mt-2">
-      {(userAddress && token && isLoading) ? (
+    <div className="flex items-center">
+      {userAddress && token && isLoading ? (
         <span className="text-sm text-muted-foreground">
-          <Skeleton className="w-[100px] h-[20px] rounded" />
+          <Skeleton className="w-25 h-5 rounded" />
         </span>
       ) : (
-        <span className="text-sm ml-2">Current balance: {formatUnits(data || BigInt(0), token.decimals).toString() || "0"} {token.symbol} </span>
+        <span
+          className="text-xs ml-2 text-muted-foreground cursor-pointer"
+          onClick={balanceClicked}
+        >
+          Balance:{" "}
+          {formatValue(
+            Number(formatUnits(data || BigInt(0), token.decimals)),
+          )}{" "}
+        </span>
       )}
     </div>
-  )
+  );
 }

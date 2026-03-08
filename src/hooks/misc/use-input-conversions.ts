@@ -123,6 +123,17 @@ export const useInputConversions = ({
 
       // Convert amount1 back to human-readable format
       const amount1Human = parseFloat(position.amount1.toExact());
+
+      // If the value is unreasonably large (e.g. out-of-range position where the
+      // SDK returns near-max uint256), treat the dependent token amount as 0.
+      // An out-of-range position only requires one token, so 0 is correct here.
+      if (!isFinite(amount1Human) || amount1Human > 1e15) {
+        return {
+          token0Amount: token0Value,
+          token1Amount: "0",
+        };
+      }
+
       const roundedToken1Amount = roundDown(amount1Human, token1Decimals);
 
       return {
@@ -162,6 +173,17 @@ export const useInputConversions = ({
 
       // Convert amount0 back to human-readable format
       const amount0Human = parseFloat(position.amount0.toExact());
+
+      // If the value is unreasonably large (e.g. out-of-range position where the
+      // SDK returns near-max uint256), treat the dependent token amount as 0.
+      // An out-of-range position only requires one token, so 0 is correct here.
+      if (!isFinite(amount0Human) || amount0Human > 1e15) {
+        return {
+          token0Amount: "0",
+          token1Amount: token1Value,
+        };
+      }
+
       const roundedToken0Amount = roundDown(amount0Human, token0Decimals);
 
       return {

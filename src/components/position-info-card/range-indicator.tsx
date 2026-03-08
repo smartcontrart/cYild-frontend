@@ -172,10 +172,10 @@ export const RangeIndicator = ({
         <span>Current: {formattedCurrentPrice}</span>
         <span>Max: {formattedClosingUpperPrice}</span>
       </section>
-      <div className="w-full h-2 bg-primary/20 rounded-full relative">
+      <div className="w-full h-2 bg-muted rounded-full relative">
         {/* Concentrated range colored bar */}
         <div
-          className="h-full bg-primary rounded-full absolute"
+          className="h-full bg-primary/30 rounded-full absolute"
           style={{
             left: `${clampedConcentratedStart}%`,
             right: `${100 - clampedConcentratedEnd}%`,
@@ -183,7 +183,7 @@ export const RangeIndicator = ({
         />
         {/* Current price indicator line */}
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-foreground"
+          className="absolute top-0 bottom-0 w-0.5 bg-primary"
           style={{
             left: `${clampedCurrentPrice}%`,
           }}

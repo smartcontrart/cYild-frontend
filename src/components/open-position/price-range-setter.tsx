@@ -2,6 +2,7 @@ import { ERC20TokenInfo } from "@/utils/constants";
 import { Input } from "../ui/input";
 import { useEffect } from "react";
 import {
+  formatValue,
   nearestValidTick,
   priceToTick,
   reArrangeTokensByContractAddress,
@@ -13,7 +14,6 @@ import { useTokenPrice } from "@/hooks/use-token-price";
 import { useChainId } from "wagmi";
 
 export const PriceRangeSetter = ({
-  direction,
   min,
   setMin,
   max,
@@ -22,7 +22,6 @@ export const PriceRangeSetter = ({
   setTickUpper,
   isConcentrated = false,
 }: {
-  direction: string;
   min: string;
   setMin: (min: string) => void;
   max: string;
@@ -32,7 +31,7 @@ export const PriceRangeSetter = ({
   isConcentrated?: boolean;
 }) => {
   const chainId = useChainId();
-  const { selectedPool, selectedToken0, selectedToken1 } =
+  const { selectedPool, selectedToken0, selectedToken1, direction } =
     useNewPositionStore();
   const tokens = [
     selectedToken0 as ERC20TokenInfo,
@@ -92,8 +91,8 @@ export const PriceRangeSetter = ({
       getNearestValidPrice(basePriceRatio * maxMultiplier);
 
     // set initial min/max and ticks
-    setMin(adjustedPriceMin.toFixed(4));
-    setMax(adjustedPriceMax.toFixed(4));
+    setMin(formatValue(adjustedPriceMin));
+    setMax(formatValue(adjustedPriceMax));
     setTickLower(validTickLower);
     setTickUpper(validTickUpper);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,10 +105,10 @@ export const PriceRangeSetter = ({
       const { validTick, adjustedPrice } = getNearestValidPrice(Number(value));
       // update values
       if (isMin) {
-        setMin(adjustedPrice.toFixed(4));
+        setMin(formatValue(adjustedPrice));
         setTickLower(validTick);
       } else {
-        setMax(adjustedPrice.toFixed(4));
+        setMax(formatValue(adjustedPrice));
         setTickUpper(validTick);
       }
     }

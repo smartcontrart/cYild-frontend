@@ -25,6 +25,7 @@ import Image from "next/image";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { CompoundFeesButton } from "@/components/position-detail/position-options/compound-fees-button";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
+import { AdvancedSettingsButton } from "@/components/position-detail/position-options/advanced-settings-button";
 
 export default function PositionPage() {
   const router = useRouter();
@@ -144,9 +145,22 @@ export default function PositionPage() {
               token0Info={token0Info}
               token1Info={token1Info}
             />
-            <CollectFeesButton />
-            <CompoundFeesButton />
+            <CollectFeesButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
+            <CompoundFeesButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
             <ClosePositionButton />
+            <AdvancedSettingsButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
           </CardContent>
         </Card>
       )}

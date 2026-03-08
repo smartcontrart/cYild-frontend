@@ -19,7 +19,7 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
 
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col w-full md:w-1/3 gap-4">
         {isLoading && <Skeletons />}
         {(availablePools || []).map((poolInfo) => (
           <PoolInfo

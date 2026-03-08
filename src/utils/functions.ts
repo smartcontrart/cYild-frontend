@@ -330,3 +330,16 @@ export const waitForAllowanceChange = async (
   // Timeout reached - throw error
   throw new Error(`Allowance did not change within ${maxWaitTime}ms`);
 };
+
+export const formatValue = (value: number): string => {
+  if (value === 0) return "0";
+  if (value >= 1) return value.toFixed(4);
+
+  // Count the number of leading zeros after the decimal point
+  // e.g. 0.0005 → 3 leading zeros, 0.5 → 0 leading zeros
+  const leadingZeros = Math.max(0, Math.ceil(-Math.log10(Math.abs(value))) - 1);
+  // Show at least 3 significant digits past the leading zeros, with a minimum of 6 total decimal places
+  const decimalPlaces = Math.max(leadingZeros + 3, 6);
+
+  return value.toFixed(decimalPlaces);
+};
