@@ -42,7 +42,7 @@ export default function NewPositionPage() {
     <div className="space-y-6">
       <div className="flex flex-row gap-2 items-center">
         <HandCoins />
-        <h2 className="text-xl font-bold">Open Position</h2>
+        <h2 className="text-xl ">Open Position</h2>
       </div>
 
       <Card className="p-6">

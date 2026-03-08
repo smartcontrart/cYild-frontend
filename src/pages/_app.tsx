@@ -1,19 +1,10 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Providers } from "@/components/global/providers";
-import { Inter } from "next/font/google";
-import Link from "next/link";
-import Image from "next/image";
 import Head from "next/head";
-import { Cog, Fuel } from "lucide-react";
-import { ThemeSwitch } from "@/components/global/theme-switch";
-import CustomWalletButton from "@/components/global/custom-wallet-button";
-import { Button } from "@/components/ui/button";
-import { NetworkSwitch } from "@/components/global/network-switch";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/global/footer";
-
-const inter = Inter({ subsets: ["latin"] });
+import { Navbar } from "@/components/global/navbar";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -31,46 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Toaster />
         <div className={`flex flex-col min-h-screen bg-background `}>
           <header className="border-b">
-            <nav className="w-full lg:w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <div className="flex flex-row gap-2">
-                <Link href="/" className="hover:cursor-pointer hidden md:block">
-                  <div className=" flex flex-row gap-2 text-center items-center">
-                    <div style={{ fontFamily: "giants", fontSize: "52px" }}>
-                      YILD
-                    </div>
-                    <div className="font-kirsty pt-[12px] text-[24px] mx-auto w-full">
-                      FINANCE
-                    </div>
-                  </div>
-                </Link>
-                <Link href="/" className="hover:cursor-pointer block md:hidden">
-                  <div className="relative flex flex-col gap-0 text-center">
-                    <div
-                      style={{
-                        fontFamily: "giants",
-                        fontSize: "32px",
-                        marginTop: "-16px",
-                      }}
-                    >
-                      YILD
-                    </div>
-                    <div className="absolute -bottom-2 font-kirsty text-[16px] mx-auto w-full">
-                      FINANCE
-                    </div>
-                  </div>
-                </Link>
-              </div>
-              <div className="flex flex-row gap-2 items-center">
-                <Link href="/settings">
-                  <Button variant="outline" size="icon">
-                    <Cog />
-                  </Button>
-                </Link>
-                <ThemeSwitch />
-                <NetworkSwitch />
-                <CustomWalletButton />
-              </div>
-            </nav>
+            <Navbar />
           </header>
           <main className="w-full lg:w-7xl mx-auto px-4 py-8 grow">
             <Component {...pageProps} />

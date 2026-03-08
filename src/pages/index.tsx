@@ -35,7 +35,6 @@ export default function Home() {
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center sm:min-h-[60vh] min-h-[80vh]">
-        <YildLoading loading={!isDisconnected && !isConnected} />
         <h2 className="text-xl font-bold mb-4 text-center">
           Sign in with your wallet to continue
         </h2>
@@ -54,18 +53,11 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      <YildLoading loading={!isDisconnected && !isConnected} />
       <div className="flex justify-between items-center">
         <div className="flex flex-row gap-2">
           <WavesLadder className="self-center" />
-          <h2 className="text-xl font-bold">Positions</h2>
+          <h2 className="text-xl">Your Positions</h2>
         </div>
-        <Link href="/positions/new">
-          <Button variant="outline">
-            <Coins className="mr-1 h-4 w-4" />
-            Provide Liquidity
-          </Button>
-        </Link>
       </div>
       <Tabs
         value={openedSwitch}
