@@ -6,7 +6,7 @@ import {
   readContract,
   simulateContract,
 } from "@wagmi/core";
-import { parseUnits } from "viem";
+import { getAddress, parseUnits } from "viem";
 
 import PositionManagerABI from "@/abi/PositionManager";
 import LiquidityMathABI from "@/abi/LiquidityMath";
@@ -142,8 +142,8 @@ export const compoundFees = async (
       poolAddress,
       tickLower,
       tickUpper,
-      availableAmount0,
-      availableAmount1,
+      BigInt(availableAmount0),
+      BigInt(availableAmount1),
     ],
   });
 
@@ -215,7 +215,7 @@ export const compoundFees = async (
       abi: PositionManagerABI,
       address: getManagerContractAddressFromChainId(chainId),
       functionName: "compoundPosition",
-      args: params,
+      args: params as any,
     });
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {}
@@ -443,7 +443,7 @@ export const decreaseLiquidity = async (
       abi: PositionManagerABI,
       address: getManagerContractAddressFromChainId(chainId),
       functionName: "decreaseLiquidity",
-      args: params,
+      args: params as any,
     });
     if (simulation && simulation.result) simulationSuccess = true;
   } catch (error) {
@@ -611,7 +611,7 @@ export const getPositionFundsInfo = async (
     abi: PositionManagerABI,
     address: getManagerContractAddressFromChainId(chainId),
     functionName: "getPositionInfo",
-    args: [tokenId],
+    args: [BigInt(tokenId)],
   });
   if (res.length !== 12) {
     console.log("Invalid data format from getPositionFundsInfo");
@@ -758,7 +758,7 @@ export const closePosition = async (
       abi: PositionManagerABI,
       address: getManagerContractAddressFromChainId(chainId),
       functionName: "closePosition",
-      args: params,
+      args: params as any,
     });
     if (simulation && simulation.result) {
       simulationSuccess = true;
@@ -821,7 +821,7 @@ export const getAccountingUnitFromAddress = async (
       abi: PositionManagerABI,
       address: getManagerContractAddressFromChainId(chainId),
       functionName: "accountingUnit",
-      args: [address],
+      args: [getAddress(address)],
     });
     if (res.toString() === "")
       return {
