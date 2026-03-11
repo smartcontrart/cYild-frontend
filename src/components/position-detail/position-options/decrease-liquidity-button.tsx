@@ -17,7 +17,6 @@ import { PositionInfo } from "@/utils/interfaces/misc";
 import { ArrowRight, Minus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useConnection } from "wagmi";
 import PositionManagerABI from "@/abi/PositionManager";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import {
@@ -62,8 +61,6 @@ export const DecreaseLiquidityButton = ({
   const [selectedPercentage, setSelectedPercentage] = useState<number>(25);
   const [inputValue, setInputValue] = useState<string>("25");
 
-  const tokensReady = !!token0Info && !!token1Info;
-
   const token0Amount = formatUnits(
     positionInfo?.principal0 || BigInt(0),
     positionInfo?.token0Decimals || 18,
@@ -74,11 +71,11 @@ export const DecreaseLiquidityButton = ({
     positionInfo?.token1Decimals || 18,
   );
 
-  const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
+  const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
     position?.chainId || base.id,
   );
-  const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
+  const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
     position?.chainId || base.id,
   );

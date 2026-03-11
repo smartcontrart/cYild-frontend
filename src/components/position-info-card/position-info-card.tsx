@@ -12,10 +12,10 @@ import LazyLoader from "../ui/lazy-loader";
 import { base } from "viem/chains";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import Image from "next/image";
-import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
 import { InitialCapital } from "./initial-capital";
+import { AccumulatedFees } from "./accumulated-fees";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   const { data, error } = useContractPositionInfo({
@@ -103,8 +103,14 @@ export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
             </section>
           )}
           {position.status === "closed" && (
-            <section>
+            <section className="flex gap-5">
               <InitialCapital
+                position={position}
+                token0Info={token0Info}
+                token1Info={token1Info}
+                className="w-1/2 bg-secondary"
+              />
+              <AccumulatedFees
                 position={position}
                 token0Info={token0Info}
                 token1Info={token1Info}

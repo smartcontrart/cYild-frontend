@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import {
   ERC20TokenInfo,
   getUniswapV3FactoryContractAddressFromChainId,
-  POOL_DATA_FETCH_INTERVAL,
   VALID_FEE_TIERS,
 } from "@/utils/constants";
 import { Address } from "viem";

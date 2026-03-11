@@ -1,4 +1,4 @@
-import { roundDown, formatForDisplay } from "@/utils/functions";
+import { roundDown } from "@/utils/functions";
 
 export default function SetPercentageButtons({
   maxAmount,
@@ -11,9 +11,8 @@ export default function SetPercentageButtons({
 }) {
   const handleSetAmount = (percentage: number) => {
     const calculatedAmount = Number(maxAmount) * percentage;
-    const roundedAmount = roundDown(calculatedAmount, decimals);
-    const displayAmount = formatForDisplay(roundedAmount, decimals);
-    onSetAmount(Number(displayAmount));
+    const truncatedAmount = roundDown(calculatedAmount, Math.min(decimals, 6));
+    onSetAmount(truncatedAmount);
   };
 
   return (

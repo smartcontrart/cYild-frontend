@@ -8,7 +8,7 @@ export const useTokenPrice = (
   chainId: number,
   refetchInterval?: number,
 ) => {
-  return useQuery<string, Error>({
+  return useQuery<number | undefined, Error>({
     queryKey: ["tokenPrice", tokenAddress, chainId],
     queryFn: () => fetchTokenPrice(tokenAddress, chainId),
     refetchInterval: refetchInterval || TOKEN_LIVE_PRICE_FETCH_INTERVAL,

@@ -25,7 +25,9 @@ import Image from "next/image";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { CompoundFeesButton } from "@/components/position-detail/position-options/compound-fees-button";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
-import { AdvancedSettingsButton } from "@/components/position-detail/position-options/advanced-settings-button";
+import { InitialCapital } from "@/components/position-info-card/initial-capital";
+import { AccumulatedFees } from "@/components/position-info-card/accumulated-fees";
+import { UpdateBufferButton } from "@/components/position-detail/position-options/update-buffer-button";
 
 export default function PositionPage() {
   const router = useRouter();
@@ -99,28 +101,51 @@ export default function PositionPage() {
         token1Info={token1Info}
       />
 
-      {position?.status !== "closed" && (
-        <section className="flex gap-3 flex-col md:flex-row">
-          <Card className="md:w-1/2 p-0 overflow-hidden">
-            <CardContent className="w-full p-0 overflow-hidden">
-              <PositionValue
-                position={position as PositionInfoInterface}
-                token0Info={token0Info}
-                token1Info={token1Info}
-              />
-            </CardContent>
-          </Card>
-          <Card className="md:w-1/2 p-0 overflow-hidden">
-            <CardContent className="w-full p-0 overflow-hidden">
-              <FeesEarned
-                position={position as PositionInfoInterface}
-                token0Info={token0Info}
-                token1Info={token1Info}
-              />
-            </CardContent>
-          </Card>
-        </section>
-      )}
+      <section className="flex gap-3 flex-col md:flex-row">
+        {position?.status !== "closed" ? (
+          <>
+            <Card className="md:w-1/2 p-0 overflow-hidden">
+              <CardContent className="w-full p-0 overflow-hidden">
+                <PositionValue
+                  position={position as PositionInfoInterface}
+                  token0Info={token0Info}
+                  token1Info={token1Info}
+                />
+              </CardContent>
+            </Card>
+            <Card className="md:w-1/2 p-0 overflow-hidden">
+              <CardContent className="w-full p-0 overflow-hidden">
+                <FeesEarned
+                  position={position as PositionInfoInterface}
+                  token0Info={token0Info}
+                  token1Info={token1Info}
+                />
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <>
+            <Card className="md:w-1/2 p-0 overflow-hidden">
+              <CardContent className="w-full p-0 overflow-hidden">
+                <InitialCapital
+                  position={position as PositionInfoInterface}
+                  token0Info={token0Info}
+                  token1Info={token1Info}
+                />
+              </CardContent>
+            </Card>
+            <Card className="md:w-1/2 p-0 overflow-hidden">
+              <CardContent className="w-full p-0 overflow-hidden">
+                <AccumulatedFees
+                  position={position as PositionInfoInterface}
+                  token0Info={token0Info}
+                  token1Info={token1Info}
+                />
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </section>
       <PositionRangeDisplay
         position={position as PositionInfoInterface}
         token0Info={token0Info}
@@ -145,6 +170,11 @@ export default function PositionPage() {
               token0Info={token0Info}
               token1Info={token1Info}
             />
+            <UpdateBufferButton
+              position={position as PositionInfoInterface}
+              token0Info={token0Info}
+              token1Info={token1Info}
+            />
             <CollectFeesButton
               position={position as PositionInfoInterface}
               token0Info={token0Info}
@@ -156,11 +186,6 @@ export default function PositionPage() {
               token1Info={token1Info}
             />
             <ClosePositionButton />
-            <AdvancedSettingsButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
           </CardContent>
         </Card>
       )}
@@ -217,9 +242,16 @@ const Header = ({
                 {token1Info?.symbol}
               </LazyLoader>
             </div>
-            <div className="text-xs px-2 flex items-center bg-secondary rounded-full">
-              {(feeTier || 0) / 1000}%
-            </div>
+            <section className="flex items-center gap-3">
+              <span className="text-xs px-2 flex items-center bg-secondary rounded-full h-6">
+                {(feeTier || 0) / 1000}%
+              </span>
+              {position?.status === "closed" && (
+                <span className="h-6 text-xs flex items-center bg-destructive/10 rounded-full px-2 text-destructive">
+                  Closed
+                </span>
+              )}
+            </section>
           </div>
           <span className="text-xs text-muted-foreground flex items-center">
             #{tokenId}

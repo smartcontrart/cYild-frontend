@@ -45,7 +45,7 @@ export const PriceRangeSetter = ({
     const [token0SortedByCA, token1SortedByCA] =
       reArrangeTokensByContractAddress(tokens);
     if (
-      (token0SortedByCA.address === tokens[0].address && direction === "1p0") ||
+      (token0SortedByCA.address === tokens[0].address && direction === "0p1") ||
       (token0SortedByCA.address !== tokens[0].address && direction === "1p0")
     )
       numericPrice = 1 / numericPrice;
@@ -65,8 +65,8 @@ export const PriceRangeSetter = ({
       ),
     );
     if (
-      (token0SortedByCA.address === tokens[0].address && direction === "1p0") ||
-      (token0SortedByCA.address !== tokens[0].address && direction === "0p1")
+      (token0SortedByCA.address === tokens[0].address && direction === "0p1") ||
+      (token0SortedByCA.address !== tokens[0].address && direction === "1p0")
     )
       adjustedPrice = 1 / adjustedPrice;
     return {
@@ -77,7 +77,7 @@ export const PriceRangeSetter = ({
 
   useEffect(() => {
     const basePriceRatio =
-      direction === "0p1"
+      direction === "1p0"
         ? Number(token0Price ?? 0) / Number(token1Price ?? 1)
         : Number(token1Price ?? 0) / Number(token0Price ?? 1);
 

@@ -1,17 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Coins, WavesLadder } from "lucide-react";
-import Link from "next/link";
+import { WavesLadder } from "lucide-react";
 import { useState } from "react";
 import { useConnection } from "wagmi";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { YildLoading } from "@/components/global/yild-loading";
 import { usePositions } from "@/hooks/api/use-positions";
 import { PositionInfoCard } from "@/components/position-info-card/position-info-card";
 
 export default function Home() {
-  const { isConnected, isDisconnected } = useConnection();
+  const { isConnected } = useConnection();
   const [openedSwitch, setOpenedSwitch] = useState("opened");
 
   const { data: userPositions, isLoading: isLoadingPositions } = usePositions();
@@ -43,9 +40,9 @@ export default function Home() {
           Uniswap V3 liquidity provision. By leveraging smart algorithms and
           on-chain data, Yild Finance dynamically adjusts liquidity positions,
           optimizing yield generation while reducing impermanent loss. Whether
-          you're a passive investor or an experienced liquidity provider, our
-          platform simplifies LP management, allowing you to maximize profits
-          with minimal effort.
+          you&apos;re a passive investor or an experienced liquidity provider,
+          our platform simplifies LP management, allowing you to maximize
+          profits with minimal effort.
         </p>
       </div>
     );
@@ -73,9 +70,9 @@ export default function Home() {
       </Tabs>
       <section className="flex flex-col gap-4">
         {isLoadingPositions &&
-          [...new Array(2)].map((position) => (
+          Array.from({ length: 2 }).map((_, index) => (
             <div
-              key={position}
+              key={index}
               className="w-full h-81.75 bg-loader rounded-xl animate-pulse"
             />
           ))}

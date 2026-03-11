@@ -2,11 +2,7 @@ import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import PositionManagerABI from "@/abi/PositionManager";
 import { getManagerContractAddressFromChainId } from "@/utils/constants";
-import { base } from "viem/chains";
-import {
-  PositionInfo,
-  GetPositionInfoReturnType,
-} from "@/utils/interfaces/misc";
+import { GetPositionInfoReturnType } from "@/utils/interfaces/misc";
 
 export const useContractPositionInfo = ({
   positionTokenId,

@@ -114,6 +114,7 @@ export function nearestValidTick(tick: number, fee: number | null): number {
 }
 
 export const reArrangeTokensByContractAddress = (tokens: ERC20TokenInfo[]) => {
+  if (tokens.length === 0) return [];
   const token0Address = tokens[0].address;
   const token1Address = tokens[1].address;
   if (!token0Address || !token1Address || token0Address < token1Address)

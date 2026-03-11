@@ -1,16 +1,15 @@
 import ERC20Image from "@/components/common/erc20-image";
 import { ERC20TokenInfo } from "@/utils/constants";
-import { getERC20TokenInfo } from "@/utils/erc20";
 import {
   getAccountingUnitFromAddress,
   setAccountingUnit,
 } from "@/utils/position-manage";
 import { useEffect, useState } from "react";
 import {
-  useAccount,
   useChainId,
   useWalletClient,
   usePublicClient,
+  useConnection,
 } from "wagmi";
 import {
   Dialog,
@@ -22,14 +21,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MinusCircle, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { TokenSelector } from "@/components/token/token-selector";
 import { YildLoading } from "@/components/global/yild-loading";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Settings() {
-  const { isConnected, address, isDisconnected } = useAccount();
+  const { isConnected, address, isDisconnected } = useConnection();
   const chainId = useChainId();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
@@ -45,7 +44,7 @@ export default function Settings() {
       const fetchAccountingUnit = async () => {
         const accountingUnit = await getAccountingUnitFromAddress(
           address,
-          chainId
+          chainId,
         );
         setCurrentAccountingUnit(accountingUnit);
         if (accountingUnit && accountingUnit.address)
@@ -53,7 +52,7 @@ export default function Settings() {
       };
       fetchAccountingUnit();
     }
-  }, [address]);
+  }, [address, chainId]);
 
   const updateAccountingUnit = async () => {
     if (address && newUnitAddress && chainId) {
@@ -61,11 +60,11 @@ export default function Settings() {
         newUnitAddress,
         chainId,
         walletClient,
-        publicClient
+        publicClient,
       );
       const newAccountingUnit = await getAccountingUnitFromAddress(
         address,
-        chainId
+        chainId,
       );
       setCurrentAccountingUnit(newAccountingUnit);
       if (newAccountingUnit && newAccountingUnit.address)
@@ -127,7 +126,7 @@ export default function Settings() {
               Update Accounting Unit
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-106.25">
             <DialogHeader>
               <DialogTitle>Update Accounting Unit</DialogTitle>
               <DialogDescription>
@@ -151,7 +150,7 @@ export default function Settings() {
               <Label htmlFor="name" className="text-right">
                 New Unit
               </Label>
-              <div className="w-[200px]">
+              <div className="w-50">
                 <TokenSelector
                   chainId={chainId}
                   onSelectionChange={(info) => {

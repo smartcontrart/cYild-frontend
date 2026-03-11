@@ -4,13 +4,21 @@ import { reArrangeTokensByContractAddress } from "@/utils/functions";
 import { useAvailablePools } from "@/hooks/contracts/read/use-available-pools";
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { PoolInfo } from "./pool-info";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 export default function PoolSelector({ chainId }: { chainId: number }) {
   const { selectedToken0, selectedToken1 } = useNewPositionStore();
-  const sortedTokens = reArrangeTokensByContractAddress([
-    selectedToken0 as ERC20TokenInfo,
-    selectedToken1 as ERC20TokenInfo,
-  ]);
+  const sortedTokens = reArrangeTokensByContractAddress(
+    !selectedToken0 || !selectedToken1
+      ? []
+      : [selectedToken0 as ERC20TokenInfo, selectedToken1 as ERC20TokenInfo],
+  );
   const { data: availablePools, isLoading } = useAvailablePools({
     token0: sortedTokens[0],
     token1: sortedTokens[1],
@@ -18,8 +26,12 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
   });
 
   return (
-    <>
-      <div className="flex flex-col w-full md:w-1/3 gap-4">
+    <Card className="shadow-none w-1/3 min-h-96">
+      <CardHeader>
+        <CardTitle>Select a Pool</CardTitle>
+        <CardDescription>Choose a pool from the list below</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
         {isLoading && <Skeletons />}
         {(availablePools || []).map((poolInfo) => (
           <PoolInfo
@@ -31,8 +43,8 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
         {(availablePools || []).length === 0 && !isLoading && (
           <>No pools available for this pair. Please choose other tokens.</>
         )}{" "}
-      </div>
-    </>
+      </CardContent>
+    </Card>
   );
 }
 

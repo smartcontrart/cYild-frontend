@@ -54,7 +54,7 @@ export const RangeAndAmountSetter = () => {
         </Tabs>
       </div>
 
-      {direction === "0p1" ? (
+      {direction === "1p0" ? (
         <div>
           1 {token0.symbol} is worth{" "}
           {(Number(token0Price) / Number(token1Price)).toFixed(5)}{" "}

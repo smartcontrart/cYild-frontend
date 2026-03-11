@@ -1,6 +1,6 @@
 import { ERC20TokenInfo } from "@/utils/constants";
 import { Input } from "../ui/input";
-import { formatValue, validateNumericInput } from "@/utils/functions";
+import { validateNumericInput } from "@/utils/functions";
 import TokenLiveBalance from "../token/token-live-balance";
 import { useChainId, useConnection } from "wagmi";
 import { useTokenBalance } from "@/hooks/use-token-balance";
@@ -30,17 +30,15 @@ export const AmountSetter = () => {
   const { data: token0Price } = useTokenPrice(token0.address, chainId);
   const { data: token1Price } = useTokenPrice(token1.address, chainId);
 
-  const { data: token0Balance, isLoading: isLoadingToken0Balance } =
-    useTokenBalance(userAddress || "", token0.address, chainId);
-  const { data: token1Balance, isLoading: isLoadingToken1Balance } =
-    useTokenBalance(userAddress || "", token1.address, chainId);
-
-  const formattedToken0Balance = formatValue(
-    Number(formatUnits(token0Balance || BigInt(0), token0.decimals)),
+  const { data: token0Balance } = useTokenBalance(
+    userAddress || "",
+    token0.address,
+    chainId,
   );
-
-  const formattedToken1Balance = formatValue(
-    Number(formatUnits(token1Balance || BigInt(0), token1.decimals)),
+  const { data: token1Balance } = useTokenBalance(
+    userAddress || "",
+    token1.address,
+    chainId,
   );
 
   const { convertToken0ToToken1, convertToken1ToToken0 } = useInputConversions({
@@ -51,8 +49,8 @@ export const AmountSetter = () => {
     token0Address: token0.address,
     token1Address: token1.address,
     chainId: token0.chainId,
-    tickLower: direction === "0p1" ? tickLower : tickUpper,
-    tickUpper: direction === "0p1" ? tickUpper : tickLower,
+    tickLower: direction === "1p0" ? tickLower : tickUpper,
+    tickUpper: direction === "1p0" ? tickUpper : tickLower,
     feeTier: selectedPool?.feeTier as number,
   });
 

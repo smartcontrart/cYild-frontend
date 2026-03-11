@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Token, Price } from "@uniswap/sdk-core";
+import { Token } from "@uniswap/sdk-core";
 import {
   Pool,
   Position,

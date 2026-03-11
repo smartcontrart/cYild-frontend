@@ -50,6 +50,8 @@ export type PositionInfo = {
   poolAddress: Address;
   initialCapitalToken0: string;
   initialCapitalToken1: string;
+  totalFeesToken0: string;
+  totalFeesToken1: string;
   status: string;
   upperTick: number;
   lowerTick: number;

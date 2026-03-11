@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
-import { Cog, Coins, Home, Droplets } from "lucide-react";
+import { Cog, Home, Droplets } from "lucide-react";
 import { ThemeSwitch } from "./theme-switch";
 import { NetworkSwitch } from "./network-switch";
 import CustomWalletButton from "./custom-wallet-button";
@@ -55,6 +55,7 @@ const NavLinks = () => {
   ];
 
   const isActive = (href: string) => {
+    if (!pathname) return;
     if (href === "/") {
       return pathname === "/";
     }
@@ -70,7 +71,7 @@ const NavLinks = () => {
           className={cn(
             "px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5",
             isActive(link.href)
-              ? "bg-secondary text-foreground"
+              ? "bg-primary/20 text-foreground"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
           )}
         >
