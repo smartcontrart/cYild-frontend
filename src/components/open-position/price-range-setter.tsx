@@ -31,11 +31,10 @@ export const PriceRangeSetter = ({
   isConcentrated?: boolean;
 }) => {
   const chainId = useChainId();
-  const { selectedPool, selectedToken0, selectedToken1, direction } =
-    useNewPositionStore();
+  const { selectedPool, direction } = useNewPositionStore();
   const tokens = [
-    selectedToken0 as ERC20TokenInfo,
-    selectedToken1 as ERC20TokenInfo,
+    selectedPool?.token0 as ERC20TokenInfo,
+    selectedPool?.token1 as ERC20TokenInfo,
   ];
   const { data: token0Price } = useTokenPrice(tokens[0].address, chainId);
   const { data: token1Price } = useTokenPrice(tokens[1].address, chainId);

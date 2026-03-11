@@ -12,6 +12,12 @@ import { roundDown } from "@/utils/functions";
 import JSBI from "jsbi";
 import { zeroAddress } from "viem";
 
+// Converts a number to a plain decimal string without scientific notation.
+// e.g. 8.6e-7 → "0.00000086" instead of "8.6e-7", which parseUnits cannot handle.
+const toDecimalString = (num: number, decimals: number): string => {
+  return num.toFixed(decimals).replace(/\.?0+$/, "") || "0";
+};
+
 interface UseInputConversionsProps {
   token0Decimals: number;
   token1Decimals: number;
@@ -138,7 +144,7 @@ export const useInputConversions = ({
 
       return {
         token0Amount: token0Value,
-        token1Amount: roundedToken1Amount.toString(),
+        token1Amount: toDecimalString(roundedToken1Amount, token1Decimals),
       };
     } catch (error) {
       console.error("Error in convertToken0ToToken1:", error);
@@ -187,7 +193,7 @@ export const useInputConversions = ({
       const roundedToken0Amount = roundDown(amount0Human, token0Decimals);
 
       return {
-        token0Amount: roundedToken0Amount.toString(),
+        token0Amount: toDecimalString(roundedToken0Amount, token0Decimals),
         token1Amount: token1Value,
       };
     } catch (error) {

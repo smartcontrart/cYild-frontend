@@ -36,8 +36,6 @@ export default function NewPositionPage() {
     };
   }, [setSelectedPool, setSelectedToken0, setSelectedToken1, chainId]);
 
-  const selectedTokens = selectedToken0 && selectedToken1;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-row gap-2 items-center">
