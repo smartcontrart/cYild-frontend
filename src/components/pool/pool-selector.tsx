@@ -40,9 +40,21 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
             isLoadingPoolInfo={false}
           />
         ))}
-        {(availablePools || []).length === 0 && !isLoading && (
-          <>No pools available for this pair. Please choose other tokens.</>
-        )}{" "}
+        {selectedToken1 === undefined ? (
+          <div className="w-full h-56 flex items-center justify-center">
+            <span>Select tokens to continue</span>
+          </div>
+        ) : (
+          <>
+            {(availablePools || []).length === 0 && !isLoading && (
+              <div className="w-full h-56 flex items-center justify-center text-center">
+                <span>
+                  No pools available for this pair. Please choose other tokens.
+                </span>
+              </div>
+            )}{" "}
+          </>
+        )}
       </CardContent>
     </Card>
   );
