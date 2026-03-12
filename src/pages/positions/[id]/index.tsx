@@ -255,7 +255,6 @@ const Header = ({
           </div>
           <span className="text-xs text-muted-foreground flex items-center">
             #{tokenId}
-            <ExternalLink size={10} className="ml-2 cursor-pointer" />
           </span>
         </section>
         <Image

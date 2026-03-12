@@ -149,13 +149,15 @@ export const OpenPositionButton = () => {
       const currentTimestamp = Number(block.timestamp);
       const deadlineTimestamp = currentTimestamp + 10 * 60; // Add 10 minutes in seconds
 
+      const orderedTicks = [tickUpper, tickLower].sort((a, b) => b - a);
+
       const params = {
         _params: {
           token0: token0.address,
           token1: token1.address,
           fee: selectedPool.feeTier,
-          tickUpper: tickUpper,
-          tickLower: tickLower,
+          tickUpper: orderedTicks[0],
+          tickLower: orderedTicks[1],
           amount0Desired: parseUnits(token0Amount, token0.decimals),
           amount1Desired: parseUnits(token1Amount, token1.decimals),
           amount0Min: 0,

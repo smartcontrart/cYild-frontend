@@ -1,15 +1,18 @@
 "use client";
 
-import { WavesLadder } from "lucide-react";
+import { WavesLadder, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useConnection } from "wagmi";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { usePositions } from "@/hooks/api/use-positions";
 import { PositionInfoCard } from "@/components/position-info-card/position-info-card";
 
 export default function Home() {
   const { isConnected } = useConnection();
   const [openedSwitch, setOpenedSwitch] = useState("opened");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 4;
 
   const { data: userPositions, isLoading: isLoadingPositions } = usePositions();
 
@@ -28,6 +31,12 @@ export default function Home() {
     const dateB = new Date(b.createdAt).getTime();
     return dateB - dateA; // Sort by newest first
   });
+
+  const totalPages = Math.ceil((sortedPositions?.length ?? 0) / PAGE_SIZE);
+  const paginatedPositions = (sortedPositions ?? []).slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   if (!isConnected) {
     return (
@@ -60,6 +69,7 @@ export default function Home() {
         value={openedSwitch}
         onValueChange={(value: string) => {
           setOpenedSwitch(value);
+          setCurrentPage(1);
         }}
         className="w-full"
       >
@@ -81,10 +91,33 @@ export default function Home() {
             <span>No Positions Found</span>
           </section>
         )}
-        {(sortedPositions || []).map((position) => (
+        {paginatedPositions.map((position) => (
           <PositionInfoCard position={position} key={position.id} />
         ))}
       </section>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

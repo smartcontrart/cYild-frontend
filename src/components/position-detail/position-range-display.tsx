@@ -72,25 +72,15 @@ export const PositionRangeDisplay = ({
     token1Info?.decimals || 18,
   );
 
-  const adjustedLowerPrice =
-    direction === "0p1"
-      ? lowerPrice / Number(token1Price ?? 0)
-      : 1 / lowerPrice / Number(token1Price ?? 0);
+  const adjustedLowerPrice = direction === "0p1" ? lowerPrice : 1 / lowerPrice;
 
-  const adjustedUpperPrice =
-    direction === "0p1"
-      ? upperPrice / Number(token1Price ?? 0)
-      : 1 / upperPrice / Number(token1Price ?? 0);
+  const adjustedUpperPrice = direction === "0p1" ? upperPrice : 1 / upperPrice;
 
   const adustedClosingLowerPrice =
-    direction === "0p1"
-      ? closingLowerPrice / Number(token1Price ?? 0)
-      : 1 / closingLowerPrice / Number(token1Price ?? 0);
+    direction === "0p1" ? closingLowerPrice : 1 / closingLowerPrice;
 
   const adjustedClosingUpperPrice =
-    direction === "0p1"
-      ? closingUpperPrice / Number(token1Price ?? 0)
-      : 1 / closingUpperPrice / Number(token1Price ?? 0);
+    direction === "0p1" ? closingUpperPrice : 1 / closingUpperPrice;
 
   const currentPrice =
     direction === "0p1"
