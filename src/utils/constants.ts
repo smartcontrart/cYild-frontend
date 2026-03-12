@@ -11,7 +11,7 @@ export const USER_ERC_TOKEN_BALANCE_FETCH_INTERVAL = 15000;
 export const POSITION_INFO_FETCH_INTERVAL = 60000;
 export const POOL_DATA_FETCH_INTERVAL = 300000;
 
-export const BACKEND_API_URL = "http://3.21.154.47:3000";
+export const BACKEND_API_URL = "https://api.yild.finance";
 // export const BACKEND_API_URL = "/api/proxy";
 export const PARASWAP_API_URL = "https://api.paraswap.io/swap?version=6.2";
 export const COINGECKO_PUBLIC_API_URL = "https://api.coingecko.com/api/v3";

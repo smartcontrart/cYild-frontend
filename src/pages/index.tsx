@@ -68,7 +68,7 @@ export default function Home() {
           <TabsTrigger value="closed">Closed Positions</TabsTrigger>
         </TabsList>
       </Tabs>
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-7">
         {isLoadingPositions &&
           Array.from({ length: 2 }).map((_, index) => (
             <div
