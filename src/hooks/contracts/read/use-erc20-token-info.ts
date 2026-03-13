@@ -1,4 +1,5 @@
 import { Address, erc20Abi } from "viem";
+import { useQueryClient } from "@tanstack/react-query";
 import { useReadContracts } from "wagmi";
 import { ERC20TokenInfo } from "@/utils/constants";
 
@@ -37,7 +38,9 @@ export const useErc20TokenInfo = ({
     },
   ] as const;
 
-  const { data, isLoading, refetch, error } = useReadContracts({
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, refetch, error, queryKey } = useReadContracts({
     contracts: calls,
     query: {
       enabled: address !== undefined && chainId !== undefined,
@@ -66,10 +69,15 @@ export const useErc20TokenInfo = ({
     }
   }
 
+  const invalidateAndRefetch = async () => {
+    await queryClient.invalidateQueries({ queryKey });
+    await refetch();
+  };
+
   return {
     tokenInfo,
     isLoading,
-    refetch,
+    refetch: invalidateAndRefetch,
     error,
   } as const;
 };

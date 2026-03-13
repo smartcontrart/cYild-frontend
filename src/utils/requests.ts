@@ -7,6 +7,7 @@ import {
 import { getPositionFundsInfo } from "./position-manage";
 import { getERC20TokenInfo } from "./erc20";
 import { roundDown } from "./functions";
+import { zeroAddress } from "viem";
 
 export const getPositions = async (address: string) => {
   let temp: any = [];
@@ -140,7 +141,7 @@ export const fetchTokenPrice = async (
           : chainId === 42161
             ? "arbitrum"
             : "not-supported";
-    if (chainName === "not-supported") {
+    if (chainName === "not-supported" || tokenAddress === zeroAddress) {
       return 0;
     }
     const response = await fetch(
@@ -161,7 +162,7 @@ export const fetchTokenPrice = async (
       return Number(priceInfo[0].priceUsd);
     }
   } catch (error) {
-    console.error("Error fetching token price:", error);
+    console.log("Error fetching token price:", error);
     return 0;
   }
 };

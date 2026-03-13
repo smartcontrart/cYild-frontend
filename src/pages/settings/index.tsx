@@ -4,13 +4,16 @@ import {
   getAccountingUnitFromAddress,
   setAccountingUnit,
 } from "@/utils/position-manage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   useChainId,
   useWalletClient,
   usePublicClient,
   useConnection,
 } from "wagmi";
+import { toast } from "sonner";
+import { getExplorerUrl } from "@/utils/functions";
+import { ToastLink } from "@/components/global/toast-link";
 import {
   Dialog,
   DialogContent,
@@ -26,49 +29,51 @@ import { Label } from "@/components/ui/label";
 import { TokenSelector } from "@/components/token/token-selector";
 import { YildLoading } from "@/components/global/yild-loading";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserAccountingUnit } from "@/hooks/contracts/read/use-user-accounting-unit";
+import TokenLogo from "@/components/global/token-logo";
 
 export default function Settings() {
   const { isConnected, address, isDisconnected } = useConnection();
   const chainId = useChainId();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const [currentAccountingUnit, setCurrentAccountingUnit] =
-    useState<ERC20TokenInfo | null>(null);
-  const [currentAccountingUnitAddress, setCurrentAccountingUnitAddress] =
-    useState("");
   const [newUnitAddress, setNewUnitAddress] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (address) {
-      const fetchAccountingUnit = async () => {
-        const accountingUnit = await getAccountingUnitFromAddress(
-          address,
-          chainId,
-        );
-        setCurrentAccountingUnit(accountingUnit);
-        if (accountingUnit && accountingUnit.address)
-          setCurrentAccountingUnitAddress(accountingUnit.address);
-      };
-      fetchAccountingUnit();
-    }
-  }, [address, chainId]);
+  const { accountingUnit, refetch } = useUserAccountingUnit();
+  console.log(accountingUnit);
 
   const updateAccountingUnit = async () => {
-    if (address && newUnitAddress && chainId) {
-      await setAccountingUnit(
+    if (!address || !newUnitAddress || !chainId) return;
+
+    const loadingToast = toast.loading("Updating accounting unit...");
+    setIsLoading(true);
+    try {
+      const result = await setAccountingUnit(
         newUnitAddress,
         chainId,
         walletClient,
         publicClient,
       );
-      const newAccountingUnit = await getAccountingUnitFromAddress(
-        address,
-        chainId,
-      );
-      setCurrentAccountingUnit(newAccountingUnit);
-      if (newAccountingUnit && newAccountingUnit.address)
-        setCurrentAccountingUnitAddress(newAccountingUnit.address);
+      if (result?.success) {
+        const explorerUrl = getExplorerUrl(chainId, result.result as string);
+        await refetch();
+        toast.success(
+          <ToastLink
+            message="Accounting unit updated successfully!"
+            url={explorerUrl}
+          />,
+        );
+      } else {
+        toast.error(`Update failed: ${result?.result ?? "Unknown error"}`);
+      }
+    } catch (error: unknown) {
+      toast.error("Failed to update accounting unit");
+      console.error("updateAccountingUnit error:", error);
+    } finally {
+      toast.dismiss(loadingToast);
+      setIsLoading(false);
     }
   };
 
@@ -93,84 +98,91 @@ export default function Settings() {
   return (
     <div className="flex flex-col gap-4 items-center justify-center min-h-[60vh]">
       <div className="flex flex-col gap-4 md:flex-row">
-        <h2 className="text-xl font-bold">Cuurent Accounting Unit</h2>
-        {currentAccountingUnit ? (
-          <div className="flex flex-row gap-2 items-center text-center mx-auto">
-            <ERC20Image
-              chainId={chainId}
-              tokenAddress={currentAccountingUnitAddress as `0x${string}`}
+        <h2 className="text-xl font-bold">Current Accounting Unit</h2>
+        <div className="flex flex-row gap-2 items-center text-center mx-auto">
+          {accountingUnit && (
+            <TokenLogo
+              token={accountingUnit as ERC20TokenInfo}
+              badge={true}
+              size={25}
             />
-            <span>{currentAccountingUnit.symbol}</span>
-          </div>
-        ) : (
-          <Skeleton className="w-20" />
-        )}
+          )}
+          <span>{accountingUnit ? accountingUnit?.symbol : "N/A"}</span>
+        </div>
       </div>
       <h3 className="text-l">
         The accounting unit is the token you will get when collecting fees or
         getting liquidity out of the position.
       </h3>
-      {currentAccountingUnit && (
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={() => setDialogOpen(!dialogOpen)}
-          modal
-        >
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => setDialogOpen(true)}
-              className="mt-4 md:mt-0"
-              variant="outline"
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Update Accounting Unit
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-106.25">
-            <DialogHeader>
-              <DialogTitle>Update Accounting Unit</DialogTitle>
-              <DialogDescription>
-                Please select new accounting unit and update with connected
-                wallet.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-row justify-between items-center">
-              <Label htmlFor="name" className="text-right">
-                Current Unit
-              </Label>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={() => setDialogOpen(!dialogOpen)}
+        modal
+      >
+        <DialogTrigger asChild>
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="mt-4 md:mt-0"
+            variant="outline"
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Update Accounting Unit
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-106.25">
+          <DialogHeader>
+            <DialogTitle>Update Accounting Unit</DialogTitle>
+            <DialogDescription>
+              Please select new accounting unit and update with connected
+              wallet.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-row justify-between items-center">
+            <Label htmlFor="name" className="text-right">
+              Current Unit
+            </Label>
+            {accountingUnit ? (
               <div className="flex flex-row gap-2">
-                <ERC20Image
-                  chainId={chainId}
-                  tokenAddress={currentAccountingUnitAddress as `0x${string}`}
+                <TokenLogo
+                  token={accountingUnit as ERC20TokenInfo}
+                  badge={true}
+                  size={25}
                 />
-                <span>{currentAccountingUnit.symbol}</span>
+                <span>{accountingUnit.symbol}</span>
               </div>
+            ) : (
+              "N/A"
+            )}
+          </div>
+          <div className="flex flex-row justify-between items-center">
+            <Label htmlFor="name" className="text-right">
+              New Unit
+            </Label>
+            <div className="w-50">
+              <TokenSelector
+                chainId={chainId}
+                onSelectionChange={(info) => {
+                  if (
+                    info &&
+                    info.address &&
+                    info.address !== accountingUnit?.address
+                  ) {
+                    setNewUnitAddress(info.address);
+                  }
+                }}
+              />
             </div>
-            <div className="flex flex-row justify-between items-center">
-              <Label htmlFor="name" className="text-right">
-                New Unit
-              </Label>
-              <div className="w-50">
-                <TokenSelector
-                  chainId={chainId}
-                  onSelectionChange={(info) => {
-                    if (
-                      info &&
-                      info.address &&
-                      info.address !== currentAccountingUnit.address
-                    ) {
-                      setNewUnitAddress(info.address);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={updateAccountingUnit}>Update</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={updateAccountingUnit}
+              disabled={isLoading || !newUnitAddress}
+            >
+              {isLoading ? "Updating..." : "Update"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
