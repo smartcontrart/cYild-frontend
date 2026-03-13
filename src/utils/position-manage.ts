@@ -6,7 +6,7 @@ import {
   readContract,
   simulateContract,
 } from "@wagmi/core";
-import { getAddress, parseUnits } from "viem";
+import { getAddress, isAddress, parseUnits, zeroAddress } from "viem";
 
 import PositionManagerABI from "@/abi/PositionManager";
 import LiquidityMathABI from "@/abi/LiquidityMath";
@@ -823,12 +823,12 @@ export const getAccountingUnitFromAddress = async (
       functionName: "accountingUnit",
       args: [getAddress(address)],
     });
-    if (res.toString() === "")
+    if (!res || !isAddress(res))
       return {
         name: "UNDEFINED",
         symbol: "UNDEFINED",
         decimals: 18,
-        address: "0x0000000000000000000000000000000",
+        address: zeroAddress,
         chainId,
       } as ERC20TokenInfo;
     const tokenInfo = await getERC20TokenInfo(res, chainId);
@@ -838,7 +838,7 @@ export const getAccountingUnitFromAddress = async (
       name: "UNDEFINED",
       symbol: "UNDEFINED",
       decimals: 18,
-      address: "0x0000000000000000000000000000000",
+      address: zeroAddress,
       chainId,
     } as ERC20TokenInfo;
   }

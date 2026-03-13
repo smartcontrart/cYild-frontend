@@ -4,7 +4,7 @@ import {
   readContract,
 } from "@wagmi/core";
 import { wagmiConfig } from "@/components/global/providers";
-import { erc20Abi, parseUnits } from "viem";
+import { erc20Abi, parseUnits, zeroAddress } from "viem";
 import { ERROR_CODES } from "./types";
 import { ERC20TokenInfo } from "./constants";
 
@@ -53,7 +53,7 @@ export const getERC20TokenInfo = async (
     name: "UNDEFINED",
     symbol: "UNDEFINED",
     decimals: 18,
-    address: "0x00000000000000000000000000000000",
+    address: zeroAddress,
     chainId,
   };
 };
