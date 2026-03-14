@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ActionTriggerButton } from "./action-trigger-button";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import { useContractExecution } from "@/hooks/contracts/write/use-contract-execution";
@@ -118,10 +119,11 @@ export const CollectFeesButton = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"} disabled={isDisabled}>
-          <Coins />
-          Collect Fees
-        </Button>
+        <ActionTriggerButton
+          text="Collect Fees"
+          icon={<Coins />}
+          disabled={isDisabled}
+        />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

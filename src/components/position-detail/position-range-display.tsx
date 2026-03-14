@@ -139,7 +139,7 @@ export const PositionRangeDisplay = ({
       <CardContent className="flex flex-col">
         <section className="flex gap-3 justify-between md:h-28 flex-col md:flex-row">
           <PriceBox
-            title="Min Price"
+            title="Closing Lower Price"
             value={formattedClosingLowerPrice}
             isLoading={
               position === undefined ||
@@ -151,7 +151,7 @@ export const PositionRangeDisplay = ({
             footer={footerText}
           />
           <PriceBox
-            title="Concentrated Min Price"
+            title="Rebalancing Lower Price"
             value={formattedLowerPrice}
             footer={footerText}
             isLoading={
@@ -163,7 +163,7 @@ export const PositionRangeDisplay = ({
             }
           />
           <PriceBox
-            title="Current Price"
+            title="Price"
             value={formattedCurrentPrice}
             footer={footerText}
             isLoading={
@@ -175,7 +175,7 @@ export const PositionRangeDisplay = ({
             }
           />
           <PriceBox
-            title="Concentrated Max Price"
+            title="Rebalancing Upper Price"
             value={formattedUpperPrice}
             isLoading={
               position === undefined ||
@@ -187,7 +187,7 @@ export const PositionRangeDisplay = ({
             footer={footerText}
           />
           <PriceBox
-            title="Max Price"
+            title="Closing Upper Price"
             value={formattedClosingUpperPrice}
             isLoading={
               position === undefined ||

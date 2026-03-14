@@ -43,6 +43,7 @@ import {
 import TokenLiveBalance from "@/components/token/token-live-balance";
 import TokenLogo from "@/components/global/token-logo";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
+import { ActionTriggerButton } from "./action-trigger-button";
 
 export const IncreaseLiquidityButton = ({
   token0Info,
@@ -320,10 +321,7 @@ export const IncreaseLiquidityButton = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>
-          <Plus />
-          Increase Liquidity
-        </Button>
+        <ActionTriggerButton text="Increase Liquidity" icon={<Plus />} />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

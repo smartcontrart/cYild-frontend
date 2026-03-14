@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ActionTriggerButton } from "./action-trigger-button";
 import { useContractExecution } from "@/hooks/contracts/write/use-contract-execution";
 import {
   ERC20TokenInfo,
@@ -209,9 +209,11 @@ export const CompoundFeesButton = ({
   const isDisabled = isContractExecuting || totalFeesEarned < 1;
 
   return (
-    <Button onClick={compoundClicked} disabled={isDisabled}>
-      <BadgeDollarSignIcon />
-      Compound Fees
-    </Button>
+    <ActionTriggerButton
+      text="Compound Fees"
+      icon={<BadgeDollarSignIcon />}
+      action={compoundClicked}
+      disabled={isDisabled}
+    />
   );
 };

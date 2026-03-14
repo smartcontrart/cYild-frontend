@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ActionTriggerButton } from "./action-trigger-button";
 import { useContractExecution } from "@/hooks/contracts/write/use-contract-execution";
 import { getManagerContractAddressFromChainId } from "@/utils/constants";
 import { getExplorerUrl, roundDown } from "@/utils/functions";
@@ -155,13 +155,12 @@ export const ClosePositionButton = () => {
   };
 
   return (
-    <Button
-      variant={"destructive"}
-      onClick={closeClicked}
+    <ActionTriggerButton
+      text="Close Position"
+      icon={<X />}
+      variant="destructive"
+      action={closeClicked}
       disabled={isContractExecuting}
-    >
-      <X />
-      Close Position
-    </Button>
+    />
   );
 };

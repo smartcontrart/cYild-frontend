@@ -1,5 +1,4 @@
 "use client";
-import { Skeleton } from "@/components/ui/skeleton";
 
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { zeroAddress } from "viem";

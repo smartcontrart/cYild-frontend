@@ -43,7 +43,7 @@ const NavLinks = () => {
       icon: Home,
     },
     {
-      title: "Provide Liquidity",
+      title: "Open Position",
       href: "/positions/new",
       icon: Droplets,
     },

@@ -7,27 +7,22 @@ import TokenLogo from "@/components/global/token-logo";
 import LazyLoader from "@/components/ui/lazy-loader";
 import { useBatchFetchErc20Info } from "@/hooks/contracts/read/use-batch-fetch-erc20-info";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import { FeesEarned } from "@/components/position-info-card/fees-earned";
 import { PositionValue } from "@/components/position-info-card/position-value";
 import { Card, CardContent } from "@/components/ui/card";
-import { IncreaseLiquidityButton } from "@/components/position-detail/position-options/increase-liquidity-button";
-import { DecreaseLiquidityButton } from "@/components/position-detail/position-options/decrease-liquidity-button";
-import { CollectFeesButton } from "@/components/position-detail/position-options/collect-fees-button";
-import { ClosePositionButton } from "@/components/position-detail/position-options/close-position-button";
 import { PositionRangeDisplay } from "@/components/position-detail/position-range-display";
 import { PositionInfo } from "@/components/position-detail/position-info";
 import Link from "next/link";
 import { base } from "viem/chains";
 import Image from "next/image";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
-import { CompoundFeesButton } from "@/components/position-detail/position-options/compound-fees-button";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
 import { InitialCapital } from "@/components/position-info-card/initial-capital";
 import { AccumulatedFees } from "@/components/position-info-card/accumulated-fees";
-import { UpdateBufferButton } from "@/components/position-detail/position-options/update-buffer-button";
+import { PositionOptions } from "@/components/position-detail/position-options/position-options";
 
 export default function PositionPage() {
   const router = useRouter();
@@ -157,38 +152,7 @@ export default function PositionPage() {
         token1Info={token1Info}
       />
 
-      {position?.status !== "closed" && (
-        <Card>
-          <CardContent className="py-4 flex flex-wrap gap-5">
-            <IncreaseLiquidityButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-            <DecreaseLiquidityButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-            <UpdateBufferButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-            <CollectFeesButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-            <CompoundFeesButton
-              position={position as PositionInfoInterface}
-              token0Info={token0Info}
-              token1Info={token1Info}
-            />
-            <ClosePositionButton />
-          </CardContent>
-        </Card>
-      )}
+      {position?.status !== "closed" && <PositionOptions />}
     </div>
   );
 }

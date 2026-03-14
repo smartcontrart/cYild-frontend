@@ -41,6 +41,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ActionTriggerButton } from "./action-trigger-button";
 
 export const DecreaseLiquidityButton = ({
   token0Info,
@@ -220,10 +221,7 @@ export const DecreaseLiquidityButton = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>
-          <Minus />
-          Decrease Liquidity
-        </Button>
+        <ActionTriggerButton text="Decrease Liquidity" icon={<Minus />} />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

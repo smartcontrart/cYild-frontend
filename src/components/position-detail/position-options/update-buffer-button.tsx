@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,24 +10,30 @@ import { ERC20TokenInfo } from "@/utils/constants";
 import { PositionInfo } from "@/utils/interfaces/misc";
 import { Edit } from "lucide-react";
 import { ClosingPriceRange } from "./closing-price-range";
+import { ActionTriggerButton } from "./action-trigger-button";
 
 export const UpdateBufferButton = ({
   token0Info,
   token1Info,
   position,
+  open,
+  onOpenChange,
 }: {
   token0Info?: ERC20TokenInfo;
   token1Info?: ERC20TokenInfo;
   position: PositionInfo;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) => {
+  const isControlled = open !== undefined;
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={"outline"}>
-          <Edit />
-          Update Position Buffer
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <ActionTriggerButton text="Update Closing Prices" icon={<Edit />} />
+        </DialogTrigger>
+      )}
       <DialogContent>
         <section className="flex flex-col gap-5">
           <DialogHeader>
