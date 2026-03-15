@@ -1,9 +1,5 @@
-import ERC20Image from "@/components/common/erc20-image";
 import { ERC20TokenInfo } from "@/utils/constants";
-import {
-  getAccountingUnitFromAddress,
-  setAccountingUnit,
-} from "@/utils/position-manage";
+import { setAccountingUnit } from "@/utils/position-manage";
 import { useState } from "react";
 import {
   useChainId,
@@ -28,7 +24,6 @@ import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { TokenSelector } from "@/components/token/token-selector";
 import { YildLoading } from "@/components/global/yild-loading";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useUserAccountingUnit } from "@/hooks/contracts/read/use-user-accounting-unit";
 import TokenLogo from "@/components/global/token-logo";
 

@@ -67,32 +67,21 @@ export const ClosePositionButton = () => {
       let totalAmount1ToSwap = principal1 + feesEarned1 - protocolFee1;
 
       let _pSwapData0 = "0x",
-        _pSwapData1 = "0x",
-        _minBuyAmount0 = BigInt(0),
-        _minBuyAmount1 = BigInt(0);
+        _pSwapData1 = "0x";
       if (token0Address !== ownerAccountingUnit) {
-        const {
-          success: paraswapAPISuccess,
-          data: paraswapData,
-          destAmount,
-        } = await fetchParaswapRoute(
-          token0Address,
-          token0Decimals,
-          ownerAccountingUnit,
-          ownerAccountingUnitDecimals,
-          BigInt(totalAmount0ToSwap),
-          chainId as number,
-          userMaxSlippage,
-          getManagerContractAddressFromChainId(chainId as number),
-        );
+        const { success: paraswapAPISuccess, data: paraswapData } =
+          await fetchParaswapRoute(
+            token0Address,
+            token0Decimals,
+            ownerAccountingUnit,
+            ownerAccountingUnitDecimals,
+            BigInt(totalAmount0ToSwap),
+            chainId as number,
+            userMaxSlippage,
+            getManagerContractAddressFromChainId(chainId as number),
+          );
         if (paraswapAPISuccess) {
           _pSwapData0 = paraswapData;
-          _minBuyAmount0 = BigInt(
-            roundDown(
-              (Number(destAmount) * (10000 - userMaxSlippage)) / 10000,
-              0,
-            ),
-          );
         }
       }
       if (token1Address !== ownerAccountingUnit) {
@@ -112,12 +101,6 @@ export const ClosePositionButton = () => {
         );
         if (paraswapAPISuccess) {
           _pSwapData1 = paraswapData;
-          _minBuyAmount1 = BigInt(
-            roundDown(
-              (Number(destAmount) * (10000 - userMaxSlippage)) / 10000,
-              0,
-            ),
-          );
         }
       }
 
@@ -125,8 +108,6 @@ export const ClosePositionButton = () => {
         position.activeTokenId,
         _pSwapData0,
         _pSwapData1,
-        _minBuyAmount0,
-        _minBuyAmount1,
         userMaxSlippage,
         userMaxSlippage,
       ];

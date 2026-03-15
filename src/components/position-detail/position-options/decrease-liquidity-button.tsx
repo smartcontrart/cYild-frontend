@@ -116,9 +116,7 @@ export const DecreaseLiquidityButton = ({
       } = positionInfo;
 
       let _pSwapData0 = "0x",
-        _pSwapData1 = "0x",
-        minAmount0 = 0,
-        minAmount1 = 0;
+        _pSwapData1 = "0x";
       if (token0Address !== ownerAccountingUnit) {
         const totalAmount0ToSwap = roundDown(
           (parseInt(principal0.toString()) / 10000) * amountInBPS,
@@ -137,12 +135,6 @@ export const DecreaseLiquidityButton = ({
           position.chainId,
           userMaxSlippage,
           getManagerContractAddressFromChainId(position.chainId),
-        );
-        minAmount0 = Math.round(
-          roundDown(
-            Number(destAmount) * ((10000 - userMaxSlippage) / 10000),
-            0,
-          ),
         );
         if (paraswapAPISuccess) {
           _pSwapData0 = paraswapData;
@@ -167,12 +159,6 @@ export const DecreaseLiquidityButton = ({
           userMaxSlippage,
           getManagerContractAddressFromChainId(position.chainId),
         );
-        minAmount1 = Math.round(
-          roundDown(
-            Number(destAmount) * ((10000 - userMaxSlippage) / 10000),
-            0,
-          ),
-        );
 
         if (paraswapAPISuccess) {
           _pSwapData1 = paraswapData;
@@ -184,8 +170,6 @@ export const DecreaseLiquidityButton = ({
         amountInBPS,
         _pSwapData0,
         _pSwapData1,
-        minAmount0,
-        minAmount1,
         userMaxSlippage,
         userMaxSlippage,
       ];

@@ -5,17 +5,16 @@ import {
   getLiquidityMathContractAddressFromChainId,
   getManagerContractAddressFromChainId,
 } from "@/utils/constants";
-import { getExplorerUrl, roundDown } from "@/utils/functions";
+import { getExplorerUrl } from "@/utils/functions";
 import { getPositionFundsInfo } from "@/utils/position-manage";
 import PositionManagerABI from "@/abi/PositionManager";
 import { fetchParaswapRoute } from "@/utils/requests";
-import { BadgeDollarSignIcon, X } from "lucide-react";
+import { BadgeDollarSignIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { wagmiConfig } from "@/components/global/providers";
 import { toast } from "sonner";
 import { ToastLink } from "@/components/global/toast-link";
-import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import { usePositions } from "@/hooks/api/use-positions";
 import { readContract } from "viem/actions";
@@ -120,9 +119,7 @@ export const CompoundFeesButton = ({
       const { swapAmount0, swapAmount1, sell0For1 } = rebalanceData;
 
       let _pSwapData0 = "0x",
-        _pSwapData1 = "0x",
-        _minBuyAmount0 = BigInt(0),
-        _minBuyAmount1 = BigInt(0);
+        _pSwapData1 = "0x";
       if (sell0For1) {
         const {
           success: paraswapAPISuccess,
@@ -140,12 +137,6 @@ export const CompoundFeesButton = ({
         );
         if (paraswapAPISuccess) {
           _pSwapData0 = paraswapData;
-          _minBuyAmount0 = BigInt(
-            roundDown(
-              (Number(destAmount) * (10000 - userMaxSlippage)) / 10000,
-              0,
-            ),
-          );
         }
       } else {
         const {
@@ -164,12 +155,6 @@ export const CompoundFeesButton = ({
         );
         if (paraswapAPISuccess) {
           _pSwapData1 = paraswapData;
-          _minBuyAmount1 = BigInt(
-            roundDown(
-              (Number(destAmount) * (10000 - userMaxSlippage)) / 10000,
-              0,
-            ),
-          );
         }
       }
 
@@ -177,8 +162,6 @@ export const CompoundFeesButton = ({
         position.activeTokenId,
         _pSwapData0,
         _pSwapData1,
-        _minBuyAmount0,
-        _minBuyAmount1,
         token0MaxSlippage,
         token1MaxSlippage,
       ];

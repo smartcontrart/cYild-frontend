@@ -15,13 +15,14 @@ import { UpdateSlippageButton } from "./update-slippage-button";
 import { useApiPositionInfo } from "@/hooks/api/use-api-position-info";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Ellipsis, Edit, Minus, GaugeIcon } from "lucide-react";
+import { Ellipsis, Edit, Minus, GaugeIcon, Scale } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ActionDropdownItem } from "./action-dropdown-item";
+import { UpdateRebalancingSplitButton } from "./update-rebalancing-split-button";
 
 export const PositionOptions = () => {
   const router = useRouter();
@@ -40,8 +41,10 @@ export const PositionOptions = () => {
   const [token0Info, setToken0Info] = useState<ERC20TokenInfo | undefined>();
   const [token1Info, setToken1Info] = useState<ERC20TokenInfo | undefined>();
 
-  const [updateBufferOpen, setUpdateBufferOpen] = useState(false);
-  const [updateSlippageOpen, setUpdateSlippageOpen] = useState(false);
+  const [updateBufferOpen, setUpdateBufferOpen] = useState<boolean>(false);
+  const [updateSlippageOpen, setUpdateSlippageOpen] = useState<boolean>(false);
+  const [updateRebalancingOpen, setUpdateRebalancingOpen] =
+    useState<boolean>(false);
 
   const { token0: contractToken0, token1: contractToken1 } = usePoolData({
     poolAddress: position?.poolAddress,
@@ -106,6 +109,13 @@ export const PositionOptions = () => {
         onOpenChange={setUpdateSlippageOpen}
         position={position as PositionInfoInterface}
       />
+      <UpdateRebalancingSplitButton
+        open={updateRebalancingOpen}
+        onOpenChange={setUpdateRebalancingOpen}
+        position={position as PositionInfoInterface}
+        token0Info={token0Info}
+        token1Info={token1Info}
+      />
 
       <Card>
         <CardHeader className="flex flex-row justify-between items-center -mb-5">
@@ -129,6 +139,11 @@ export const PositionOptions = () => {
                 text="Update Slippage"
                 icon={<GaugeIcon />}
                 action={() => setUpdateSlippageOpen(true)}
+              />
+              <ActionDropdownItem
+                text="Update Rebalancing Split"
+                icon={<Scale />}
+                action={() => setUpdateRebalancingOpen(true)}
               />
             </DropdownMenuContent>
           </DropdownMenu>

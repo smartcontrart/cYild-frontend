@@ -30,6 +30,7 @@ export const ActionDropdownItem = forwardRef<
       ref={ref}
       onSelect={handleSelect}
       onClick={handleClick}
+      className="flex gap-2"
       {...props}
     >
       {icon}

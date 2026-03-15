@@ -72,9 +72,9 @@ export const SUPPORTED_CHAINS: NetworkInfo[] = [
     explorerURL: "https://basescan.org",
     image: "/networkIcons/base.png",
     positionManager:
-      "0x822B1FAdD716a7bB5ac149d0bf53f39991782F3C" as `0x${string}`,
+      "0x565666e18c625da4913b1ae7991f0459f20c33ed" as `0x${string}`,
     liquidityMath:
-      "0x3cf31d8a2F2504111EEbc6281777D0Fc3a07B156" as `0x${string}`,
+      "0x354e7c3d6473afed1a740de7a3ec46bc9eb0cde4" as `0x${string}`,
     uniswapFactory:
       "0x33128a8fC17869897dcE68Ed026d694621f6FDfD" as `0x${string}`,
     defaultTokens: [
