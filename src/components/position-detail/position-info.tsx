@@ -68,6 +68,15 @@ export const PositionInfo = ({
           value={`${(feeTier || 0) / 1000}%`}
           isLoading={position === undefined || isLoadingFeeTier}
         />
+        <ListItem
+          label="Rebalance Split"
+          value={
+            position
+              ? `${Math.round((position.lowerRangeDistribution ?? 5000) / 100)}% ${token0Info?.symbol ?? "T0"} / ${Math.round((position.upperRangeDistribution ?? 5000) / 100)}% ${token1Info?.symbol ?? "T1"}`
+              : undefined
+          }
+          isLoading={position === undefined}
+        />
       </CardContent>
     </Card>
   );

@@ -27,6 +27,9 @@ const PRESETS = [
   { label: "80/20", token0: 80 },
 ];
 
+const bpsToPercent = (bps: number) => Math.round(bps / 100);
+const percentToBps = (pct: number) => Math.round(pct * 100);
+
 export const UpdateRebalancingSplitButton = ({
   position,
   open,
@@ -43,8 +46,9 @@ export const UpdateRebalancingSplitButton = ({
   const isControlled = open !== undefined;
   const { address } = useConnection();
 
-  const rebalanceSplit: number = (position as any)?.rebalanceSplit;
-  const initialSplit: number = rebalanceSplit ?? 50;
+  const initialSplit: number = bpsToPercent(
+    position?.lowerRangeDistribution ?? 5000,
+  );
 
   const [token0Split, setToken0Split] = useState<number>(initialSplit);
   const [token0Input, setToken0Input] = useState<string>(String(initialSplit));
@@ -55,12 +59,12 @@ export const UpdateRebalancingSplitButton = ({
 
   useEffect(() => {
     if (open) {
-      const current: number = rebalanceSplit ?? 50;
+      const current = bpsToPercent(position?.lowerRangeDistribution ?? 5000);
       setToken0Split(current);
       setToken0Input(String(current));
       setToken1Input(String(100 - current));
     }
-  }, [open, rebalanceSplit]);
+  }, [open, position?.lowerRangeDistribution]);
 
   const { refetch } = useApiPositionInfo({
     positionId: position?.positionId.toString(),
@@ -122,7 +126,8 @@ export const UpdateRebalancingSplitButton = ({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            rebalanceSplit: token0Split,
+            lowerRangeDistribution: percentToBps(token0Split),
+            upperRangeDistribution: percentToBps(100 - token0Split),
             ownerAddress: address,
           }),
         },
