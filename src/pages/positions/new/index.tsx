@@ -63,15 +63,6 @@ export default function NewPositionPage() {
                 <>
                   {selectedPool && <RangeAndAmountSetter />}
                   <div className="flex justify-start gap-4 mt-4">
-                    <Button
-                      variant="outline"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // router.push("/");
-                      }}
-                    >
-                      <Undo2 /> Cancel
-                    </Button>
                     <OpenPositionButton />
                   </div>
                 </>

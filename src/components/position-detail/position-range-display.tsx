@@ -121,8 +121,8 @@ export const PositionRangeDisplay = ({
   return (
     <Card className="w-full h-auto">
       <CardHeader className="mb-0 pt-3">
-        <CardTitle className="text-sm text-muted-foreground font-normal flex items-center justify-between">
-          <span>Price Range</span>
+        <CardTitle className="text-sm text-muted-foreground font-normal flex flex-col md:flex-row md:items-center justify-between">
+          <span className="max-md:mt-2 mb-3">Price Range</span>
           <Tabs
             onValueChange={(value: string) => {
               setDirection(value as "0p1" | "1p0");
@@ -228,7 +228,7 @@ const PriceBox = ({
       {/*<span className="text-lg">{value}</span>*/}
       <LazyLoader
         isLoading={isLoading}
-        className="min-w-20 text-center min-h-5"
+        className="min-w-20 text-center min-h-5 md:my-0 my-2"
       >
         {value}
       </LazyLoader>

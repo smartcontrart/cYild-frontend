@@ -148,7 +148,7 @@ export const PositionOptions = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="py-4 flex gap-5">
+        <CardContent className="py-4 flex gap-5 md:flex-row flex-col">
           <IncreaseLiquidityButton
             position={position as PositionInfoInterface}
             token0Info={token0Info}

@@ -1,21 +1,7 @@
+import PositionManager from "@/abi/PositionManager";
+import { UniswapV3PoolABI } from "@/abi/UniswapV3Pool";
 import { Address } from "viem";
 import { useReadContract } from "wagmi";
-
-const abi = [
-  {
-    inputs: [],
-    name: "fee",
-    outputs: [
-      {
-        internalType: "uint24",
-        name: "",
-        type: "uint24",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-] as const;
 
 export const useFeeTier = ({
   poolAddress,
@@ -26,7 +12,7 @@ export const useFeeTier = ({
 }) => {
   const { data, isLoading, error, refetch, ...rest } = useReadContract({
     address: poolAddress,
-    abi: abi,
+    abi: UniswapV3PoolABI,
     functionName: "fee",
     chainId: chainId,
     query: {

@@ -39,7 +39,7 @@ export const ActionTriggerButton = forwardRef<
         onClick={handleClick}
         {...props}
         className={cn(
-          "w-1/5 h-auto rounded-lg flex-col gap-5 py-5 bg-muted border-none text-foreground",
+          "w-full md:w-1/5 h-auto rounded-lg flex-col gap-5 py-5 bg-muted border-none text-foreground",
           className,
         )}
       >

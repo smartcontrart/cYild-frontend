@@ -26,7 +26,7 @@ export default function PoolSelector({ chainId }: { chainId: number }) {
   });
 
   return (
-    <Card className="shadow-none w-1/3 min-h-96">
+    <Card className="shadow-none w-full md:w-1/3 min-h-96">
       <CardHeader>
         <CardTitle>Select a Pool</CardTitle>
         <CardDescription>Choose a pool from the list below</CardDescription>
