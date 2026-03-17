@@ -6,6 +6,7 @@ import LazyLoader from "../ui/lazy-loader";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
+import { useHistoricalTokenPrices } from "@/hooks/api/use-historical-token-prices";
 import { formatUnits, zeroAddress } from "viem";
 import { base } from "viem/chains";
 
@@ -45,24 +46,49 @@ export const PositionInfo = ({
     position?.chainId || base.id,
   );
 
+  const createdAtTimestamp = position?.createdAt
+    ? Math.floor(new Date(position.createdAt).getTime() / 1000)
+    : 0;
+
+  const tokensForHistoricalPrice = [
+    ...(token0Info ? [token0Info] : []),
+    ...(token1Info ? [token1Info] : []),
+  ];
+
+  const { data: historicalPrices, isLoading: isLoadingHistoricalPrices } =
+    useHistoricalTokenPrices({
+      tokens: tokensForHistoricalPrice,
+      timestamp: createdAtTimestamp,
+    });
+
+  const token0HistoricalPrice =
+    token0Info && historicalPrices
+      ? historicalPrices[token0Info.address.toLowerCase()]
+      : undefined;
+
+  const token1HistoricalPrice =
+    token1Info && historicalPrices
+      ? historicalPrices[token1Info.address.toLowerCase()]
+      : undefined;
+
   const token0InitialCapitalUsd =
-    token0Info && token0Price !== undefined
+    token0Info && token0HistoricalPrice !== undefined
       ? Number(
           formatUnits(
             BigInt(position.initialCapitalToken0),
             token0Info.decimals,
           ),
-        ) * token0Price
+        ) * token0HistoricalPrice
       : undefined;
 
   const token1InitialCapitalUsd =
-    token1Info && token1Price !== undefined
+    token1Info && token1HistoricalPrice !== undefined
       ? Number(
           formatUnits(
             BigInt(position.initialCapitalToken1),
             token1Info.decimals,
           ),
-        ) * token1Price
+        ) * token1HistoricalPrice
       : undefined;
 
   const { data: positionInfo, isLoading: isLoadingPositionInfo } =
@@ -92,6 +118,36 @@ export const PositionInfo = ({
   const impermanentLoss =
     currentCapitalUsd !== undefined && initialCapitalUsd !== undefined
       ? currentCapitalUsd - initialCapitalUsd
+      : undefined;
+
+  const feesEarned0Amount =
+    positionInfo && token0Info
+      ? Number(
+          formatUnits(positionInfo.feesEarned0, token0Info.decimals),
+        ).toFixed(5)
+      : undefined;
+
+  const feesEarned1Amount =
+    positionInfo && token1Info
+      ? Number(
+          formatUnits(positionInfo.feesEarned1, token1Info.decimals),
+        ).toFixed(5)
+      : undefined;
+
+  const feesEarned0Usd =
+    positionInfo && token0Info && token0Price !== undefined
+      ? (
+          Number(formatUnits(positionInfo.feesEarned0, token0Info.decimals)) *
+          token0Price
+        ).toFixed(2)
+      : undefined;
+
+  const feesEarned1Usd =
+    positionInfo && token1Info && token1Price !== undefined
+      ? (
+          Number(formatUnits(positionInfo.feesEarned1, token1Info.decimals)) *
+          token1Price
+        ).toFixed(2)
       : undefined;
 
   return (
@@ -127,8 +183,9 @@ export const PositionInfo = ({
           value={token1Info?.symbol}
           isLoading={position === undefined || token1Info === undefined}
         />
+        <div className="h-px w-full bg-border" />
         <ListItem
-          label="Token0 Initial Capital"
+          label={`${token0Info?.symbol ?? "Token 0"} Initial Capital`}
           value={
             token0InitialCapitalUsd !== undefined
               ? `$${token0InitialCapitalUsd.toFixed(2)}`
@@ -137,11 +194,11 @@ export const PositionInfo = ({
           isLoading={
             position === undefined ||
             token0Info === undefined ||
-            isLoadingToken0Price
+            isLoadingHistoricalPrices
           }
         />
         <ListItem
-          label="Token1 Initial Capital"
+          label={`${token1Info?.symbol ?? "Token 1"} Initial Capital`}
           value={
             token1InitialCapitalUsd !== undefined
               ? `$${token1InitialCapitalUsd.toFixed(2)}`
@@ -150,6 +207,32 @@ export const PositionInfo = ({
           isLoading={
             position === undefined ||
             token1Info === undefined ||
+            isLoadingHistoricalPrices
+          }
+        />
+        <ListItem
+          label={`${token0Info?.symbol ?? "Token 0"} Fees`}
+          value={
+            feesEarned0Amount !== undefined && feesEarned0Usd !== undefined
+              ? `${feesEarned0Amount} ($${feesEarned0Usd})`
+              : undefined
+          }
+          isLoading={
+            token0Info === undefined ||
+            isLoadingPositionInfo ||
+            isLoadingToken0Price
+          }
+        />
+        <ListItem
+          label={`${token1Info?.symbol ?? "Token 1"} Fees`}
+          value={
+            feesEarned1Amount !== undefined && feesEarned1Usd !== undefined
+              ? `${feesEarned1Amount} ($${feesEarned1Usd})`
+              : undefined
+          }
+          isLoading={
+            token1Info === undefined ||
+            isLoadingPositionInfo ||
             isLoadingToken1Price
           }
         />
@@ -164,6 +247,7 @@ export const PositionInfo = ({
             position === undefined ||
             token0Info === undefined ||
             token1Info === undefined ||
+            isLoadingHistoricalPrices ||
             isLoadingToken0Price ||
             isLoadingToken1Price ||
             isLoadingPositionInfo
