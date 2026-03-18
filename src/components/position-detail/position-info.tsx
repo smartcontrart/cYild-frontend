@@ -6,6 +6,7 @@ import LazyLoader from "../ui/lazy-loader";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
+import { useAllPositionFees } from "@/hooks/contracts/read/use-all-position-fees";
 import { useHistoricalTokenPrices } from "@/hooks/api/use-historical-token-prices";
 import { formatUnits, zeroAddress } from "viem";
 import { base } from "viem/chains";
@@ -120,32 +121,32 @@ export const PositionInfo = ({
       ? currentCapitalUsd - initialCapitalUsd
       : undefined;
 
+  const { data: allFees, isLoading: isLoadingAllFees } = useAllPositionFees({
+    position,
+  });
+
   const feesEarned0Amount =
-    positionInfo && token0Info
-      ? Number(
-          formatUnits(positionInfo.feesEarned0, token0Info.decimals),
-        ).toFixed(5)
+    allFees && token0Info
+      ? Number(formatUnits(allFees.feesEarned0, token0Info.decimals)).toFixed(5)
       : undefined;
 
   const feesEarned1Amount =
-    positionInfo && token1Info
-      ? Number(
-          formatUnits(positionInfo.feesEarned1, token1Info.decimals),
-        ).toFixed(5)
+    allFees && token1Info
+      ? Number(formatUnits(allFees.feesEarned1, token1Info.decimals)).toFixed(5)
       : undefined;
 
   const feesEarned0Usd =
-    positionInfo && token0Info && token0Price !== undefined
+    allFees && token0Info && token0Price !== undefined
       ? (
-          Number(formatUnits(positionInfo.feesEarned0, token0Info.decimals)) *
+          Number(formatUnits(allFees.feesEarned0, token0Info.decimals)) *
           token0Price
         ).toFixed(2)
       : undefined;
 
   const feesEarned1Usd =
-    positionInfo && token1Info && token1Price !== undefined
+    allFees && token1Info && token1Price !== undefined
       ? (
-          Number(formatUnits(positionInfo.feesEarned1, token1Info.decimals)) *
+          Number(formatUnits(allFees.feesEarned1, token1Info.decimals)) *
           token1Price
         ).toFixed(2)
       : undefined;
@@ -218,9 +219,7 @@ export const PositionInfo = ({
               : undefined
           }
           isLoading={
-            token0Info === undefined ||
-            isLoadingPositionInfo ||
-            isLoadingToken0Price
+            token0Info === undefined || isLoadingAllFees || isLoadingToken0Price
           }
         />
         <ListItem
@@ -231,9 +230,7 @@ export const PositionInfo = ({
               : undefined
           }
           isLoading={
-            token1Info === undefined ||
-            isLoadingPositionInfo ||
-            isLoadingToken1Price
+            token1Info === undefined || isLoadingAllFees || isLoadingToken1Price
           }
         />
         <ListItem

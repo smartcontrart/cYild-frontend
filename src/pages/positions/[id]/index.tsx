@@ -149,13 +149,13 @@ export default function PositionPage() {
         token0Info={token0Info}
         token1Info={token1Info}
       />
+
+      {position?.status !== "closed" && <PositionOptions />}
       <PositionInfo
         position={position as PositionInfoInterface}
         token0Info={token0Info}
         token1Info={token1Info}
       />
-
-      {position?.status !== "closed" && <PositionOptions />}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { useTokenPrice } from "@/hooks/use-token-price";
 import { zeroAddress } from "viem";
 import { base } from "viem/chains";
 import LazyLoader from "../ui/lazy-loader";
+import { RangeIndicator } from "../position-info-card/range-indicator";
 
 /**
  * Determines the number of fraction digits to display based on the value size.
@@ -199,6 +200,12 @@ export const PositionRangeDisplay = ({
             footer={footerText}
           />
         </section>
+        <RangeIndicator
+          position={position}
+          token0Info={token0Info}
+          token1Info={token1Info}
+          withText={false}
+        />
       </CardContent>
     </Card>
   );

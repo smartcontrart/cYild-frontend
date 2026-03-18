@@ -20,10 +20,12 @@ export const RangeIndicator = ({
   position,
   token0Info,
   token1Info,
+  withText = true,
 }: {
   position: PositionInfo;
   token0Info?: ERC20TokenInfo;
   token1Info?: ERC20TokenInfo;
+  withText?: boolean;
 }) => {
   const direction = "0p1";
 
@@ -38,10 +40,11 @@ export const RangeIndicator = ({
 
   // If data is not loaded yet, show loading state
   if (
-    !token0Info ||
-    !token1Info ||
-    token0Price === undefined ||
-    token1Price === undefined
+    withText &&
+    (!token0Info ||
+      !token1Info ||
+      token0Price === undefined ||
+      token1Price === undefined)
   ) {
     return (
       <div className="mt-5">
@@ -157,11 +160,13 @@ export const RangeIndicator = ({
 
   return (
     <div className="mt-5">
-      <section className="w-full flex justify-between text-muted-foreground text-xs mb-2">
-        <span>Min: {formattedClosingLowerPrice}</span>
-        <span>Current: {formattedCurrentPrice}</span>
-        <span>Max: {formattedClosingUpperPrice}</span>
-      </section>
+      {withText && (
+        <section className="w-full flex justify-between text-muted-foreground text-xs mb-2">
+          <span>Min: {formattedClosingLowerPrice}</span>
+          <span>Current: {formattedCurrentPrice}</span>
+          <span>Max: {formattedClosingUpperPrice}</span>
+        </section>
+      )}
       <div className="w-full h-2 bg-muted rounded-full relative">
         {/* Concentrated range colored bar */}
         <div
