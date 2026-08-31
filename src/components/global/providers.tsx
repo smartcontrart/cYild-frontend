@@ -17,6 +17,7 @@ if (!projectId) {
 export const wagmiConfig = createConfig(
   getDefaultConfig({
     appName: "Yild",
+    appIcon: "/logo_yild.png",
     walletConnectProjectId: projectId,
     chains: [robinhood],
     ssr: true,
@@ -30,6 +31,7 @@ export const wagmiConfig = createConfig(
       }),
       coinbaseWallet({
         appName: "Yild",
+        appLogoUrl: "/logo_yild.png",
       }),
     ],
     transports: {
@@ -62,23 +64,23 @@ function ThemedConnectKit({ children }: { children: React.ReactNode }) {
         initialChainId: robinhood.id,
       }}
       customTheme={{
-        "--ck-font-family": "cal, sans-serif",
-        "--ck-accent-color": "#D8FF2A",
-        "--ck-accent-text-color": "#0A0A0A",
+        "--ck-font-family": "Archivo, sans-serif",
+        "--ck-accent-color": "#35E06A",
+        "--ck-accent-text-color": "#0A0C0A",
         "--ck-border-radius": "0px",
         ...(mode === "dark"
           ? {
-              "--ck-body-background": "#141414",
-              "--ck-body-color": "#F6F3E8",
-              "--ck-primary-button-background": "#161616",
-              "--ck-primary-button-hover-background": "#1f1f1f",
-              "--ck-primary-button-color": "#F6F3E8",
-              "--ck-secondary-button-background": "#161616",
-              "--ck-secondary-button-color": "#F6F3E8",
+              "--ck-body-background": "#14181A",
+              "--ck-body-color": "#F2F4F7",
+              "--ck-primary-button-background": "#14181A",
+              "--ck-primary-button-hover-background": "#22271F",
+              "--ck-primary-button-color": "#F2F4F7",
+              "--ck-secondary-button-background": "#14181A",
+              "--ck-secondary-button-color": "#F2F4F7",
             }
           : {
-              "--ck-body-background": "#F6F3E8",
-              "--ck-body-color": "#0A0A0A",
+              "--ck-body-background": "#F2F4F7",
+              "--ck-body-color": "#0A0C0A",
             }),
       }}
     >

@@ -1,19 +1,51 @@
+import Image from "next/image";
+import { cn } from "@/utils/shadcn";
+
 export const YildMark = ({
-  className = "w-11 h-11",
+  className = "h-9 w-9",
+  priority = false,
 }: {
+  className?: string;
+  priority?: boolean;
+}) => {
+  return (
+    <Image
+      src="/logo_yild.png"
+      alt="Yild"
+      width={88}
+      height={88}
+      className={cn("border-[3px] border-black object-cover", className)}
+      priority={priority}
+    />
+  );
+};
+
+export const YildWordmark = ({ className }: { className?: string }) => {
+  return (
+    <span
+      className={cn(
+        "font-display leading-[0.8] tracking-[-0.045em]",
+        className,
+      )}
+    >
+      YILD
+    </span>
+  );
+};
+
+export const YildLockup = ({
+  markClassName = "h-[34px] w-[34px]",
+  wordmarkClassName = "text-[21px] tracking-[-0.04em] text-yild-ink dark:text-yild-paper",
+  className,
+}: {
+  markClassName?: string;
+  wordmarkClassName?: string;
   className?: string;
 }) => {
   return (
-    <svg
-      viewBox="0 0 88 88"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 78V10h28c16 0 28 10 28 25 0 10-5 18-14 22l18 21H50L34 54H28v24H12z" fill="#0A0A0A" />
-      <path d="M8 74V6h28c16 0 28 10 28 25 0 10-5 18-14 22l18 21H46L30 50H24v24H8z" fill="white" />
-      <path d="M24 22h10c7 0 12 4 12 9s-5 9-12 9H24V22z" fill="#D8FF2A" />
-    </svg>
+    <div className={cn("flex items-center gap-3", className)}>
+      <YildMark className={markClassName} priority />
+      <YildWordmark className={wordmarkClassName} />
+    </div>
   );
 };

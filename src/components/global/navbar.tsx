@@ -30,11 +30,8 @@ export const Navbar = () => {
     <div className="relative w-full">
       <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex flex-row items-center gap-6">
-          <Link href="/" className="hover:cursor-pointer">
-            <div className="flex flex-row items-center gap-2 text-yild-ink dark:text-yild-lime">
-              <YildMark className="h-10 w-10" />
-              <div className="text-3xl font-black tracking-tight">YILD</div>
-            </div>
+          <Link href="/" className="hover:cursor-pointer" aria-label="Yild">
+            <YildMark className="h-10 w-10" priority />
           </Link>
           <div className="hidden md:block">
             <NavLinks />
@@ -72,7 +69,7 @@ export const Navbar = () => {
                   initial={{ rotate: -90, opacity: 0 }}
                   animate={{ rotate: 0, opacity: 1 }}
                   exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ duration: 0.08 }}
                   className="flex items-center justify-center"
                 >
                   <X className="h-4 w-4" />
@@ -83,7 +80,7 @@ export const Navbar = () => {
                   initial={{ rotate: 90, opacity: 0 }}
                   animate={{ rotate: 0, opacity: 1 }}
                   exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ duration: 0.08 }}
                   className="flex items-center justify-center"
                 >
                   <Menu className="h-4 w-4" />
@@ -101,8 +98,8 @@ export const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden border-t-[3px] border-border bg-yild-lime dark:bg-card md:hidden"
+            transition={{ duration: 0.08, ease: "linear" }}
+            className="overflow-hidden border-t-[3px] border-yild-void bg-card md:hidden"
           >
             <div className="flex flex-col gap-3 px-4 py-4">
               <NavLinks onLinkClick={() => setMobileMenuOpen(false)} />

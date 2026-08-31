@@ -19,7 +19,7 @@ export const UNISWAP_GITHUB_CLOUD_URL =
   "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains";
 export const TRUSTWALLET_GITHUB_CLOUD_URL =
   "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains";
-export const FALLBACK_ERC20_IMAGE_URL = "/favicon.png";
+export const FALLBACK_ERC20_IMAGE_URL = "/logo_yild.png";
 
 const ROBINHOOD_DEFAULT_TOKENS = [
   USDG_TOKEN,
