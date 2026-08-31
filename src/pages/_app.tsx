@@ -5,26 +5,30 @@ import Head from "next/head";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/global/footer";
 import { Navbar } from "@/components/global/navbar";
+import { CityBars } from "@/components/brand/city-bars";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Yild Finance</title>
+        <title>Yild</title>
         <link rel="icon" type="image/png" href="/favicon.png" />
         <meta
           name="description"
-          content="Yild Finance is an advanced DeFi platform that automates Uniswap V3 liquidity provision, optimizing yield strategies for effortless passive income. Maximize your earnings with automated LP management."
+          content="Yild farms tokenized stocks on Robinhood Chain. Pick a ticker. Farm the range."
         />
         <meta property="og:image" content="/y.png" />
       </Head>
       <Providers>
         <Toaster />
-        <div className={`flex flex-col min-h-screen bg-background `}>
-          <header className="border-b">
+        <div className="page-texture flex min-h-screen flex-col bg-background text-foreground">
+          <header className="site-header relative overflow-hidden border-b-[3px] border-border">
+            <div className="absolute inset-0 hidden sm:block">
+              <CityBars />
+            </div>
             <Navbar />
           </header>
-          <main className="w-full lg:w-7xl mx-auto px-4 py-8 grow">
+          <main className="mx-auto w-full max-w-6xl grow px-4 py-8">
             <Component {...pageProps} />
           </main>
           <Footer />

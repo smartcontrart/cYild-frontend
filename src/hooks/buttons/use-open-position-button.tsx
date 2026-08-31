@@ -9,7 +9,7 @@ import {
 } from "@/utils/constants";
 import { Address, parseUnits } from "viem";
 import { useTokenBalance } from "../use-token-balance";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 
 interface OpenPositionState {
   text: string;
@@ -33,13 +33,13 @@ export const useOpenPositionButton = () => {
   const { data: token0Balance } = useTokenBalance(
     address || "",
     token0?.address as Address,
-    chainId || base.id,
+    chainId || DEFAULT_CHAIN_ID,
   );
 
   const { data: token1Balance } = useTokenBalance(
     address || "",
     token1?.address as Address,
-    chainId || base.id,
+    chainId || DEFAULT_CHAIN_ID,
   );
 
   const { data: token0Allowance } = useErc20Allowance({
@@ -148,7 +148,7 @@ export const useOpenPositionButton = () => {
     }
 
     return {
-      text: "Create Position",
+      text: "Farm",
       disabled: false,
       action: "open",
     };

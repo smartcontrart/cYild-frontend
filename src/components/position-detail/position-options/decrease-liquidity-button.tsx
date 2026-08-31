@@ -33,7 +33,7 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { formatUnits, zeroAddress } from "viem";
 import { useTokenPrice } from "@/hooks/use-token-price";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import {
   Card,
   CardContent,
@@ -74,11 +74,11 @@ export const DecreaseLiquidityButton = ({
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const token0Value = Number(token0Amount) * Number(token0Price);

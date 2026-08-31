@@ -3,7 +3,7 @@ import { ERC20TokenInfo } from "@/utils/constants";
 import LazyLoader from "../ui/lazy-loader";
 import { formatUnits, zeroAddress } from "viem";
 import { useTokenPrice } from "@/hooks/use-token-price";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import { LabelWrapper } from "./label-wrapper";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import { cn } from "@/utils/shadcn";
@@ -30,7 +30,7 @@ export const FeesEarned = ({
 
   const { data: positionInfo, isLoading: isLoadingPositionInfo } =
     useContractPositionInfo({
-      positionChainId: positionDetails?.chainId || base.id,
+      positionChainId: positionDetails?.chainId || DEFAULT_CHAIN_ID,
       positionTokenId: position?.activeTokenId,
     });
 
@@ -46,11 +46,11 @@ export const FeesEarned = ({
 
   const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    positionDetails?.chainId || base.id,
+    positionDetails?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    positionDetails?.chainId || base.id,
+    positionDetails?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const token0Value = Number(token0FeesEarned) * Number(token0Price);

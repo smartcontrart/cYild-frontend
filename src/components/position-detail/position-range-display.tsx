@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { useState } from "react";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import LazyLoader from "../ui/lazy-loader";
 import { RangeIndicator } from "../position-info-card/range-indicator";
 
@@ -37,11 +37,11 @@ export const PositionRangeDisplay = ({
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const footerText =

@@ -1,23 +1,23 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { useEffect } from "react";
-import PoolSelector from "@/components/pool/pool-selector";
+import { useRouter } from "next/router";
 import { RangeAndAmountSetter } from "@/components/open-position/range-and-amount-setter";
-import { HandCoins, Undo2 } from "lucide-react";
-import { TokenSelectorWrapper } from "@/components/token/token-selector-wrapper";
 import { useNewPositionStore } from "@/hooks/store/use-new-position-store";
 import { OpenPositionButton } from "@/components/open-position/open-position-button";
-import { useChainId } from "wagmi";
+import { ROBINHOOD_CHAIN_ID } from "@/utils/robinhood-chain";
+import { getStockByTicker } from "@/utils/stocks";
+import { useAvailablePools } from "@/hooks/contracts/read/use-available-pools";
+import { TickerBadge } from "@/components/brand/ticker-badge";
+import { Stamp } from "@/components/brand/stamp";
+import { useEquityQuote } from "@/hooks/api/use-equity-quote";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { ERC20TokenInfo } from "@/utils/constants";
 
 export default function NewPositionPage() {
-  const chainId = useChainId();
+  const router = useRouter();
+  const farm = getStockByTicker(router.query.stock);
   const {
     selectedToken0,
     selectedToken1,
@@ -27,50 +27,117 @@ export default function NewPositionPage() {
     setSelectedToken1,
   } = useNewPositionStore();
 
+  const { data: quote } = useEquityQuote(farm?.yahooTicker ?? null);
+
   useEffect(() => {
-    // reset values when component is unmounted
+    if (!farm) return;
+    setSelectedToken0(farm.token as ERC20TokenInfo);
+    setSelectedToken1(farm.quote as ERC20TokenInfo);
+  }, [farm, setSelectedToken0, setSelectedToken1]);
+
+  const { data: availablePools, isLoading: isLoadingPools } = useAvailablePools(
+    {
+      token0: selectedToken0,
+      token1: selectedToken1,
+      chainId: ROBINHOOD_CHAIN_ID,
+    },
+  );
+
+  useEffect(() => {
+    if (!availablePools?.length) return;
+    const preferred =
+      availablePools.find((pool) => pool.feeTier === 3000) || availablePools[0];
+    if (preferred) setSelectedPool(preferred);
+  }, [availablePools, setSelectedPool]);
+
+  useEffect(() => {
     return () => {
       setSelectedPool(undefined);
       setSelectedToken0(undefined);
       setSelectedToken1(undefined);
     };
-  }, [setSelectedPool, setSelectedToken0, setSelectedToken1, chainId]);
+  }, [setSelectedPool, setSelectedToken0, setSelectedToken1]);
+
+  if (!farm) {
+    return (
+      <div className="space-y-4 border-[3px] border-border bg-card p-8 text-card-foreground shadow-[6px_6px_0_0_var(--comic-shadow)]">
+        <h2 className="text-2xl font-black">Pick a stock first</h2>
+        <p>Farms are ticker-locked. Head back to the floor.</p>
+        <Link href="/" className="inline-block font-black uppercase underline">
+          Back to floor
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-row gap-2 items-center">
-        <HandCoins />
-        <h2 className="text-xl ">Open Position</h2>
-      </div>
+      <Link
+        href="/"
+        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-foreground hover:underline"
+      >
+        <ArrowLeft size={13} />
+        Back to floor
+      </Link>
 
-      <Card className="p-6">
-        <TokenSelectorWrapper />
-        <div className="space-y-8 flex md:flex-row flex-col md:gap-5 mt-5 items-start">
-          <PoolSelector chainId={chainId} />
-          <Card className="flex flex-col md:w-2/3 shadow-none">
-            <CardHeader>
-              <CardTitle>Set your position parameters</CardTitle>
-              <CardDescription>
-                Customize the parameters of your pool with the options below
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!selectedPool ? (
-                <div className="w-full h-56 flex items-center justify-center">
-                  <span>Select a pool to continue</span>
+      <section className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
+        <article className="border-[3px] border-border bg-yild-lime p-6 text-yild-ink shadow-[8px_8px_0_0_var(--comic-shadow)]">
+          <div className="mb-4 flex items-start justify-between">
+            <TickerBadge ticker={farm.ticker} accent={farm.accent} size="lg" />
+            <Stamp tone="ink">{farm.quote.symbol} pair</Stamp>
+          </div>
+          <h1 className="text-5xl font-black tracking-tight">{farm.ticker}</h1>
+          <p className="text-lg">{farm.name}</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.25em] text-yild-ink/60">
+            {farm.tagline}
+          </p>
+          {quote?.price != null && (
+            <div className="mt-6">
+              <div className="text-3xl font-black">
+                ${quote.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </div>
+              {quote.changePercent != null && (
+                <div className="font-black">
+                  {quote.changePercent >= 0 ? "+" : ""}
+                  {quote.changePercent.toFixed(2)}%
                 </div>
-              ) : (
-                <>
-                  {selectedPool && <RangeAndAmountSetter />}
-                  <div className="flex justify-start gap-4 mt-4">
-                    <OpenPositionButton />
-                  </div>
-                </>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      </Card>
+            </div>
+          )}
+          {selectedPool && (
+            <div className="mt-6 text-xs font-black uppercase tracking-widest">
+              Fee {(selectedPool.feeTier / 10000).toFixed(2)}%
+            </div>
+          )}
+        </article>
+
+        <article className="border-[3px] border-border bg-card p-6 text-card-foreground shadow-[8px_8px_0_0_var(--comic-shadow)]">
+          <h2 className="text-xl font-black uppercase tracking-wide">
+            Set the range
+          </h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Yild rebalances for you. You pick the band and the size.
+          </p>
+          {isLoadingPools && (
+            <div className="flex h-56 items-center justify-center font-black uppercase">
+              Scanning pool...
+            </div>
+          )}
+          {!isLoadingPools && !selectedPool && (
+            <div className="flex h-56 items-center justify-center text-center font-black uppercase">
+              Pool incoming on this pair
+            </div>
+          )}
+          {selectedPool && (
+            <>
+              <RangeAndAmountSetter />
+              <div className="mt-4">
+                <OpenPositionButton />
+              </div>
+            </>
+          )}
+        </article>
+      </section>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-pos
 import { useAllPositionFees } from "@/hooks/contracts/read/use-all-position-fees";
 import { useHistoricalTokenPrices } from "@/hooks/api/use-historical-token-prices";
 import { formatUnits, zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 
 export const PositionInfo = ({
   position,
@@ -40,11 +40,11 @@ export const PositionInfo = ({
 
   const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const createdAtTimestamp = position?.createdAt
@@ -94,7 +94,7 @@ export const PositionInfo = ({
 
   const { data: positionInfo, isLoading: isLoadingPositionInfo } =
     useContractPositionInfo({
-      positionChainId: position?.chainId || base.id,
+      positionChainId: position?.chainId || DEFAULT_CHAIN_ID,
       positionTokenId: position?.activeTokenId,
     });
 

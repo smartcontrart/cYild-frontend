@@ -1,4 +1,4 @@
-import { getNetworkDataFromChainId, SUPPORTED_CHAINS } from "@/utils/constants";
+import { SUPPORTED_CHAINS } from "@/utils/constants";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -8,32 +8,34 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import Image from "next/image";
-import { useChainId } from "wagmi";
 import { cn } from "@/utils/shadcn";
 import { Check } from "lucide-react";
-import { switchChain } from "@wagmi/core";
-import { wagmiConfig } from "./providers";
+import { NetworkInfo } from "@/utils/interfaces/misc";
+import { Stamp } from "@/components/brand/stamp";
+import { useChainId, useConnection, useSwitchChain } from "wagmi";
 
 export const NetworkSwitch = () => {
-  const chainId = useChainId();
-  const activeNetwork = getNetworkDataFromChainId(chainId);
+  const productNetwork =
+    SUPPORTED_CHAINS.find((network) => network.enabled) ?? SUPPORTED_CHAINS[0];
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-background text-foreground capitalize border">
+        <Button variant="outline" className="capitalize">
           <Image
-            src={activeNetwork.image}
-            width={20}
-            height={20}
-            alt={activeNetwork.name}
+            src={productNetwork.image}
+            width={18}
+            height={18}
+            alt={productNetwork.name}
           />
-          {activeNetwork.name}
+          <span className="hidden sm:inline">{productNetwork.name}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="md:max-w-100">
         <DialogHeader>
-          <DialogTitle>Switch Networks</DialogTitle>
+          <DialogTitle className="font-black uppercase tracking-widest">
+            Networks
+          </DialogTitle>
         </DialogHeader>
         <section className="flex flex-col gap-2">
           {SUPPORTED_CHAINS.map((network) => (
@@ -45,33 +47,40 @@ export const NetworkSwitch = () => {
   );
 };
 
-const NetworkDisplay = ({
-  network,
-}: {
-  network: { chainId: number; name: string; image: string };
-}) => {
+const NetworkDisplay = ({ network }: { network: NetworkInfo }) => {
+  const { isConnected } = useConnection();
   const chainId = useChainId();
-  const isSelectedNetwork = chainId === network.chainId;
-
-  const networkClicked = async () => {
-    await switchChain(wagmiConfig, { chainId: network.chainId });
-  };
+  const { switchChain, isPending } = useSwitchChain();
+  const disabled = Boolean(network.comingSoon) || !network.enabled;
+  const isSelectedNetwork = network.enabled && chainId === network.chainId;
 
   return (
-    <div
+    <button
+      type="button"
+      disabled={disabled || isPending}
+      onClick={() => {
+        if (disabled || !isConnected) return;
+        if (chainId !== network.chainId) {
+          switchChain({ chainId: network.chainId });
+        }
+      }}
       className={cn(
-        "flex gap-3 h-14 items-center cursor-pointer pl-2 rounded-lg relative transition-all",
-        isSelectedNetwork
-          ? "bg-primary text-primary-foreground"
-          : "hover:bg-loader",
+        "relative flex h-14 w-full items-center gap-3 border-[3px] border-border pl-2 text-left",
+        disabled
+          ? "cursor-not-allowed bg-muted text-muted-foreground opacity-80"
+          : "cursor-pointer bg-yild-lime text-yild-ink",
       )}
-      onClick={networkClicked}
     >
-      <Image src={network.image} width={30} height={30} alt={network.name} />
-      <span className="capitalize text-lg">{network.name}</span>
-      {isSelectedNetwork && (
-        <Check className="absolute right-3 text-green-500" size={20} />
+      <Image src={network.image} width={28} height={28} alt={network.name} />
+      <span className="text-lg font-black capitalize">{network.name}</span>
+      {network.comingSoon && (
+        <Stamp tone="magenta" className="absolute right-3 rotate-3">
+          Coming soon
+        </Stamp>
       )}
-    </div>
+      {isSelectedNetwork && (
+        <Check className="absolute right-3 text-yild-ink" size={20} />
+      )}
+    </button>
   );
 };

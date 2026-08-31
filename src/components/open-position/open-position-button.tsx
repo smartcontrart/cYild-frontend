@@ -22,7 +22,7 @@ import { parseUnits } from "viem";
 import { getBlock } from "@wagmi/core";
 import PositionManagerABI from "@/abi/PositionManager";
 import { useUserAccountingUnit } from "@/hooks/contracts/read/use-user-accounting-unit";
-import { useRouter } from "next/router";
+import { useAccountingUnitDialogStore } from "@/hooks/store/use-accounting-unit-dialog-store";
 
 export const OpenPositionButton = () => {
   const {
@@ -35,7 +35,9 @@ export const OpenPositionButton = () => {
     tickLower,
   } = useNewPositionStore();
 
-  const router = useRouter();
+  const setAccountingUnitOpen = useAccountingUnitDialogStore(
+    (state) => state.setOpen,
+  );
 
   const { execute: executeContract, isLoading: isContractExecuting } =
     useContractExecution();
@@ -221,7 +223,8 @@ export const OpenPositionButton = () => {
             {
               text: "Change accounting unit",
               action: () => {
-                router.push("/settings");
+                setIsDialogOpen(false);
+                setAccountingUnitOpen(true);
               },
             },
           ]}

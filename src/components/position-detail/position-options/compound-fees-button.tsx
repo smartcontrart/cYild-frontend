@@ -21,7 +21,7 @@ import { readContract } from "viem/actions";
 import LiquidityMathABI from "@/abi/LiquidityMath";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { formatUnits, zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import { PositionInfo } from "@/utils/interfaces/misc";
 
 export const CompoundFeesButton = ({
@@ -49,11 +49,11 @@ export const CompoundFeesButton = ({
 
   const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const token0FeesEarned = formatUnits(

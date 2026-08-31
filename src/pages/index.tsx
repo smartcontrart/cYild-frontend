@@ -1,123 +1,99 @@
 "use client";
 
-import { WavesLadder, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { useConnection } from "wagmi";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { useChainId, useConnection } from "wagmi";
 import { usePositions } from "@/hooks/api/use-positions";
 import { PositionInfoCard } from "@/components/position-info-card/position-info-card";
+import { StockGrid } from "@/components/stock/stock-grid";
+import { YildMark } from "@/components/brand/yild-mark";
+import CustomWalletButton from "@/components/global/custom-wallet-button";
+import { SwitchRobinhoodButton } from "@/components/global/switch-robinhood-button";
+import { Stamp } from "@/components/brand/stamp";
+import { ROBINHOOD_CHAIN_ID } from "@/utils/robinhood-chain";
 
 export default function Home() {
   const { isConnected } = useConnection();
-  const [openedSwitch, setOpenedSwitch] = useState("opened");
-  const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 4;
-
+  const chainId = useChainId();
   const { data: userPositions, isLoading: isLoadingPositions } = usePositions();
 
-  const openPositions = userPositions?.filter(
+  const openPositions = (userPositions ?? []).filter(
     (position) => position.status === "opened",
   );
-  const closedPositions = userPositions?.filter(
-    (position) => position.status === "closed",
-  );
-
-  const viewedPositions =
-    openedSwitch === "opened" ? openPositions : closedPositions;
-
-  const sortedPositions = viewedPositions?.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return dateB - dateA; // Sort by newest first
-  });
-
-  const totalPages = Math.ceil((sortedPositions?.length ?? 0) / PAGE_SIZE);
-  const paginatedPositions = (sortedPositions ?? []).slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
-
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center sm:min-h-[60vh] min-h-[80vh]">
-        <h2 className="text-xl font-bold mb-4 text-center">
-          Sign in with your wallet to continue
-        </h2>
-        <p className="text-muted-foreground sm:max-w-[60vw]">
-          Yild Finance is a cutting-edge DeFi platform designed to automate
-          Uniswap V3 liquidity provision. By leveraging smart algorithms and
-          on-chain data, Yild Finance dynamically adjusts liquidity positions,
-          optimizing yield generation while reducing impermanent loss. Whether
-          you&apos;re a passive investor or an experienced liquidity provider,
-          our platform simplifies LP management, allowing you to maximize
-          profits with minimal effort.
-        </p>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex flex-row gap-2">
-          <WavesLadder className="self-center" />
-          <h2 className="text-xl">Your Positions</h2>
-        </div>
-      </div>
-      <Tabs
-        value={openedSwitch}
-        onValueChange={(value: string) => {
-          setOpenedSwitch(value);
-          setCurrentPage(1);
-        }}
-        className="w-full"
-      >
-        <TabsList>
-          <TabsTrigger value="opened">Open Positions</TabsTrigger>
-          <TabsTrigger value="closed">Closed Positions</TabsTrigger>
-        </TabsList>
-      </Tabs>
-      <section className="flex flex-col gap-7">
-        {isLoadingPositions &&
-          Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={index}
-              className="w-full h-81.75 bg-loader rounded-xl animate-pulse"
-            />
-          ))}
-        {!isLoadingPositions && (sortedPositions || []).length === 0 && (
-          <section>
-            <span>No Positions Found</span>
-          </section>
-        )}
-        {paginatedPositions.map((position) => (
-          <PositionInfoCard position={position} key={position.id} />
-        ))}
-      </section>
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight />
-          </Button>
-        </div>
+    <div className="space-y-10">
+      {!isConnected && <ConnectHero />}
+      {isConnected && chainId !== ROBINHOOD_CHAIN_ID && <WrongNetworkBanner />}
+
+      {isConnected && (isLoadingPositions || openPositions.length > 0) && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yild-magenta">
+                Live farms
+              </p>
+              <h2 className="text-2xl font-black tracking-tight">Your positions</h2>
+            </div>
+            <Stamp tone="lime">{openPositions.length} open</Stamp>
+          </div>
+          {isLoadingPositions && (
+            <div className="grid gap-4">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-48 animate-pulse border-[3px] border-border bg-loader"
+                />
+              ))}
+            </div>
+          )}
+          {!isLoadingPositions && (
+            <div className="flex flex-col gap-4">
+              {openPositions.map((position) => (
+                <PositionInfoCard position={position} key={position.id} />
+              ))}
+            </div>
+          )}
+        </section>
       )}
+
+      <StockGrid />
     </div>
   );
 }
+
+const WrongNetworkBanner = () => {
+  return (
+    <div className="flex flex-col items-start justify-between gap-3 border-[3px] border-border bg-yild-magenta p-4 text-yild-ink shadow-[6px_6px_0_0_var(--comic-shadow)] sm:flex-row sm:items-center">
+      <div>
+        <Stamp tone="ink">Wrong chain</Stamp>
+        <p className="mt-2 font-black uppercase">Switch to Robinhood to farm.</p>
+      </div>
+      <SwitchRobinhoodButton />
+    </div>
+  );
+};
+
+const ConnectHero = () => {
+  return (
+    <section className="relative overflow-hidden border-[3px] border-border bg-yild-lime p-6 text-yild-ink shadow-[8px_8px_0_0_var(--comic-shadow)] sm:p-10">
+      <div className="absolute inset-0 opacity-50 halftone-lime" />
+      <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-xl space-y-3">
+          <div className="flex items-center gap-3">
+            <YildMark className="h-14 w-14" />
+            <Stamp tone="magenta">Robinhood chain</Stamp>
+          </div>
+          <h1 className="text-4xl font-black leading-none tracking-tight sm:text-5xl">
+            Farm stocks.
+            <br />
+            Comic timing.
+          </h1>
+          <p className="max-w-md text-sm font-medium text-yild-ink/80">
+            Automated Uniswap ranges on tokenized names like NVDA, GME and
+            SPCX. Connect, pick a ticker, farm.
+          </p>
+        </div>
+        <CustomWalletButton />
+      </div>
+    </section>
+  );
+};

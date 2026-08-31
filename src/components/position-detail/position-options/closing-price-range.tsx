@@ -17,7 +17,7 @@ import { useConnection } from "wagmi";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import LazyLoader from "@/components/ui/lazy-loader";
 import {
   Card,
@@ -53,11 +53,11 @@ export const ClosingPriceRange = ({
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const currentPrice =

@@ -24,7 +24,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatUnits, parseUnits, zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import { useConnection } from "wagmi";
 import PositionManagerABI from "@/abi/PositionManager";
 import { wagmiConfig } from "@/components/global/providers";
@@ -66,7 +66,7 @@ export const IncreaseLiquidityButton = ({
 
   const { data: contractPositionInfo } = useContractPositionInfo({
     positionTokenId: position?.activeTokenId,
-    positionChainId: position?.chainId || base.id,
+    positionChainId: position?.chainId || DEFAULT_CHAIN_ID,
   });
 
   const buttonState = useIncreaseLiquidityButton({
@@ -122,11 +122,11 @@ export const IncreaseLiquidityButton = ({
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    token0Info?.chainId || base.id,
+    token0Info?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    token1Info?.chainId || base.id,
+    token1Info?.chainId || DEFAULT_CHAIN_ID,
   );
 
   // Calculate current position amounts from principal0 and principal1
@@ -168,7 +168,7 @@ export const IncreaseLiquidityButton = ({
     token1Price: token1Price as number,
     token0Address: token0Info?.address || zeroAddress,
     token1Address: token1Info?.address || zeroAddress,
-    chainId: position?.chainId || base.id,
+    chainId: position?.chainId || DEFAULT_CHAIN_ID,
     feeTier: feeTier || 0,
     tickLower: position?.lowerTick || 0,
     tickUpper: position?.upperTick || 0,

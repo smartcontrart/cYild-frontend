@@ -7,7 +7,7 @@ import { ERC20TokenInfo } from "@/utils/constants";
 import { PositionValue } from "./position-value";
 import { FeesEarned } from "./fees-earned";
 import { RangeIndicator } from "./range-indicator";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import { useContractPositionInfo } from "@/hooks/contracts/read/use-contract-position-info";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { usePoolData } from "@/hooks/contracts/read/use-pool-data";
@@ -17,7 +17,7 @@ import { PositionHeader } from "../position-detail/position-header";
 
 export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   const { data, error } = useContractPositionInfo({
-    positionChainId: position.chainId || base.id,
+    positionChainId: position.chainId || DEFAULT_CHAIN_ID,
     positionTokenId: position.activeTokenId,
     burnedTokenIds: position.burnedTokenIds,
   });
@@ -75,7 +75,7 @@ export const PositionInfoCard = ({ position }: { position: PositionInfo }) => {
   ]);
 
   return (
-    <Card>
+    <Card className="transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--comic-shadow)]">
       <Link href={`/positions/${position.positionId}`}>
         <CardContent className="cursor-pointer w-full">
           <PositionHeader

@@ -3,7 +3,7 @@ import { ERC20TokenInfo } from "@/utils/constants";
 import { tickToPrice } from "@/utils/functions";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { zeroAddress } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 
 /**
  * Determines the number of fraction digits to display based on the value size.
@@ -31,11 +31,11 @@ export const RangeIndicator = ({
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   // If data is not loaded yet, show loading state
@@ -159,31 +159,30 @@ export const RangeIndicator = ({
   const clampedCurrentPrice = Math.max(0, Math.min(100, currentPricePercent));
 
   return (
-    <div className="mt-5">
-      {withText && (
-        <section className="w-full flex justify-between text-muted-foreground text-xs mb-2">
-          <span>Min: {formattedClosingLowerPrice}</span>
-          <span>Current: {formattedCurrentPrice}</span>
-          <span>Max: {formattedClosingUpperPrice}</span>
-        </section>
-      )}
-      <div className="w-full h-2 bg-muted rounded-full relative">
-        {/* Concentrated range colored bar */}
-        <div
-          className="h-full bg-primary/30 rounded-full absolute"
-          style={{
-            left: `${clampedConcentratedStart}%`,
-            right: `${100 - clampedConcentratedEnd}%`,
-          }}
-        />
-        {/* Current price indicator line */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-primary"
-          style={{
-            left: `${clampedCurrentPrice}%`,
-          }}
-        />
+      <div className="mt-5">
+        {withText && (
+          <section className="mb-2 flex w-full justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+            <span>Min {formattedClosingLowerPrice}</span>
+            <span>Now {formattedCurrentPrice}</span>
+            <span>Max {formattedClosingUpperPrice}</span>
+          </section>
+        )}
+        <div className="relative h-3 w-full border-[3px] border-border bg-yild-mint">
+          <div className="absolute inset-x-1 top-1/2 h-0.5 -translate-y-1/2 track-dashes" />
+          <div
+            className="absolute top-0 bottom-0 bg-yild-lime/80"
+            style={{
+              left: `${clampedConcentratedStart}%`,
+              right: `${100 - clampedConcentratedEnd}%`,
+            }}
+          />
+          <div
+            className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-border bg-yild-magenta"
+            style={{
+              left: `${clampedCurrentPrice}%`,
+            }}
+          />
+        </div>
       </div>
-    </div>
   );
 };

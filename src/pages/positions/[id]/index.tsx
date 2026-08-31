@@ -91,7 +91,7 @@ export default function PositionPage() {
         className="flex text-xs items-center gap-2 font-normal mb-5 text-muted-foreground cursor-pointer hover:underline"
       >
         <ArrowLeft size={13} className="-translate-y-0.5" />
-        Back to Positions
+        Back to floor
       </Link>
       <PositionHeader
         position={position as PositionInfoInterface}

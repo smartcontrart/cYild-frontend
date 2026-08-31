@@ -27,7 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatUnits, zeroAddress } from "viem";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { PositionInfo } from "@/utils/interfaces/misc";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import TokenLogo from "@/components/global/token-logo";
 
 export const CollectFeesButton = ({
@@ -62,12 +62,12 @@ export const CollectFeesButton = ({
 
   const { data: token0Price, isLoading: isLoadingToken0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    positionDetails?.chainId || base.id,
+    positionDetails?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const { data: token1Price, isLoading: isLoadingToken1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    positionDetails?.chainId || base.id,
+    positionDetails?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const token0Value = Number(token0FeesEarned) * Number(token0Price);

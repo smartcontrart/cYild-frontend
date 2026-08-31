@@ -140,7 +140,9 @@ export const fetchTokenPrice = async (
           ? "base"
           : chainId === 42161
             ? "arbitrum"
-            : "not-supported";
+            : chainId === 4663
+              ? "robinhood"
+              : "not-supported";
     if (chainName === "not-supported" || tokenAddress === zeroAddress) {
       return 0;
     }
@@ -151,8 +153,11 @@ export const fetchTokenPrice = async (
 
     if (data.pairs && data.pairs.length > 0) {
       const priceInfo = data.pairs
-        // filter for matching chain
-        .filter((pair: any) => pair.chainId === chainName)
+        .filter((pair: any) =>
+          chainName === "robinhood"
+            ? true
+            : pair.chainId === chainName,
+        )
         // sort uniswap to the top
         .sort((a: any, b: any) => {
           if (a.dexId === "uniswap" && b.dexId !== "uniswap") return -1;

@@ -20,6 +20,6 @@ export const usePositions = () => {
         return [];
       }
     },
-    enabled: true,
+    enabled: Boolean(address),
   });
 };

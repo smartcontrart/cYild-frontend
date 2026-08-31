@@ -32,6 +32,8 @@ export type NetworkInfo = {
   positionManager: Address;
   liquidityMath: Address;
   uniswapFactory: Address;
+  enabled: boolean;
+  comingSoon?: boolean;
   defaultTokens: Array<{
     name: string;
     symbol: string;

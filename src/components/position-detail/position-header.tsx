@@ -4,7 +4,7 @@ import { PositionInfo as PositionInfoInterface } from "@/utils/interfaces/misc";
 import { ERC20TokenInfo, getNetworkDataFromChainId } from "@/utils/constants";
 import TokenLogo from "@/components/global/token-logo";
 import LazyLoader from "@/components/ui/lazy-loader";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import Image from "next/image";
 import { useFeeTier } from "@/hooks/contracts/read/use-fee-tier";
 import { cn } from "@/utils/shadcn";
@@ -26,7 +26,7 @@ export const PositionHeader = ({
   token1Info?: ERC20TokenInfo;
   className?: string;
 }) => {
-  const networkData = getNetworkDataFromChainId(position?.chainId || base.id);
+  const networkData = getNetworkDataFromChainId(position?.chainId || DEFAULT_CHAIN_ID);
 
   const tokenId = position?.activeTokenId
     ? position?.activeTokenId
@@ -109,17 +109,17 @@ const InfoBubbles = ({
   });
 
   const { data: positionInfo } = useContractPositionInfo({
-    positionChainId: position?.chainId || base.id,
+    positionChainId: position?.chainId || DEFAULT_CHAIN_ID,
     positionTokenId: position?.activeTokenId,
   });
 
   const { data: token0Price } = useTokenPrice(
     token0Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
   const { data: token1Price } = useTokenPrice(
     token1Info?.address || zeroAddress,
-    position?.chainId || base.id,
+    position?.chainId || DEFAULT_CHAIN_ID,
   );
 
   const apr = useMemo(() => {
@@ -169,16 +169,16 @@ const InfoBubbles = ({
 
   return (
     <section className={cn("flex items-center gap-3", className)}>
-      <span className="text-xs px-2 flex items-center bg-secondary rounded-full h-6">
+      <span className="flex h-6 items-center border-[3px] border-border bg-yild-lime px-2 text-[10px] font-black uppercase tracking-widest text-yild-ink">
         {(feeTier || 0) / 10000}%
       </span>
       {apr !== undefined && (
-        <span className="text-xs px-2 flex items-center bg-emerald-500/10 rounded-full h-6 text-emerald-500 font-medium">
+        <span className="flex h-6 items-center border-[3px] border-border bg-yild-mint px-2 text-[10px] font-black uppercase tracking-widest text-yild-ink">
           {apr.toFixed(2)}% APR
         </span>
       )}
       {position?.status === "closed" && (
-        <span className="h-6 text-xs flex items-center bg-destructive/10 rounded-full px-2 text-destructive">
+        <span className="flex h-6 items-center border-[3px] border-border bg-yild-magenta px-2 text-[10px] font-black uppercase tracking-widest text-yild-ink">
           Closed
         </span>
       )}

@@ -55,7 +55,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "assets-cdn.trustwallet.com",
+        hostname: "cdn.robinhood.com",
         port: "",
       },
     ],

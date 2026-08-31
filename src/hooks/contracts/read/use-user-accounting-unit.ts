@@ -5,7 +5,7 @@ import {
   getManagerContractAddressFromChainId,
 } from "@/utils/constants";
 import { Address } from "viem";
-import { base } from "viem/chains";
+import { DEFAULT_CHAIN_ID } from "@/utils/robinhood-chain";
 import { useConnection, useReadContract } from "wagmi";
 import { useErc20TokenInfo } from "./use-erc20-token-info";
 
@@ -22,7 +22,7 @@ export const useUserAccountingUnit = () => {
     queryKey: addressQueryKey,
   } = useReadContract({
     abi: PositionManagerABI,
-    address: getManagerContractAddressFromChainId(chainId || base.id),
+    address: getManagerContractAddressFromChainId(chainId || DEFAULT_CHAIN_ID),
     functionName: "accountingUnit",
     args: [address as Address],
   });
@@ -34,7 +34,7 @@ export const useUserAccountingUnit = () => {
     error: tokenInfoError,
   } = useErc20TokenInfo({
     address: (accountingUnitAddress as Address) || ("0x0" as Address),
-    chainId: chainId || base.id,
+    chainId: chainId || DEFAULT_CHAIN_ID,
   });
 
   const refetch = async () => {
@@ -45,7 +45,7 @@ export const useUserAccountingUnit = () => {
   };
 
   const constantsTokenData = accountingUnitAddress
-    ? getDefaultTokensFromChainId(chainId || base.id).find(
+    ? getDefaultTokensFromChainId(chainId || DEFAULT_CHAIN_ID).find(
         (t) =>
           t.address.toLowerCase() ===
           (accountingUnitAddress as string).toLowerCase(),
